@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "include": [
+    "/*"
+  ],
+  "exclude": [
+    "/llms.txt",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/assets/_slug-BHtfF02U.js",
+    "/assets/about-CzzVPzrg.js",
+    "/assets/auth-D2FD0O9_.js",
+    "/assets/check-DInHJGB_.js",
+    "/assets/chevron-down-BZbTplyQ.js",
+    "/assets/circle-check-CkWQozP1.js",
+    "/assets/clock-9h7-HL2J.js",
+    "/assets/contact-BLRNNRMH.js",
+    "/assets/court-ruling-MdP4CFCl.js",
+    "/assets/dashboard-CDEv4P2g.js",
+    "/assets/denied-claim-DureiLGy.js",
+    "/assets/faq-Bp5wH7Fv.js",
+    "/assets/file-text-CnUixjyL.js",
+    "/assets/file-up-CTOUJ4iM.js",
+    "/assets/government-decision-O9cwuYVf.js",
+    "/assets/index-DhImZerk.js",
+    "/assets/lock-Bf7R8tYy.js",
+    "/assets/mail-CgV3a1Ay.js",
+    "/assets/package-check-uIvcfNO0.js",
+    "/assets/pricing-bgaFhrl7.js",
+    "/assets/privacy-C7UtVN9M.js",
+    "/assets/reconsideration-C1AroA2C.js",
+    "/assets/resources-D2d9W9jE.js",
+    "/assets/routes-wB6s16Bz.js",
+    "/assets/shield-alert-CVVpSRfO.js",
+    "/assets/shield-check-B1xd1ENY.js",
+    "/assets/sparkles-BwIUyajq.js",
+    "/assets/stamp-BTRYMrA6.js",
+    "/assets/styles-P7rSzEpM.css",
+    "/assets/terms-DpZzgAU0.js",
+    "/assets/triangle-alert-Gy_08HoU.js",
+    "/assets/workflows-D04dIlDN.js"
+  ]
+}
