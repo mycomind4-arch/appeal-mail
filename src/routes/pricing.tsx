@@ -5,15 +5,14 @@ import { SiteFooter } from "@/components/site-footer";
 export const Route = createFileRoute("/pricing")({
   head: () => ({ meta: [
     { title: "Pricing — Appeal Mail" },
-    { name: "description", content: "Simple per-mailing pricing. First-Class $3.99, Certified $8.99, Certified with Return Receipt $12.99, Registered $15.99. No subscription." },
+    { name: "description", content: "Simple per-mailing pricing. Standard $4.99, Certified $14.94, Registered $32.49. Page-count tiers available. No subscription." },
   ] }),
   component: PricingPage,
 });
 const tiers = [
-  { type: "First-Class", price: "$3.99", desc: "Standard delivery for non-urgent requests", features: ["3–5 business days", "USPS tracking included", "Professional printing & envelope", "Mailing record retained"], icon: Mail },
-  { type: "Certified", price: "$8.99", desc: "Trackable delivery with signature proof", features: ["3–5 business days", "Signature tracking", "Proof of delivery", "Mailing record retained"], icon: PackageCheck },
-  { type: "Certified + Return Receipt", price: "$12.99", desc: "Signed return receipt card mailed back to you", features: ["3–5 business days", "All Certified features", "Signed return receipt card", "Recommended for appeals"], icon: ShieldCheck, featured: true },
-  { type: "Registered", price: "$15.99", desc: "Highest security for sensitive documents", features: ["Insured delivery", "Signature required", "Highest security handling", "Mailing record retained"], icon: Stamp },
+  { type: "Standard", price: "$4.99", desc: "Standard delivery for non-urgent mail", features: ["3–7 business days", "USPS tracking included", "Professional printing & envelope", "Mailing record retained"], icon: Mail },
+  { type: "Certified", price: "$14.94", desc: "Trackable delivery with confirmation", features: ["3–7 business days", "Delivery tracking + confirmation", "Proof of delivery", "Mailing record retained"], icon: PackageCheck, featured: true },
+  { type: "Registered", price: "$32.49", desc: "Highest security for sensitive documents", features: ["5–10 business days", "Secure handling + tracking", "Insured delivery", "Signature required"], icon: Stamp },
 ];
 const faqs = [
   { q: "Is there a subscription?", a: "No. You pay per mailing — no monthly fee, no commitment." },
@@ -28,7 +27,7 @@ function PricingPage() {
         <div className="mx-auto max-w-2xl text-center"><div className="eyebrow">Simple, transparent pricing</div>
         <h1 className="mt-3 text-4xl font-bold text-indigo-700 md:text-5xl" style={{ fontFamily: "var(--font-serif)" }}>Pay per mailing. No subscription.</h1>
         <p className="mt-4 text-slate-400">Every price includes printing, paper, envelope, postage, and tracking.</p></div>
-        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">{tiers.map(({ type, price, desc, features, icon: Icon, featured }) => (
+        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{tiers.map(({ type, price, desc, features, icon: Icon, featured }) => (
           <div key={type} className={`card p-6 ${featured ? "ring-2 ring-amber-400" : ""}`}>
             {featured && <div className="badge badge-amber mb-3">Recommended</div>}
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50"><Icon size={24} className="text-indigo-700" /></div>
