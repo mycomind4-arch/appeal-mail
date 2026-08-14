@@ -11,6 +11,10 @@ import { runReadinessReview, type ReadinessReview } from "@/domain/review";
 import { assemblePacket, renderExhibitIndex, type AppealPacket } from "@/domain/packet";
 import { createProofPacket, computeHash, renderProofCertificate, type ProofPacket } from "@/domain/proof";
 
+import { extractTextFromFile, isExtractable, needsOCR } from "@/platform/text-extraction";
+import { extractDecision } from "@/platform/extract-fn";
+import { createCheckoutSession } from "@/platform/checkout-fn";
+
 const mailOptions = [
   { id: "standard" as const, label: "Standard", price: "$4.99", desc: "3–7 business days · Tracking included", icon: Mail },
   { id: "certified" as const, label: "Certified", price: "$14.94", desc: "Delivery tracking + confirmation · 3–7 days", icon: PackageCheck },
@@ -94,23 +98,44 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
     }
   }
 
-  // ── Document upload (actually works now) ──
-  function handleDocumentUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  // Extraction state
+  const [extractionError, setExtractionError] = useState<string | null>(null);
+  const [extractedFields, setExtractedFields] = useState<string[]>([]);
+
+  // ── Document upload with real extraction ──
+  async function handleDocumentUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setDocumentUploaded(true);
+    setExtractionError(null);
+    setExtractedFields([]);
     setDecision((d) => ({ ...d, documentFilename: file.name }));
 
-    // Simulate extraction (in production this would call an AI extraction service)
-    setExtracting(true);
-    setTimeout(() => {
+    if (needsOCR(file)) {
+      // Image files need OCR — not yet supported, user enters manually
       setExtracting(false);
-      // Auto-populate what we can infer from the filename
-      const nameMatch = file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ");
-      if (!decision.agency) {
-        setDecision((d) => ({ ...d, agency: nameMatch }));
+      setExtractionError("Image files require OCR. Please enter the decision details manually below.");
+      return;
+    }
+
+    setExtracting(true);
+    try {
+      const text = await extractTextFromFile(file);
+      if (!text || text.trim().length < 10) {
+        setExtracting(false);
+        setExtractionError("Could not extract text from this file. Please enter details manually.");
+        return;
       }
-    }, 1500);
+
+      // Call server-side extraction
+      const result = await extractDecision({ data: { text, decision } });
+      setDecision(result.decision);
+      setExtractedFields(result.fieldsExtracted);
+    } catch (err) {
+      setExtractionError("Extraction failed. Please enter details manually.");
+      console.error("Extraction error:", err);
+    }
+    setExtracting(false);
   }
 
   // ── Grounds management ──
@@ -393,9 +418,22 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
                   </div>
                 )}
 
-                {documentUploaded && !extracting && (
+                {extractionError && (
+                  <div className="alert alert-warning mt-4">
+                    <AlertTriangle size={16} className="inline mr-1" /> {extractionError}
+                  </div>
+                )}
+
+                {documentUploaded && !extracting && extractedFields.length > 0 && (
+                  <div className="alert alert-success mt-4">
+                    <Check size={16} className="inline mr-1" />
+                    <strong>Extracted {extractedFields.length} field(s):</strong> {extractedFields.join(", ")}
+                  </div>
+                )}
+
+                {documentUploaded && !extracting && extractedFields.length === 0 && !extractionError && (
                   <div className="alert alert-info mt-4">
-                    <strong>Document uploaded.</strong> Review the extracted details in the next step and fill in anything we missed.
+                    <strong>Document uploaded.</strong> Review the details and fill in anything we missed.
                   </div>
                 )}
 
@@ -941,10 +979,28 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
                 </div>
                 <div className="alert alert-info mt-4">
                   <CreditCard size={18} className="inline mr-2" />
-                  Secure checkout via Stripe is being connected. This is a preview of the checkout flow.
+                  Secure checkout via Stripe. You will be redirected to Stripe to complete payment.
                 </div>
-                <button className="btn-primary mt-4" onClick={() => setCheckoutPlaceholder(true)}>
-                  {checkoutPlaceholder ? "✓ Payment simulated" : "Simulate payment"}
+                <button
+                  className="btn-primary mt-4"
+                  onClick={async () => {
+                    try {
+                      const session = await createCheckoutSession({ data: {
+                        mailingMethod: mailType,
+                        appealId: "draft",
+                        recipientName: recipient.name,
+                        workflowId,
+                      }});
+                      if (session.url) {
+                        window.location.href = session.url;
+                      }
+                    } catch (err) {
+                      console.error("Checkout error:", err);
+                      alert("Could not start checkout. Stripe may not be configured yet.");
+                    }
+                  }}
+                >
+                  <CreditCard size={16} className="inline mr-1" /> Pay {mailOptions.find((m) => m.id === mailType)?.price} via Stripe
                 </button>
               </>
             )}
