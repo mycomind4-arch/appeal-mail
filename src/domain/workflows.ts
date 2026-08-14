@@ -12,6 +12,7 @@ export type WorkflowId = "denied-claim" | "government-decision" | "court-ruling"
 export type WorkflowStep =
   | "intro"
   | "document"       // upload + extract
+  | "xray"           // Appeal X-Ray cross-document analysis
   | "decision"        // review extracted decision facts
   | "timeline"        // chronology of events
   | "grounds"         // define appeal grounds
@@ -51,13 +52,13 @@ export interface WorkflowDefinition {
 }
 
 const COMMON_STEPS: WorkflowStep[] = [
-  "intro", "document", "decision", "timeline", "grounds", "evidence",
+  "intro", "document", "xray", "decision", "timeline", "grounds", "evidence",
   "arguments", "draft", "readiness", "packet", "recipient", "mailing",
   "checkout", "proof", "submitted",
 ];
 
 const COMMON_LABELS = [
-  "Start", "Document", "Decision", "Timeline", "Grounds", "Evidence",
+  "Start", "Document", "X-Ray", "Decision", "Timeline", "Grounds", "Evidence",
   "Arguments", "Draft", "Readiness", "Packet", "Recipient", "Mailing",
   "Checkout", "Proof", "Done",
 ];

@@ -1,6 +1,6 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ArrowLeft, ArrowRight, FileUp, ShieldAlert, CheckCircle2, Mail, PackageCheck, Stamp, CreditCard, Check, AlertTriangle, Clock, FileText, Link2, Scale, Gavel, Calendar, Paperclip, Send, Award, Download, Copy } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileUp, ShieldAlert, CheckCircle2, Mail, PackageCheck, Stamp, CreditCard, Check, AlertTriangle, Clock, FileText, Link2, Scale, Gavel, Calendar, Paperclip, Send, Award, Download, Copy, FileSearch } from "lucide-react";
 import { useMemo, useState, useCallback, useRef } from "react";
 import { workflows, type WorkflowId, type WorkflowDefinition } from "@/domain/workflows";
 import { createDecision, type Decision, daysUntilDeadline, deadlineStatus } from "@/domain/decision";
@@ -17,6 +17,9 @@ import { createCheckoutSession } from "@/platform/checkout-fn";
 import { saveAppeal } from "@/platform/appeal-repository";
 import type { Appeal } from "@/domain/appeal";
 import { createAppeal, updateAppeal } from "@/domain/appeal";
+import { XRayView } from "@/components/xray/xray-view";
+import { analyzeDocuments } from "@/platform/xray-fn";
+import { runXRayAnalysis, buildAppealFromXRay, type XRayResult, type AnalyzedDocument } from "@/domain/xray";
 
 const mailOptions = [
   { id: "standard" as const, label: "Standard", price: "$4.99", desc: "3–7 business days · Tracking included", icon: Mail },
@@ -83,10 +86,18 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
 
   // ── Navigation ──
   function next() {
-    if (step === 7 && !draft) setDraft(generateDraft());
-    if (step === 8) runReadiness();
-    if (step === 9 && !packet) assembleFinalPacket();
-    if (step === 13 && !proof) generateProof();
+    // Trigger X-Ray when entering that step
+    if (definition.steps[step + 1] === "xray" && !xrayResult && !xrayAnalyzing) {
+      runXRay();
+    }
+    if (definition.steps[step] === "grounds" && xrayResult) {
+      // If coming from X-Ray, grounds may already be populated
+    }
+    const nextStepIndex = step + 1;
+    if (definition.steps[nextStepIndex] === "draft" && !draft) setDraft(generateDraft());
+    if (definition.steps[nextStepIndex] === "readiness") runReadiness();
+    if (definition.steps[nextStepIndex] === "packet" && !packet) assembleFinalPacket();
+    if (definition.steps[nextStepIndex] === "proof" && !proof) generateProof();
     setStep((s) => Math.min(s + 1, totalSteps - 1));
   }
   function back() { setStep((s) => Math.max(s - 1, 0)); }
@@ -94,6 +105,7 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
   function canContinue(): boolean {
     switch (definition.steps[step]) {
       case "document": return documentUploaded || decision.agency !== undefined;
+      case "xray": return xrayResult !== null;
       case "decision": return !!decision.agency;
       case "grounds": return grounds.length > 0;
       case "recipient": return !!(recipient.name && recipient.address1 && recipient.city && recipient.state && recipient.zip);
@@ -107,6 +119,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
   const [appealId] = useState(() => crypto.randomUUID());
   const [savedToDb, setSavedToDb] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [xrayResult, setXrayResult] = useState<XRayResult | null>(null);
+  const [xrayAnalyzing, setXrayAnalyzing] = useState(false);
+  const [analyzedDocTexts, setAnalyzedDocTexts] = useState<{id: string; name: string; text: string; isDecision: boolean}[]>([]);
 
   // ── Document upload with real extraction ──
   async function handleDocumentUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -142,6 +157,97 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
       console.error("Extraction error:", err);
     }
     setExtracting(false);
+  }
+
+  // ── X-Ray analysis ──
+  async function runXRay() {
+    setXrayAnalyzing(true);
+    try {
+      // Collect all analyzed document texts
+      const docs = [
+        { id: "decision", name: decision.documentFilename || "Decision Letter", text: decision.rawText || "", isDecision: true, pageCount: 1 },
+        ...analyzedDocTexts,
+      ].filter((d) => d.text.length > 10);
+
+      if (docs.length === 0) {
+        setXrayAnalyzing(false);
+        return;
+      }
+
+      const result = await analyzeDocuments({ data: {
+        documents: docs,
+        decision,
+        evidence,
+      }});
+      setXrayResult(result);
+    } catch (err) {
+      console.error("X-Ray analysis failed:", err);
+      // Fallback: run analysis client-side
+      const docs: AnalyzedDocument[] = [
+        { id: "decision", name: decision.documentFilename || "Decision Letter", text: decision.rawText || "", pageCount: 1, isDecision: true },
+        ...analyzedDocTexts.map((d) => ({ ...d, pageCount: 1 })),
+      ].filter((d) => d.text.length > 10);
+
+      if (docs.length > 0) {
+        const result = runXRayAnalysis(docs, decision, evidence);
+        setXrayResult(result);
+      }
+    }
+    setXrayAnalyzing(false);
+  }
+
+  // Build appeal from X-Ray findings
+  function buildAppealFromFindings() {
+    if (!xrayResult) return;
+    const builtGrounds = buildAppealFromXRay(xrayResult.findings);
+    for (const bg of builtGrounds) {
+      const ground = createGround(bg.groundType, {
+        claim: bg.claim,
+        source: bg.source,
+        draftLanguage: bg.claim,
+      });
+      setGrounds((g) => [...g, ground]);
+      // Link evidence
+      for (const evId of bg.evidenceIds) {
+        setEvidence((e) => e.map((ev) => {
+          if (ev.id !== evId) return ev;
+          return { ...ev, groundIds: [...ev.groundIds, ground.id] };
+        }));
+      }
+    }
+    // Move to grounds step
+    next();
+  }
+
+  // ── Supporting document upload (for X-Ray) ──
+  const [supportingFiles, setSupportingFiles] = useState<{name: string; uploaded: boolean}[]>([]);
+
+  async function handleSupportingUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    for (const file of Array.from(files)) {
+      const id = crypto.randomUUID();
+      const name = file.name;
+      setSupportingFiles((prev) => [...prev, { name, uploaded: true }]);
+      try {
+        const text = await extractTextFromFile(file);
+        if (text && text.trim().length > 10) {
+          setAnalyzedDocTexts((prev) => [...prev, { id, name, text, isDecision: false }]);
+          // Also add as evidence
+          const ev = createEvidence("document", name, {
+            documentFilename: name,
+            uploadedAt: new Date().toISOString(),
+          });
+          setEvidence((prev) => [...prev, ev]);
+        }
+      } catch (err) {
+        console.error("Failed to extract from", name, err);
+      }
+    }
+    // Re-run X-Ray if we already have a result
+    if (xrayResult) {
+      setTimeout(() => runXRay(), 500);
+    }
   }
 
   // ── Grounds management ──
