@@ -85,68 +85,48 @@ function HomePage() {
       <SiteHeader variant="transparent" />
 
       {/* Hero */}
-      <section className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #312e81 0%, #1e1b4b 60%, #14122e 100%)" }}>
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f59e0b' fill-opacity='0.12'%3E%3Cpath d='M30 34l-4-4h8l-4 4zm0-12l-4 4h8l-4-4zM16 16h28v28H16V16zm4 4v20h20V20H20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
+      <section className="relative overflow-hidden bg-indigo-950" style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #14122e 70%, #0d0b20 100%)" }}>
+        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "url(&quot;data:image/svg+xml,%3Csvg width=&#x27;80&#x27; height=&#x27;80&#x27; viewBox=&#x27;0 0 80 80&#x27; xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3E%3Cg fill=&#x27;none&#x27; fill-rule=&#x27;evenodd&#x27;%3E%3Cg fill=&#x27;%23f59e0b&#x27; fill-opacity=&#x27;0.15&#x27;%3E%3Cpath d=&#x27;M40 42l-5-5h10l-5 5zm0-15l-5 5h10l-5-5zM20 20h40v40H20V20zm5 5v30h30V25H25z&#x27;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;)" }}></div>
         <div className="container relative py-20 md:py-28">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_.9fr]">
-            <div>
-              <div className="badge badge-amber mb-5" style={{ background: "rgba(245,158,11,.15)", color: "#fbbf24" }}>Don't let the deadline pass</div>
-              <h1 className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl" style={{ fontFamily: "var(--font-serif)" }}>
-                Appeal a denial. Don't let it stand.
-              </h1>
-              <p className="mt-6 max-w-xl text-lg leading-8 text-white/70">
-                Prepare professional appeal letters for denied claims, government decisions, and court rulings. Send physical mail with tracking and keep proof of timely filing.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/workflows/denied-claim" className="btn-amber text-base">
-                  Start an Appeal <ArrowRight size={18} />
-                </Link>
-                <a href="#workflows" className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-6 py-3.5 font-semibold text-white transition hover:bg-white/10">
-                  See what you can appeal
-                </a>
-              </div>
-              <p className="mt-5 text-sm text-white/50">Not a law firm. Not legal advice. You remain in control of the facts and final document.</p>
+          <div className="max-w-3xl">
+            <div className="badge badge-amber mb-6" style={{ background: "rgba(245,158,11,.12)", color: "#fbbf24" }}>Don't let the deadline pass</div>
+            <h1 className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl" style={{ fontFamily: "var(--font-serif)" }}>
+              Build your appeal.<br />
+              Back it with evidence.<br />
+              <span className="text-amber-400">Send it with proof.</span>
+            </h1>
+            <p className="mt-7 max-w-xl text-lg leading-8 text-white/60">
+              Appeal Mail helps you analyze an adverse decision, organize the record, identify potential issues, build a supported appeal, and send it with a permanent mailing record.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <a href="/workflows/denied-claim" className="btn-amber text-base">Start an Appeal <ArrowRight size={18} /></a>
+              <a href="#how" className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-6 py-3.5 font-semibold text-white/90 transition hover:bg-white/5">See how it works</a>
             </div>
+            <p className="mt-6 text-sm text-white/40">Not a law firm. Not legal advice. You remain in control of the facts and final document.</p>
+          </div>
+        </div>
 
-            {/* Visual mockup */}
-            <div className="relative hidden lg:block">
-              <div className="card relative p-6 shadow-2xl">
-                <div className="flex items-center gap-3 border-b border-warm-border pb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-700">
-                    <Scale size={20} className="text-amber-400" />
+        {/* Visual flow: DECISION → X-RAY → TIMELINE → STRESS TEST → EVIDENCE → APPEAL → PROOF */}
+        <div className="border-t border-white/5 bg-black/10">
+          <div className="container py-6">
+            <div className="flex items-center gap-3 overflow-x-auto">
+              {[
+                { label: "Decision", icon: FileText },
+                { label: "Appeal X-Ray", icon: Scale },
+                { label: "Timeline", icon: CalendarClock },
+                { label: "Stress Test", icon: ShieldAlert },
+                { label: "Evidence", icon: FileSearch },
+                { label: "Appeal", icon: Gavel },
+                { label: "Proof", icon: ShieldCheck },
+              ].map((item, i, arr) => (
+                <div key={item.label} className="flex items-center gap-3 flex-shrink-0">
+                  <div className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-2">
+                    <item.icon size={16} className="text-amber-400" />
+                    <span className="text-sm font-medium text-white/70">{item.label}</span>
                   </div>
-                  <div>
-                    <p className="font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Your appeal workflow</p>
-                    <p className="text-sm text-slate-400">From denial to filed appeal</p>
-                  </div>
+                  {i < arr.length - 1 && <ArrowRight size={14} className="text-white/20" />}
                 </div>
-                <div className="mt-5 space-y-3">
-                  {[
-                    { icon: FileUp, text: "Upload the denial or decision letter", done: true },
-                    { icon: FileText, text: "State grounds and organize the facts", done: true },
-                    { icon: Sparkles, text: "Draft and edit your appeal letter", done: true },
-                    { icon: Send, text: "Mail certified with return receipt", done: false },
-                  ].map(({ icon: Icon, text, done }) => (
-                    <div key={text} className="flex items-center gap-3 text-sm">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${done ? "bg-amber-50" : "bg-gray-100"}`}>
-                        <Icon size={15} className={done ? "text-amber-600" : "text-gray-400"} />
-                      </div>
-                      <span className={done ? "text-indigo-700" : "text-slate-400"}>{text}</span>
-                      {done && <CheckCircle2 size={15} className="ml-auto text-amber-500" />}
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-5 flex items-center justify-between rounded-xl bg-indigo-50 px-4 py-3">
-                  <div className="flex items-center gap-2 text-sm text-indigo-500">
-                    <PackageCheck size={16} className="text-amber-500" />
-                    <span>Proof of timely filing</span>
-                  </div>
-                  <span className="badge badge-green">Ready</span>
-                </div>
-              </div>
-              <div className="absolute -bottom-3 -right-3 flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-lg">
-                <Stamp size={16} /> Return receipt
-              </div>
+              ))}
             </div>
           </div>
         </div>

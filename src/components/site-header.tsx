@@ -8,17 +8,17 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
 
   return (
     <header className={`sticky top-0 z-50 border-b transition-all ${transparent ? "border-transparent bg-transparent" : "border-warm-border bg-white/95 backdrop-blur-sm"}`}>
-      <div className="container flex min-h-16 items-center justify-between py-3">
+      <div className="container flex min-h-14 items-center justify-between py-3">
         <Link to="/" className="flex items-center gap-2.5">
-          <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${transparent ? "bg-white/15" : "bg-indigo-700"}`}>
-            <Scale size={18} className={transparent ? "text-amber-400" : "text-amber-400"} />
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md ${transparent ? "bg-white/10" : "bg-indigo-700"}`}>
+            <Scale size={16} className="text-amber-400" />
           </div>
-          <span className={`text-lg font-bold tracking-tight ${transparent ? "text-white" : "text-indigo-700"}`} style={{ fontFamily: "var(--font-serif)" }}>
+          <span className={`text-base font-bold tracking-tight ${transparent ? "text-white" : "text-indigo-700"}`} style={{ fontFamily: "var(--font-serif)" }}>
             Appeal Mail
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex">
+        <nav className="hidden items-center gap-6 md:flex">
           {[
             { label: "How it works", href: "/#how" },
             { label: "What you can appeal", href: "/#workflows" },
@@ -26,23 +26,23 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
             { label: "Resources", href: "/resources" },
             { label: "FAQ", href: "/faq" },
           ].map((item) => (
-            <a key={item.label} href={item.href} className={`text-sm font-medium transition-colors ${transparent ? "text-white/80 hover:text-white" : "text-indigo-500 hover:text-indigo-700"}`}>
+            <a key={item.label} href={item.href} className={`text-sm font-medium transition-colors ${transparent ? "text-white/70 hover:text-white" : "text-slate-500 hover:text-indigo-700"}`}>
               {item.label}
             </a>
           ))}
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link to="/dashboard" className={`text-sm font-semibold ${transparent ? "text-white/90 hover:text-white" : "text-indigo-500 hover:text-indigo-700"}`}>
+          <Link to="/dashboard" className={`text-sm font-semibold ${transparent ? "text-white/80 hover:text-white" : "text-slate-500 hover:text-indigo-700"}`}>
             My Mailings
           </Link>
-          <Link to="/workflows/denied-claim" className="btn-amber">
+          <Link to="/workflows/denied-claim" className="btn-amber btn-sm">
             Start
           </Link>
         </div>
 
         <button className="md:hidden" onClick={() => setOpen(!open)} aria-label="Menu">
-          {open ? <X size={22} className={transparent ? "text-white" : "text-indigo-700"} /> : <Menu size={22} className={transparent ? "text-white" : "text-indigo-700"} />}
+          {open ? <X size={20} className={transparent ? "text-white" : "text-indigo-700"} /> : <Menu size={20} className={transparent ? "text-white" : "text-indigo-700"} />}
         </button>
       </div>
 
@@ -58,11 +58,11 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
               { label: "My Mailings", href: "/dashboard" },
               { label: "Contact", href: "/contact" },
             ].map((item) => (
-              <a key={item.label} href={item.href} className="rounded-lg px-3 py-2.5 text-sm font-medium text-indigo-500 hover:bg-indigo-50" onClick={() => setOpen(false)}>
+              <a key={item.label} href={item.href} className="rounded-md px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-cream hover:text-indigo-700" onClick={() => setOpen(false)}>
                 {item.label}
               </a>
             ))}
-            <Link to="/workflows/denied-claim" className="btn-amber mt-2 justify-center" onClick={() => setOpen(false)}>
+            <Link to="/workflows/denied-claim" className="btn-amber btn-sm mt-2 justify-center" onClick={() => setOpen(false)}>
               Start
             </Link>
           </div>

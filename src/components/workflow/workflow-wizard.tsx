@@ -1,8 +1,7 @@
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { ArrowLeft, ArrowRight, FileUp, ShieldAlert, CheckCircle2, Mail, PackageCheck, Stamp, CreditCard, Check, AlertTriangle, Clock, FileText, Link2, Scale, Gavel, Calendar, Paperclip, Send, Award, Download, Copy, FileSearch } from "lucide-react";
+import { AppShell, StatusBadge, DeadlineCard, ReadinessScore, EmptyState, SourceReference, ConfidenceBadge, IssueCard, AIActionBar, ActivityFeed, NAV_ICONS, NAV_LABELS, type WorkspaceNav } from "@/components/workspace/app-shell";
+import { FileUp, ShieldAlert, CheckCircle2, Mail, PackageCheck, Stamp, CreditCard, Check, AlertTriangle, Clock, FileText, Link2, Scale, Gavel, Calendar, Paperclip, Send, Award, Download, Copy, FileSearch, LayoutDashboard, CalendarClock, TrendingUp, ArrowRight } from "lucide-react";
 import { useMemo, useState, useCallback, useRef } from "react";
-import { workflows, type WorkflowId, type WorkflowDefinition } from "@/domain/workflows";
+import { workflows, type WorkflowId, type WorkflowDefinition, type WorkflowStep } from "@/domain/workflows";
 import { createDecision, type Decision, daysUntilDeadline, deadlineStatus } from "@/domain/decision";
 import { createGround, type AppealGround, type GroundType, GROUND_TYPE_LABELS, GROUND_TYPE_DESCRIPTIONS, groundToParagraph } from "@/domain/ground";
 import { createEvidence, type Evidence, evidenceForGround, generateExhibitIndex } from "@/domain/evidence";
@@ -544,72 +543,159 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
     : dStatus === "unknown" ? "alert-info"
     : "alert-info";
 
-  return (
-    <main className="min-h-screen bg-cream">
-      <SiteHeader />
-      <div className="container py-8 md:py-12">
-        <div className="mx-auto max-w-3xl">
-          {/* Progress */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-400">
-              <span>Step {step + 1} of {totalSteps}</span>
-              <span>{progress}% complete</span>
-            </div>
-            <div className="progress-track mt-2">
-              <div className="progress-fill" style={{ width: `${progress}%` }} />
-            </div>
-            <div className="mt-3 hidden justify-between text-[11px] text-slate-300 sm:flex">
-              {definition.stepLabels.map((label, i) => (
-                <span key={label} className={i <= step ? "font-semibold text-indigo-700" : ""}>{label}</span>
-              ))}
-            </div>
-          </div>
+  // ── Workspace navigation ──
+  const navItems: WorkspaceNav[] = definition.steps.map((s, i) => ({
+    step: s,
+    label: NAV_LABELS[s] || s,
+    icon: NAV_ICONS[s] || FileText,
+    completed: i < step,
+    attention: s === "grounds" && grounds.some((g) => !g.userConfirmed),
+  }));
 
-          <div className="card p-6 md:p-10">
-            {/* ── INTRO ── */}
+  function navigateToStep(targetStep: WorkflowStep) {
+    const idx = definition.steps.indexOf(targetStep);
+    if (idx === -1) return;
+    // Trigger computations when entering certain steps
+    if (targetStep === "xray" && !xrayResult && !xrayAnalyzing) runXRay();
+    if (targetStep === "timeline" && !timelineResult) runTimelineBuild();
+    if (targetStep === "stress-test" && !stressTestResult) runGroundStressTest();
+    if (targetStep === "draft" && !draft) setDraft(generateDraft());
+    if (targetStep === "final-stress-test" && !finalStressTestResult) runFinalStressTest();
+    if (targetStep === "readiness") runReadiness();
+    if (targetStep === "packet" && !packet) assembleFinalPacket();
+    if (targetStep === "proof" && !proof) generateProof();
+    setStep(idx);
+  }
+
+  // ── Compute attention items ──
+  const attentionItems: { title: string; description: string; action?: string; step?: WorkflowStep }[] = [];
+  if (grounds.length === 0 && step > 2) attentionItems.push({ title: "No appeal grounds defined", description: "Define at least one ground for your appeal.", action: "Define grounds", step: "grounds" });
+  if (grounds.some((g) => !g.userConfirmed)) attentionItems.push({ title: "Unconfirmed appeal grounds", description: "Some grounds have not been reviewed and confirmed.", action: "Review grounds", step: "grounds" });
+  if (evidence.length === 0 && step > 4) attentionItems.push({ title: "No evidence added", description: "Add supporting documents to strengthen your appeal.", action: "Add evidence", step: "evidence" });
+  if (grounds.some((g) => !evidence.some((e) => e.groundIds.includes(g.id)))) attentionItems.push({ title: "Grounds without evidence", description: "At least one appeal ground has no supporting evidence linked.", action: "Link evidence", step: "evidence" });
+  if (!recipient.name && step > 10) attentionItems.push({ title: "Recipient address not entered", description: "Enter the mailing address for the agency or court.", action: "Add recipient", step: "recipient" });
+
+  // ── Recent activity ──
+  const activityItems = [
+    ...(documentUploaded ? [{ description: "Decision uploaded", timestamp: "Recently", icon: FileText }] : []),
+    ...(xrayResult ? [{ description: `${xrayResult.findings.length} findings from X-Ray`, timestamp: "Recently", icon: Scale }] : []),
+    ...(timelineResult ? [{ description: `Timeline reconstructed (${timelineResult.summary.totalEvents} events)`, timestamp: "Recently", icon: Calendar }] : []),
+    ...(grounds.length > 0 ? [{ description: `${grounds.length} ground${grounds.length > 1 ? "s" : ""} defined`, timestamp: "Recently", icon: ShieldAlert }] : []),
+    ...(evidence.length > 0 ? [{ description: `${evidence.length} evidence item${evidence.length > 1 ? "s" : ""} added`, timestamp: "Recently", icon: FileText }] : []),
+    ...(draft ? [{ description: "Draft generated", timestamp: "Recently", icon: FileText }] : []),
+  ].slice(0, 5);
+
+  return (
+    <AppShell
+      navItems={navItems}
+      currentStep={definition.steps[step]}
+      onNavigate={navigateToStep}
+      appealNumber={`Appeal #${appealId.slice(0, 6).toUpperCase()}`}
+      appealTitle={definition.title}
+      statusLabel={step === 0 ? "Getting started" : step < 5 ? "Building appeal" : step < 10 ? "Preparing" : step < 14 ? "Finalizing" : "Complete"}
+      deadlineInfo={decision.deadline?.date ? {
+        date: decision.deadline.date,
+        daysRemaining: daysLeft,
+        source: decision.deadline.source === "extracted" ? "Extracted from document" : "User-provided",
+      } : undefined}
+    >
+            {/* ── OVERVIEW ── */}
             {definition.steps[step] === "intro" && (
               <>
-                <div className="eyebrow">Guided workflow</div>
-                <h1 className="mt-3 text-3xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{definition.title}</h1>
-                <p className="mt-4 leading-7 text-slate-400">{definition.description}</p>
-                <div className="alert alert-warning mt-6"><ShieldAlert size={18} className="mb-2 shrink-0" />{definition.disclaimer}</div>
-                <div className={`alert ${deadlineColor} mt-4`}><AlertTriangle size={16} className="inline mr-1" /> <strong>Critical:</strong> {definition.deadlineWarning}</div>
+                <div className="eyebrow">Overview</div>
+                <h1 className="heading-xl mt-2">{definition.title}</h1>
+                <p className="text-body mt-3 max-w-xl">{definition.description}</p>
 
-                {/* Focus areas */}
+                {/* Disclaimer */}
+                <div className="alert alert-warning mt-5">
+                  <ShieldAlert size={16} className="shrink-0 inline mr-1" /> {definition.disclaimer}
+                </div>
+
+                {/* Deadline card */}
+                {decision.deadline?.date && (
+                  <div className="mt-5">
+                    <DeadlineCard
+                      date={decision.deadline.date}
+                      daysRemaining={daysLeft}
+                      source={decision.deadline.source === "extracted" ? "Decision letter" : "User-provided"}
+                      verified={decision.deadline.source === "extracted"}
+                      warning={dStatus === "urgent" ? definition.deadlineWarning : undefined}
+                    />
+                  </div>
+                )}
+
+                {/* Progress visualization */}
                 <div className="mt-6">
-                  <div className="text-sm font-semibold text-slate-500 mb-3">This workflow focuses on:</div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {definition.focusAreas.map((area, i) => (
-                      <div key={area} className="flex items-center gap-2 text-sm text-slate-500">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-400">{i + 1}</span>
-                        {area}
-                      </div>
-                    ))}
+                  <p className="section-label">Progress</p>
+                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 mt-2">
+                    {definition.steps.slice(1, -1).map((s, i) => {
+                      const isDone = i < step - 1;
+                      const isCurrent = i === step - 1;
+                      const label = NAV_LABELS[s] || s;
+                      const Icon = NAV_ICONS[s] || FileText;
+                      return (
+                        <div key={s} className={`rounded-md p-2.5 text-center border ${isDone ? "border-emerald-200 bg-emerald-50/50" : isCurrent ? "border-indigo-200 bg-indigo-50" : "border-warm-border bg-cream"}`}>
+                          <Icon size={16} className={`mx-auto ${isDone ? "text-emerald-500" : isCurrent ? "text-indigo-600" : "text-slate-300"}`} />
+                          <p className={`text-[10px] mt-1 font-medium ${isDone ? "text-emerald-700" : isCurrent ? "text-indigo-700" : "text-slate-400"}`}>{label}</p>
+                          {isDone && <CheckCircle2 size={12} className="mx-auto mt-0.5 text-emerald-500" />}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Pipeline overview */}
-                <div className="mt-8 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <div className="text-xs font-semibold text-slate-400 mb-2">The appeal intelligence pipeline:</div>
-                  <div className="flex flex-wrap gap-2 text-[11px] text-slate-500">
-                    {["Document", "Decision", "Timeline", "Grounds", "Evidence", "Arguments", "Draft", "Readiness", "Packet", "Mailing", "Proof"].map((s, i) => (
-                      <span key={s} className="flex items-center gap-1">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-50 text-[10px] font-bold text-indigo-400">{i + 1}</span>
-                        {s}
-                        {i < 10 && <span className="text-slate-300">→</span>}
-                      </span>
-                    ))}
+                {/* Attention required */}
+                {attentionItems.length > 0 && (
+                  <div className="mt-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="status-dot status-dot-amber" />
+                      <p className="section-label" style={{ marginBottom: 0 }}>Attention required — {attentionItems.length} {attentionItems.length === 1 ? "item" : "items"}</p>
+                    </div>
+                    <div className="space-y-2">
+                      {attentionItems.map((item, i) => (
+                        <IssueCard
+                          key={i}
+                          title={item.title}
+                          description={item.description}
+                          actionLabel={item.action}
+                          onAction={item.step ? () => navigateToStep(item.step!) : undefined}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* Recent activity */}
+                {activityItems.length > 0 && (
+                  <div className="mt-6">
+                    <p className="section-label">Recent activity</p>
+                    <ActivityFeed items={activityItems} />
+                  </div>
+                )}
+
+                {/* Next best action */}
+                {step < totalSteps - 1 && (
+                  <div className="mt-6 card-flat p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="section-label" style={{ marginBottom: "0.25rem" }}>Next best action</p>
+                        <p className="text-sm font-medium text-indigo-700">{documentUploaded ? "Review extracted decision details" : "Upload your decision document"}</p>
+                      </div>
+                      <button onClick={() => navigateToStep("document")} className="btn-primary btn-sm">
+                        Continue <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </>
             )}
 
             {/* ── DOCUMENT UPLOAD ── */}
             {definition.steps[step] === "document" && (
               <>
-                <div className="eyebrow">1 · Upload decision</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Start with the decision document</h2>
-                <p className="mt-3 text-slate-400">Upload the decision letter, ruling, or denial notice. We'll extract the key details automatically.</p>
+                <div className="eyebrow">Upload decision</div>
+                <h1 className="heading-lg mt-2">Start with the decision document</h1>
+                <p className="text-body mt-2">Upload the decision letter, ruling, or denial notice. We'll extract the key details automatically.</p>
 
                 <label className="upload-zone mt-7 block cursor-pointer">
                   <FileUp className="mx-auto text-slate-400" size={28} />
@@ -689,9 +775,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── DECISION REVIEW ── */}
             {definition.steps[step] === "decision" && (
               <>
-                <div className="eyebrow">2 · Decision review</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Review the decision details</h2>
-                <p className="mt-3 text-slate-400">Confirm the key facts about the decision. These will anchor your appeal.</p>
+                <div className="eyebrow">Decision review</div>
+                <h1 className="heading-lg mt-2">Review the decision details</h1>
+                <p className="text-body mt-2">Confirm the key facts about the decision. These will anchor your appeal.</p>
 
                 {/* Deadline banner */}
                 {decision.deadline?.date && (
@@ -767,9 +853,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── TIMELINE ── */}
             {definition.steps[step] === "timeline" && (
               <>
-                <div className="eyebrow">3 · Appeal Timeline™</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Reconstruct the record</h2>
-                <p className="mt-3 text-slate-400">Every event has evidence attached and an integrity status. Conflicts between your documents are flagged automatically — add them to your appeal with one click.</p>
+                <div className="eyebrow">Appeal Timeline™</div>
+                <h1 className="heading-lg mt-2">Reconstruct the record</h1>
+                <p className="text-body mt-2">Every event has evidence attached and an integrity status. Conflicts between your documents are flagged automatically — add them to your appeal with one click.</p>
 
                 <div className="mt-6">
                   {timelineBuilding ? (
@@ -831,9 +917,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── GROUNDS ── */}
             {definition.steps[step] === "grounds" && (
               <>
-                <div className="eyebrow">4 · Appeal grounds</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Define your appeal grounds</h2>
-                <p className="mt-3 text-slate-400">Each ground is a specific reason the decision should be reversed or modified. Be specific.</p>
+                <div className="eyebrow">Appeal grounds</div>
+                <h1 className="heading-lg mt-2">Define your appeal grounds</h1>
+                <p className="text-body mt-2">Each ground is a specific reason the decision should be reversed or modified. Be specific.</p>
 
                 {/* Add ground form */}
                 <div className="mt-6 rounded-lg border border-slate-200 p-4">
@@ -906,9 +992,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── EVIDENCE ── */}
             {definition.steps[step] === "evidence" && (
               <>
-                <div className="eyebrow">5 · Evidence</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Manage supporting evidence</h2>
-                <p className="mt-3 text-slate-400">Add documents, excerpts, and records. Link them to specific grounds.</p>
+                <div className="eyebrow">Evidence</div>
+                <h1 className="heading-lg mt-2">Manage supporting evidence</h1>
+                <p className="text-body mt-2">Add documents, excerpts, and records. Link them to specific grounds.</p>
 
                 {/* Upload / add evidence */}
                 <div className="mt-6 rounded-lg border border-slate-200 p-4">
@@ -976,9 +1062,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── ARGUMENTS ── */}
             {definition.steps[step] === "appealArguments" && (
               <>
-                <div className="eyebrow">6 · Arguments</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Construct your appealArguments</h2>
-                <p className="mt-3 text-slate-400">Arguments combine your grounds and evidence into persuasive reasoning.</p>
+                <div className="eyebrow">Arguments</div>
+                <h1 className="heading-lg mt-2">Construct your appealArguments</h1>
+                <p className="text-body mt-2">Arguments combine your grounds and evidence into persuasive reasoning.</p>
 
                 {/* Contradiction detection */}
                 {contradictions.length > 0 && (
@@ -1043,11 +1129,11 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── STRESS TEST ── */}
             {definition.steps[step] === "stress-test" && (
               <>
-                <div className="eyebrow">9 · Appeal Stress Test</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>
+                <div className="eyebrow">Appeal Stress Test</div>
+                <h1 className="heading-lg mt-2">
                   If the other side tried to defeat your appeal — where would they attack?
-                </h2>
-                <p className="mt-3 text-slate-400">
+                </h1>
+                <p className="text-body mt-2">
                   We attack every ground, score each argument, and find the weakest link in your appeal. This makes your appeal stronger before it's ever sent.
                 </p>
                 {stressTestResult ? (
@@ -1083,9 +1169,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── DRAFT ── */}
             {definition.steps[step] === "draft" && (
               <>
-                <div className="eyebrow">7 · Draft</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Prepare your appeal letter</h2>
-                <p className="mt-3 text-slate-400">Review every fact, name, date, and statement before sending.</p>
+                <div className="eyebrow">Draft</div>
+                <h1 className="heading-lg mt-2">Prepare your appeal letter</h1>
+                <p className="text-body mt-2">Review every fact, name, date, and statement before sending.</p>
 
                 <div className="mt-4 flex gap-2">
                   <button className="btn-secondary text-sm" onClick={() => setDraft(generateDraft())}>
@@ -1107,11 +1193,11 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── FINAL STRESS TEST ── */}
             {definition.steps[step] === "final-stress-test" && (
               <>
-                <div className="eyebrow">11 · Final Appeal Stress Test</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>
+                <div className="eyebrow">Final Appeal Stress Test</div>
+                <h1 className="heading-lg mt-2">
                   We checked your draft so the other side can't use it against you
-                </h2>
-                <p className="mt-3 text-slate-400">
+                </h1>
+                <p className="text-body mt-2">
                   Before you mail this, we scan the draft for exaggerated claims, unsupported assertions, and factual errors — then suggest precise revisions.
                 </p>
                 {finalStressTestResult ? (
@@ -1139,9 +1225,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── READINESS ── */}
             {definition.steps[step] === "readiness" && (
               <>
-                <div className="eyebrow">8 · Readiness review</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Appeal readiness check</h2>
-                <p className="mt-3 text-slate-400">We've analyzed your appeal for completeness and consistency.</p>
+                <div className="eyebrow">Readiness review</div>
+                <h1 className="heading-lg mt-2">Appeal readiness check</h1>
+                <p className="text-body mt-2">We've analyzed your appeal for completeness and consistency.</p>
 
                 {!review ? (
                   <button className="btn-primary mt-6" onClick={runReadiness}>Run readiness check</button>
@@ -1190,9 +1276,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── PACKET ── */}
             {definition.steps[step] === "packet" && (
               <>
-                <div className="eyebrow">9 · Packet assembly</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Assemble the appeal packet</h2>
-                <p className="mt-3 text-slate-400">Your appeal letter and supporting evidence are combined into a single packet.</p>
+                <div className="eyebrow">Packet assembly</div>
+                <h1 className="heading-lg mt-2">Assemble the appeal packet</h1>
+                <p className="text-body mt-2">Your appeal letter and supporting evidence are combined into a single packet.</p>
 
                 {!packet ? (
                   <button className="btn-primary mt-6" onClick={assembleFinalPacket}>Assemble packet</button>
@@ -1231,9 +1317,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── RECIPIENT ── */}
             {definition.steps[step] === "recipient" && (
               <>
-                <div className="eyebrow">10 · Recipient</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Who should receive this?</h2>
-                <p className="mt-3 text-slate-400">Enter the address of the agency, court, or decision-maker.</p>
+                <div className="eyebrow">Recipient</div>
+                <h1 className="heading-lg mt-2">Who should receive this?</h1>
+                <p className="text-body mt-2">Enter the address of the agency, court, or decision-maker.</p>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   <div><label className="input-label">Recipient name *</label><input className="input-field" value={recipient.name} onChange={(e) => setRecipient((r) => ({ ...r, name: e.target.value }))} placeholder="e.g., Appeals Office" /></div>
                   <div><label className="input-label">Organization</label><input className="input-field" value={recipient.org} onChange={(e) => setRecipient((r) => ({ ...r, org: e.target.value }))} /></div>
@@ -1315,9 +1401,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── PROOF ── */}
             {definition.steps[step] === "proof" && (
               <>
-                <div className="eyebrow">13 · Proof of filing</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Permanent proof packet</h2>
-                <p className="mt-3 text-slate-400">A tamper-evident record that your appeal was prepared and sent.</p>
+                <div className="eyebrow">Proof of filing</div>
+                <h1 className="heading-lg mt-2">Permanent proof packet</h1>
+                <p className="text-body mt-2">A tamper-evident record that your appeal was prepared and sent.</p>
 
                 {!proof ? (
                   <button className="btn-primary mt-6" onClick={generateProof}>
@@ -1385,29 +1471,25 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
               </>
             )}
 
-            {/* ── NAVIGATION ── */}
+            {/* ── WORKSPACE NAVIGATION ── */}
             {definition.steps[step] !== "submitted" && (
-              <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-6">
+              <div className="mt-8 flex items-center justify-between border-t border-warm-border pt-5">
                 <button
                   onClick={back}
                   disabled={step === 0}
-                  className="flex items-center gap-1.5 text-sm font-semibold text-slate-400 disabled:opacity-30"
+                  className="btn-ghost disabled:opacity-30"
                 >
-                  <ArrowLeft size={16} /> Back
+                  ← Back
                 </button>
                 <button
                   onClick={next}
                   disabled={!canContinue()}
-                  className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 disabled:opacity-30 hover:text-indigo-700"
+                  className="btn-primary disabled:opacity-30"
                 >
                   {step === totalSteps - 2 ? "Complete" : "Continue"} <ArrowRight size={16} />
                 </button>
               </div>
             )}
-          </div>
-        </div>
-      </div>
-    <SiteFooter />
-    </main>
+    </AppShell>
   );
 }
