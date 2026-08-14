@@ -14,6 +14,9 @@ import { createProofPacket, computeHash, renderProofCertificate, type ProofPacke
 import { extractTextFromFile, isExtractable, needsOCR } from "@/platform/text-extraction";
 import { extractDecision } from "@/platform/extract-fn";
 import { createCheckoutSession } from "@/platform/checkout-fn";
+import { saveAppeal } from "@/platform/appeal-repository";
+import type { Appeal } from "@/domain/appeal";
+import { createAppeal, updateAppeal } from "@/domain/appeal";
 
 const mailOptions = [
   { id: "standard" as const, label: "Standard", price: "$4.99", desc: "3–7 business days · Tracking included", icon: Mail },
@@ -101,6 +104,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
   // Extraction state
   const [extractionError, setExtractionError] = useState<string | null>(null);
   const [extractedFields, setExtractedFields] = useState<string[]>([]);
+  const [appealId] = useState(() => crypto.randomUUID());
+  const [savedToDb, setSavedToDb] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // ── Document upload with real extraction ──
   async function handleDocumentUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -308,6 +314,28 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
       mailingMethod: mailType,
     });
     setProof(p);
+
+    // Save the complete appeal to the database
+    try {
+      setSaving(true);
+      const appeal = createAppeal(workflowId, decision);
+      const updated = updateAppeal(appeal, {
+        id: appealId,
+        grounds,
+        evidence,
+        arguments: appealArguments,
+        draft,
+        review: review || undefined,
+        packet: packet || undefined,
+        proof: p,
+        status: "mailed",
+      });
+      await saveAppeal({ data: { appeal: updated } });
+      setSavedToDb(true);
+    } catch (err) {
+      console.error("Failed to save appeal:", err);
+    }
+    setSaving(false);
   }
 
   // ── Contradiction detection ──
@@ -987,7 +1015,7 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
                     try {
                       const session = await createCheckoutSession({ data: {
                         mailingMethod: mailType,
-                        appealId: "draft",
+                        appealId,
                         recipientName: recipient.name,
                         workflowId,
                       }});
@@ -1013,7 +1041,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
                 <p className="mt-3 text-slate-400">A tamper-evident record that your appeal was prepared and sent.</p>
 
                 {!proof ? (
-                  <button className="btn-primary mt-6" onClick={generateProof}>Generate proof packet</button>
+                  <button className="btn-primary mt-6" onClick={generateProof}>
+                    {saving ? "Saving appeal…" : "Generate proof packet"}
+                  </button>
                 ) : (
                   <>
                     <div className="mt-6 rounded-lg border-2 border-indigo-200 bg-indigo-50/50 p-6">
