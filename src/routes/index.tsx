@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Scale, Mail, ShieldCheck, Sparkles, Clock, PackageCheck, Lock, FileUp, ChevronDown, Send, Eye, Stamp, Gavel, FileText, TrendingUp, Quote, ShieldAlert } from "lucide-react";
+import { ArrowRight, CheckCircle2, Scale, Mail, ShieldCheck, Sparkles, Clock, PackageCheck, Lock, FileUp, ChevronDown, Send, Eye, Stamp, Gavel, FileText, TrendingUp, Quote, ShieldAlert, CalendarClock } from "lucide-react";
 import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -15,6 +15,7 @@ const workflows = [
 
 const features = [
   { icon: Eye, title: "Appeal X-Ray™ analysis", desc: "Upload your decision and supporting documents. We cross-reference everything to find date conflicts, unaddressed evidence, unsupported conclusions, and contradictions — each finding source-linked and explicitly uncertainty-aware.", featured: true },
+  { icon: CalendarClock, title: "Appeal Timeline™", desc: "We reconstruct the entire case history automatically from your documents. Every event gets an integrity status — documented, inferred, conflicting, or unknown — with evidence linked to each one. Timeline conflicts become appeal grounds with one click.", featured: true },
   { icon: ShieldAlert, title: "Appeal Stress Test™", desc: "We attack every ground from the decision-maker's perspective, score each argument 0-100, and find your weakest link. Before mailing, we scan your draft for exaggerated claims and suggest precise revisions.", featured: true },
   { icon: Sparkles, title: "AI-assisted drafting", desc: "Approved findings automatically become appeal grounds with linked evidence. The draft is built from your analysis, not a blank page. Everything is editable." },
   { icon: Scale, title: "Guided appeal workflows", desc: "Each workflow is specialized for your decision type — denied claims, government decisions, court rulings, or reconsiderations." },
@@ -26,10 +27,11 @@ const features = [
 const steps = [
   { n: "01", title: "Upload", desc: "Upload the decision letter and every supporting document you have — receipts, correspondence, reports." },
   { n: "02", title: "Analyze", desc: "The Appeal X-Ray™ cross-references your documents to find date conflicts, unaddressed evidence, and contradictions — each finding source-linked and uncertainty-aware." },
-  { n: "03", title: "Build", desc: "Approved findings automatically become appeal grounds with linked evidence. Review and edit every word." },
-  { n: "04", title: "Stress Test", desc: "We attack every ground from the decision-maker's perspective, score each argument 0-100, and find your weakest link — then show you exactly how to fix it." },
-  { n: "05", title: "Send", desc: "Before mailing, we scan your draft for exaggerated claims and unsupported assertions. Then choose your mailing — certified with return receipt is recommended." },
-  { n: "06", title: "Prove", desc: "Track delivery and keep a permanent, tamper-evident record of your timely filing." },
+  { n: "03", title: "Timeline", desc: "The Appeal Timeline™ reconstructs the entire case history automatically. Every event gets an integrity status — documented, inferred, conflicting, or unknown — and evidence is attached to each one." },
+  { n: "04", title: "Build", desc: "Approved findings and timeline conflicts automatically become appeal grounds with linked evidence. Review and edit every word." },
+  { n: "05", title: "Stress Test", desc: "We attack every ground from the decision-maker's perspective, score each argument 0-100, and find your weakest link — then show you exactly how to fix it." },
+  { n: "06", title: "Send", desc: "Before mailing, we scan your draft for exaggerated claims and unsupported assertions. Then choose your mailing — certified with return receipt is recommended." },
+  { n: "07", title: "Prove", desc: "Track delivery and keep a permanent, tamper-evident record of your timely filing." },
 ];
 
 const stats = [
@@ -47,6 +49,11 @@ const testimonials = [
 
 const comparison = [
   { feature: "Cross-document analysis (Appeal X-Ray™)", us: true, them: false },
+  { feature: "Automatic timeline reconstruction (Appeal Timeline™)", us: true, them: false },
+  { feature: "Event integrity status (documented, inferred, conflicting, unknown)", us: true, them: false },
+  { feature: "Timeline conflict detection with one-click 'Add to Appeal'", us: true, them: false },
+  { feature: "Timeline gap detection with suggested missing records", us: true, them: false },
+  { feature: "Deadline engine with conflict detection", us: true, them: false },
   { feature: "Adversarial stress testing (Appeal Stress Test™)", us: true, them: false },
   { feature: "Argument strength scoring (0-100 per ground)", us: true, them: false },
   { feature: "Draft vulnerability detection (exaggeration, unsupported claims)", us: true, them: false },

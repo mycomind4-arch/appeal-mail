@@ -22,6 +22,9 @@ import { analyzeDocuments } from "@/platform/xray-fn";
 import { runXRayAnalysis, buildAppealFromXRay, type XRayResult, type AnalyzedDocument } from "@/domain/xray";
 import { StressTestView } from "@/components/stress-test/stress-test-view";
 import { runStressTest, type StressTestResult } from "@/domain/stress-test";
+import { TimelineView } from "@/components/timeline/timeline-view";
+import { buildTimeline, type TimelineResult, type TimelineConflict, type TimelineDocument } from "@/domain/timeline";
+import { explainConflict as explainConflictFn } from "@/domain/timeline";
 
 const mailOptions = [
   { id: "standard" as const, label: "Standard", price: "$4.99", desc: "3–7 business days · Tracking included", icon: Mail },
@@ -96,6 +99,7 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
       // If coming from X-Ray, grounds may already be populated
     }
     const nextStepIndex = step + 1;
+    if (definition.steps[nextStepIndex] === "timeline" && !timelineResult) runTimelineBuild();
     if (definition.steps[nextStepIndex] === "stress-test" && !stressTestResult) runGroundStressTest();
     if (definition.steps[nextStepIndex] === "draft" && !draft) setDraft(generateDraft());
     if (definition.steps[nextStepIndex] === "final-stress-test" && !finalStressTestResult) runFinalStressTest();
@@ -110,6 +114,7 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
     switch (definition.steps[step]) {
       case "document": return documentUploaded || decision.agency !== undefined;
       case "xray": return xrayResult !== null;
+      case "timeline": return timelineResult !== null;
       case "stress-test": return stressTestResult !== null;
       case "final-stress-test": return finalStressTestResult !== null;
       case "decision": return !!decision.agency;
@@ -132,6 +137,8 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
   const [stressTesting, setStressTesting] = useState(false);
   const [finalStressTestResult, setFinalStressTestResult] = useState<StressTestResult | null>(null);
   const [finalStressTesting, setFinalStressTesting] = useState(false);
+  const [timelineResult, setTimelineResult] = useState<TimelineResult | null>(null);
+  const [timelineBuilding, setTimelineBuilding] = useState(false);
 
   // ── Document upload with real extraction ──
   async function handleDocumentUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -206,7 +213,46 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
     setXrayAnalyzing(false);
   }
 
-  // Build appeal from X-Ray findings
+  // ── Timeline build ──
+  async function runTimelineBuild() {
+    setTimelineBuilding(true);
+    try {
+      const timelineDocs: TimelineDocument[] = [
+        { id: "decision", name: decision.documentFilename || "Decision Letter", text: decision.rawText || "", pageCount: 1, isDecision: true, role: "decision" },
+        ...analyzedDocTexts.map((d) => ({
+          id: d.id, name: d.name, text: d.text, pageCount: 1, isDecision: false,
+          role: d.isDecision ? "decision" as const : "evidence" as const,
+        })),
+      ].filter((d) => d.text.length > 10);
+
+      const userEvents = decision.chronology
+        .filter((e) => e.date && e.description)
+        .map((e) => ({ date: e.date, description: e.description }));
+
+      const result = buildTimeline({
+        documents: timelineDocs,
+        decision,
+        xrayFindings: xrayResult?.findings || [],
+        userEvents,
+      });
+      setTimelineResult(result);
+    } catch (err) {
+      console.error("Timeline build failed:", err);
+    }
+    setTimelineBuilding(false);
+  }
+
+  // Add timeline conflict as appeal ground
+  function addConflictToAppeal(conflict: TimelineConflict) {
+    const ground = createGround(conflict.suggestedGroundType, {
+      claim: conflict.suggestedClaim,
+      source: `${conflict.claimA.source.documentName} (${conflict.claimA.date}) vs. ${conflict.claimB.source.documentName} (${conflict.claimB.date})`,
+      draftLanguage: conflict.suggestedClaim,
+    });
+    setGrounds((g) => [...g, ground]);
+  }
+
+  // ── Build appeal from X-Ray findings ──
   function buildAppealFromFindings() {
     if (!xrayResult) return;
     const builtGrounds = buildAppealFromXRay(xrayResult.findings);
@@ -721,42 +767,63 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
             {/* ── TIMELINE ── */}
             {definition.steps[step] === "timeline" && (
               <>
-                <div className="eyebrow">3 · Timeline</div>
-                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Build the chronology</h2>
-                <p className="mt-3 text-slate-400">List key events in order. This helps organize your appeal and identify procedural issues.</p>
+                <div className="eyebrow">3 · Appeal Timeline™</div>
+                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Reconstruct the record</h2>
+                <p className="mt-3 text-slate-400">Every event has evidence attached and an integrity status. Conflicts between your documents are flagged automatically — add them to your appeal with one click.</p>
 
-                <div className="mt-6 space-y-3">
-                  {decision.chronology.map((event, i) => (
-                    <div key={event.id} className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-400">{i + 1}</div>
-                      <input
-                        type="date"
-                        className="input-field w-40"
-                        value={event.date}
-                        onChange={(e) => setDecision((d) => ({
-                          ...d,
-                          chronology: d.chronology.map((x) => x.id === event.id ? { ...x, date: e.target.value } : x),
-                        }))}
-                      />
-                      <input
-                        className="input-field flex-1"
-                        placeholder="What happened"
-                        value={event.description}
-                        onChange={(e) => setDecision((d) => ({
-                          ...d,
-                          chronology: d.chronology.map((x) => x.id === event.id ? { ...x, description: e.target.value } : x),
-                        }))}
-                      />
-                      <button className="text-slate-300 hover:text-red-400" onClick={() => setDecision((d) => ({ ...d, chronology: d.chronology.filter((x) => x.id !== event.id) }))}>×</button>
+                <div className="mt-6">
+                  {timelineBuilding ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="text-center">
+                        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
+                        <p className="mt-3 text-sm text-slate-500">Reconstructing timeline from your documents...</p>
+                      </div>
                     </div>
-                  ))}
-                  <button
-                    className="text-sm font-semibold text-indigo-500 hover:text-indigo-600"
-                    onClick={() => setDecision((d) => ({
-                      ...d,
-                      chronology: [...d.chronology, { id: crypto.randomUUID(), date: "", description: "", source: "user_provided" as const }],
-                    }))}
-                  >+ Add event</button>
+                  ) : timelineResult ? (
+                    <TimelineView
+                      timeline={timelineResult}
+                      onAddConflictToAppeal={addConflictToAppeal}
+                      onExplainConflict={(conflict) => {
+                        const explanations = explainConflictFn(conflict);
+                        // Update the conflict in place
+                        if (timelineResult) {
+                          setTimelineResult({
+                            ...timelineResult,
+                            conflicts: timelineResult.conflicts.map((c) =>
+                              c.id === conflict.id ? { ...c, alternativeExplanations: explanations } : c
+                            ),
+                          });
+                        }
+                      }}
+                      onAddEvent={(evt) => {
+                        setDecision((d) => ({
+                          ...d,
+                          chronology: [...d.chronology, { id: crypto.randomUUID(), date: evt.date, description: evt.description, source: "user_provided" as const }],
+                        }));
+                        // Rebuild timeline
+                        if (timelineResult) {
+                          const userEvents = [
+                            ...decision.chronology.map((e) => ({ date: e.date, description: e.description })),
+                            { date: evt.date, description: evt.description },
+                          ];
+                          const timelineDocs: TimelineDocument[] = [
+                            { id: "decision", name: decision.documentFilename || "Decision Letter", text: decision.rawText || "", pageCount: 1, isDecision: true, role: "decision" },
+                          ].filter((d) => d.text.length > 10);
+                          setTimelineResult(buildTimeline({
+                            documents: timelineDocs,
+                            decision: { ...decision, chronology: [...decision.chronology, { id: crypto.randomUUID(), date: evt.date, description: evt.description, source: "user_provided" as const }] },
+                            xrayFindings: xrayResult?.findings || [],
+                            userEvents,
+                          }));
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <Calendar className="h-12 w-12 text-slate-300" />
+                      <p className="mt-4 text-sm text-slate-500">Upload documents and run the X-Ray first.</p>
+                    </div>
+                  )}
                 </div>
               </>
             )}
