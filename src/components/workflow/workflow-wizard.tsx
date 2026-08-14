@@ -20,6 +20,8 @@ import { createAppeal, updateAppeal } from "@/domain/appeal";
 import { XRayView } from "@/components/xray/xray-view";
 import { analyzeDocuments } from "@/platform/xray-fn";
 import { runXRayAnalysis, buildAppealFromXRay, type XRayResult, type AnalyzedDocument } from "@/domain/xray";
+import { StressTestView } from "@/components/stress-test/stress-test-view";
+import { runStressTest, type StressTestResult } from "@/domain/stress-test";
 
 const mailOptions = [
   { id: "standard" as const, label: "Standard", price: "$4.99", desc: "3–7 business days · Tracking included", icon: Mail },
@@ -94,7 +96,9 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
       // If coming from X-Ray, grounds may already be populated
     }
     const nextStepIndex = step + 1;
+    if (definition.steps[nextStepIndex] === "stress-test" && !stressTestResult) runGroundStressTest();
     if (definition.steps[nextStepIndex] === "draft" && !draft) setDraft(generateDraft());
+    if (definition.steps[nextStepIndex] === "final-stress-test" && !finalStressTestResult) runFinalStressTest();
     if (definition.steps[nextStepIndex] === "readiness") runReadiness();
     if (definition.steps[nextStepIndex] === "packet" && !packet) assembleFinalPacket();
     if (definition.steps[nextStepIndex] === "proof" && !proof) generateProof();
@@ -106,6 +110,8 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
     switch (definition.steps[step]) {
       case "document": return documentUploaded || decision.agency !== undefined;
       case "xray": return xrayResult !== null;
+      case "stress-test": return stressTestResult !== null;
+      case "final-stress-test": return finalStressTestResult !== null;
       case "decision": return !!decision.agency;
       case "grounds": return grounds.length > 0;
       case "recipient": return !!(recipient.name && recipient.address1 && recipient.city && recipient.state && recipient.zip);
@@ -122,6 +128,10 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
   const [xrayResult, setXrayResult] = useState<XRayResult | null>(null);
   const [xrayAnalyzing, setXrayAnalyzing] = useState(false);
   const [analyzedDocTexts, setAnalyzedDocTexts] = useState<{id: string; name: string; text: string; isDecision: boolean}[]>([]);
+  const [stressTestResult, setStressTestResult] = useState<StressTestResult | null>(null);
+  const [stressTesting, setStressTesting] = useState(false);
+  const [finalStressTestResult, setFinalStressTestResult] = useState<StressTestResult | null>(null);
+  const [finalStressTesting, setFinalStressTesting] = useState(false);
 
   // ── Document upload with real extraction ──
   async function handleDocumentUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -217,6 +227,30 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
     }
     // Move to grounds step
     next();
+  }
+
+  // ── Stress Test ──
+  function runGroundStressTest() {
+    setStressTesting(true);
+    try {
+      const result = runStressTest(grounds, evidence, "", xrayResult);
+      setStressTestResult(result);
+    } catch (err) {
+      console.error("Stress test failed:", err);
+    }
+    setStressTesting(false);
+  }
+
+  // ── Final Stress Test (on draft) ──
+  function runFinalStressTest() {
+    setFinalStressTesting(true);
+    try {
+      const result = runStressTest(grounds, evidence, draft, xrayResult);
+      setFinalStressTestResult(result);
+    } catch (err) {
+      console.error("Final stress test failed:", err);
+    }
+    setFinalStressTesting(false);
   }
 
   // ── Supporting document upload (for X-Ray) ──
@@ -939,6 +973,46 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
               </>
             )}
 
+            {/* ── STRESS TEST ── */}
+            {definition.steps[step] === "stress-test" && (
+              <>
+                <div className="eyebrow">9 · Appeal Stress Test</div>
+                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>
+                  If the other side tried to defeat your appeal — where would they attack?
+                </h2>
+                <p className="mt-3 text-slate-400">
+                  We attack every ground, score each argument, and find the weakest link in your appeal. This makes your appeal stronger before it's ever sent.
+                </p>
+                {stressTestResult ? (
+                  <div className="mt-6">
+                    <StressTestView
+                      result={stressTestResult}
+                      onResultChange={setStressTestResult}
+                      draft=""
+                      onDraftChange={() => {}}
+                      onFix={(target) => {
+                        if (target === "evidence") {
+                          const idx = definition.steps.indexOf("evidence");
+                          if (idx >= 0) setStep(idx);
+                        } else if (target === "grounds") {
+                          const idx = definition.steps.indexOf("grounds");
+                          if (idx >= 0) setStep(idx);
+                        }
+                      }}
+                      testing={stressTesting}
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-6 flex flex-col items-center justify-center py-12">
+                    <button onClick={runGroundStressTest} className="btn-primary">
+                      <ShieldAlert size={16} className="inline mr-1" /> Stress Test My Appeal
+                    </button>
+                    <p className="mt-2 text-xs text-slate-400">We'll attack every ground and find your weakest point.</p>
+                  </div>
+                )}
+              </>
+            )}
+
             {/* ── DRAFT ── */}
             {definition.steps[step] === "draft" && (
               <>
@@ -960,6 +1034,38 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
                 <div className="alert alert-warning mt-4">
                   <ShieldAlert size={16} className="shrink-0" /> This draft was generated from your grounds and evidence. It is not legal advice. Review and edit carefully.
                 </div>
+              </>
+            )}
+
+            {/* ── FINAL STRESS TEST ── */}
+            {definition.steps[step] === "final-stress-test" && (
+              <>
+                <div className="eyebrow">11 · Final Appeal Stress Test</div>
+                <h2 className="mt-3 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>
+                  We checked your draft so the other side can't use it against you
+                </h2>
+                <p className="mt-3 text-slate-400">
+                  Before you mail this, we scan the draft for exaggerated claims, unsupported assertions, and factual errors — then suggest precise revisions.
+                </p>
+                {finalStressTestResult ? (
+                  <div className="mt-6">
+                    <StressTestView
+                      result={finalStressTestResult}
+                      onResultChange={setFinalStressTestResult}
+                      draft={draft}
+                      onDraftChange={setDraft}
+                      onFix={() => {}}
+                      testing={finalStressTesting}
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-6 flex flex-col items-center justify-center py-12">
+                    <button onClick={runFinalStressTest} className="btn-primary">
+                      <ShieldAlert size={16} className="inline mr-1" /> Check My Draft
+                    </button>
+                    <p className="mt-2 text-xs text-slate-400">We'll scan for vulnerabilities that could undermine your credibility.</p>
+                  </div>
+                )}
               </>
             )}
 

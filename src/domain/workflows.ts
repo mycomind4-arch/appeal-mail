@@ -18,7 +18,9 @@ export type WorkflowStep =
   | "grounds"         // define appeal grounds
   | "evidence"        // manage evidence + link to grounds
   | "arguments"       // construct arguments
+  | "stress-test"    // adversarial review of grounds
   | "draft"           // AI-assisted draft generation
+  | "final-stress-test" // draft vulnerability check
   | "readiness"       // automated readiness review
   | "packet"           // assemble final packet
   | "recipient"       // who to mail to
@@ -53,13 +55,13 @@ export interface WorkflowDefinition {
 
 const COMMON_STEPS: WorkflowStep[] = [
   "intro", "document", "xray", "decision", "timeline", "grounds", "evidence",
-  "arguments", "draft", "readiness", "packet", "recipient", "mailing",
+  "arguments", "stress-test", "draft", "final-stress-test", "readiness", "packet", "recipient", "mailing",
   "checkout", "proof", "submitted",
 ];
 
 const COMMON_LABELS = [
   "Start", "Document", "X-Ray", "Decision", "Timeline", "Grounds", "Evidence",
-  "Arguments", "Draft", "Readiness", "Packet", "Recipient", "Mailing",
+  "Arguments", "Stress Test", "Draft", "Final Test", "Readiness", "Packet", "Recipient", "Mailing",
   "Checkout", "Proof", "Done",
 ];
 
