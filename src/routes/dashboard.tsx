@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PackageCheck, Clock, CheckCircle2, FileText, TrendingUp, Mail, ArrowRight, Search } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { PackageCheck, Clock, CheckCircle2, FileText, TrendingUp, Mail, ArrowRight, Search, AlertCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { listMailings } from "@/platform/appeal-repository";
+
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [
     { title: "My Mailings — Appeal Mail" },
@@ -10,43 +13,268 @@ export const Route = createFileRoute("/dashboard")({
   ] }),
   component: DashboardPage,
 });
-const stats = [
-  { label: "Total mailings", value: "5", icon: Mail, color: "text-indigo-700" },
-  { label: "In transit", value: "1", icon: PackageCheck, color: "text-amber-500" },
-  { label: "Delivered", value: "4", icon: CheckCircle2, color: "text-amber-600" },
-  { label: "Avg. delivery", value: "3.1 days", icon: Clock, color: "text-slate-400" },
-];
-const mailings = [
-  { id: "AM-2026-0073", type: "Denied Claim Appeal", recipient: "BlueShield Appeals Dept", date: "Aug 11, 2026", status: "in_transit", mailType: "Certified + RR", tracking: "9405 5118 9956 4521 0088" },
-  { id: "AM-2026-0068", type: "Government Decision Appeal", recipient: "SSA Office of Appeals", date: "Aug 3, 2026", status: "delivered", mailType: "Certified + RR", tracking: "9405 5118 9956 4498 2210" },
-  { id: "AM-2026-0061", type: "Court Ruling Appeal", recipient: "Traffic Court Clerk", date: "Jul 22, 2026", status: "delivered", mailType: "Certified", tracking: "9405 5118 9956 4412 0099" },
-  { id: "AM-2026-0055", type: "Reconsideration Request", recipient: "State Farm Reconsideration", date: "Jul 10, 2026", status: "delivered", mailType: "Certified + RR", tracking: "9405 5118 9956 4308 1156" },
-  { id: "AM-2026-0049", type: "Denied Claim Appeal", recipient: "Geico Claims Department", date: "Jun 28, 2026", status: "delivered", mailType: "Certified + RR", tracking: "9405 5118 9956 4208 9934" },
-];
+
 const statusConfig: Record<string, { label: string; badge: string }> = {
-  in_transit: { label: "In transit", badge: "badge badge-amber" },
-  delivered: { label: "Delivered", badge: "badge badge-green" },
+  paid:          { label: "Paid",        badge: "badge badge-indigo" },
+  submitted:     { label: "Submitted",   badge: "badge badge-indigo" },
+  in_transit:    { label: "In transit",   badge: "badge badge-amber" },
+  mailed:        { label: "Mailed",       badge: "badge badge-amber" },
+  delivered:     { label: "Delivered",    badge: "badge badge-green" },
+  failed:        { label: "Failed",       badge: "badge badge-amber" },
+  cancelled:     { label: "Cancelled",    badge: "badge badge-indigo" },
+  refunded:      { label: "Refunded",     badge: "badge badge-indigo" },
+  draft:         { label: "Draft",        badge: "badge badge-indigo" },
+  ready:         { label: "Ready",        badge: "badge badge-indigo" },
 };
+
 function DashboardPage() {
+  const [mailings, setMailings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+
+  // Get the current user from Supabase auth session
+  useEffect(() => {
+    async function getUser() {
+      try {
+        const { getSupabaseClient } = await import("@/platform/supabase");
+        const supabase = await getSupabaseClient();
+        if (!supabase) return;
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser({ id: session.user.id, email: session.user.email || "" });
+        }
+      } catch {
+        // Not logged in or Supabase not configured — that's fine
+      }
+    }
+    getUser();
+  }, []);
+
+  // Load mailings from the server function
+  useEffect(() => {
+    async function loadMailings() {
+      try {
+        setLoading(true);
+        setError(null);
+        const result = await listMailings({ data: { userId: user?.id || "anonymous", limit: 100 } });
+        setMailings(result.mailings);
+      } catch (err) {
+        setError("Could not load mailings. Database may not be configured yet.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadMailings();
+  }, [user]);
+
+  // Filter mailings by search query (client-side)
+  const filteredMailings = useMemo(() => {
+    if (!search.trim()) return mailings;
+    const q = search.toLowerCase();
+    return mailings.filter((m) =>
+      m.id?.toLowerCase().includes(q) ||
+      m.recipient?.name?.toLowerCase().includes(q) ||
+      m.workflowId?.toLowerCase().includes(q) ||
+      m.mailingMethod?.toLowerCase().includes(q) ||
+      m.trackingNumber?.toLowerCase().includes(q)
+    );
+  }, [mailings, search]);
+
+  // Compute stats from real data
+  const total = mailings.length;
+  const inTransit = mailings.filter((m) => ["in_transit", "mailed", "submitted"].includes(m.status)).length;
+  const deliveredCount = mailings.filter((m) => m.status === "delivered").length;
+  const drafts = mailings.filter((m) => m.status === "draft").length;
+
+  const stats = [
+    { label: "Total mailings", value: total, icon: Mail, color: "text-indigo-700" },
+    { label: "In transit",     value: inTransit, icon: PackageCheck, color: "text-amber-500" },
+    { label: "Delivered",      value: deliveredCount, icon: CheckCircle2, color: "text-amber-600" },
+    { label: "Draft appeals",  value: drafts, icon: FileText, color: "text-slate-400" },
+  ];
+
+  // Latest tracking — find the most recent mailing with a tracking number
+  const latestTracked = mailings.find((m) => m.trackingNumber && ["in_transit", "mailed", "delivered"].includes(m.status));
+
   return (
     <main className="min-h-screen bg-cream"><SiteHeader />
       <section className="bg-white py-10 border-b border-warm-border"><div className="container">
-        <div className="flex items-center justify-between flex-wrap gap-3"><div><h1 className="text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>My Mailings</h1><p className="mt-1 text-sm text-slate-400">Track your appeals and delivery records.</p></div>
-        <Link to="/workflows/denied-claim" className="btn-amber">New mailing <ArrowRight size={16} /></Link></div>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>My Mailings</h1>
+            <p className="mt-1 text-sm text-slate-400">Track your appeals and delivery records.</p>
+          </div>
+          <Link to="/workflows/denied-claim" className="btn-amber">New mailing <ArrowRight size={16} /></Link>
+        </div>
       </div></section>
+
       <section className="py-8"><div className="container">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{stats.map(({ label, value, icon: Icon, color }) => (<div key={label} className="card p-5"><div className="flex items-center justify-between"><div><p className="text-sm text-slate-400">{label}</p><p className="mt-1 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{value}</p></div><Icon size={24} className={color} /></div></div>))}</div>
-        <div className="mt-8 card overflow-hidden">
-          <div className="flex items-center justify-between border-b border-warm-border px-5 py-4"><h2 className="font-semibold text-indigo-700">Recent mailings</h2><div className="relative"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" /><input className="input-field pl-9 py-2 text-sm" placeholder="Search mailings..." style={{ width: 200 }} /></div></div>
-          <div className="hidden md:block"><table className="w-full text-sm"><thead className="bg-indigo-50 text-left text-xs font-semibold text-indigo-500"><tr><th className="px-5 py-3">Reference</th><th className="px-5 py-3">Type</th><th className="px-5 py-3">Recipient</th><th className="px-5 py-3">Date</th><th className="px-5 py-3">Mail type</th><th className="px-5 py-3">Status</th></tr></thead>
-            <tbody className="divide-y divide-warm-border">{mailings.map((m) => (<tr key={m.id} className="hover:bg-cream transition-colors cursor-pointer"><td className="px-5 py-3.5 font-mono text-xs font-semibold text-indigo-700">{m.id}</td><td className="px-5 py-3.5 text-slate-500">{m.type}</td><td className="px-5 py-3.5 text-slate-500">{m.recipient}</td><td className="px-5 py-3.5 text-slate-400">{m.date}</td><td className="px-5 py-3.5 text-slate-400">{m.mailType}</td><td className="px-5 py-3.5"><span className={statusConfig[m.status].badge}>{statusConfig[m.status].label}</span></td></tr>))}</tbody>
-          </table></div>
-          <div className="divide-y divide-warm-border md:hidden">{mailings.map((m) => (<div key={m.id} className="p-4"><div className="flex items-center justify-between"><span className="font-mono text-xs font-semibold text-indigo-700">{m.id}</span><span className={statusConfig[m.status].badge}>{statusConfig[m.status].label}</span></div><p className="mt-2 font-semibold text-indigo-700">{m.type}</p><p className="mt-1 text-sm text-slate-400">{m.recipient}</p><div className="mt-2 flex items-center gap-3 text-xs text-slate-300"><span>{m.date}</span><span>·</span><span>{m.mailType}</span></div></div>))}</div>
+        {/* Stats — computed from real data */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map(({ label, value, icon: Icon, color }) => (
+            <div key={label} className="card p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">{label}</p>
+                  <p className="mt-1 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{value}</p>
+                </div>
+                <Icon size={24} className={color} />
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="mt-6 card p-5"><div className="flex items-center gap-2"><PackageCheck size={18} className="text-amber-500" /><h2 className="font-semibold text-indigo-700">Latest tracking</h2></div><p className="mt-1 text-sm text-slate-400">AM-2026-0073 · Certified + Return Receipt</p>
-          <div className="mt-4 space-y-4">{[{ date: "Aug 12, 9:30 AM", event: "Mailed from Austin, TX", done: true }, { date: "Aug 12, 2:15 PM", event: "Processed at USPS facility", done: true }, { date: "Aug 13", event: "In transit", done: false }, { date: "—", event: "Out for delivery", done: false }, { date: "—", event: "Delivered (signature required)", done: false }].map((step, i) => (<div key={i} className="flex items-start gap-3"><div className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full ${step.done ? "bg-amber-50" : "bg-gray-100"}`}>{step.done ? <CheckCircle2 size={14} className="text-amber-600" /> : <span className="text-[10px] font-bold text-gray-400">{i + 1}</span>}</div><div><p className={`text-sm ${step.done ? "text-indigo-700" : "text-slate-300"}`}>{step.event}</p><p className="text-xs text-slate-300">{step.date}</p></div></div>))}</div>
-        </div>
-        <div className="mt-6 flex items-center gap-3 rounded-xl border border-dashed border-warm-border bg-white p-5 text-sm text-slate-400"><TrendingUp size={18} className="text-amber-500" /><span>Account features (save drafts, re-send, saved addresses) are coming when authentication launches.</span></div>
+
+        {/* Error state */}
+        {error && (
+          <div className="mt-8 alert alert-warning">
+            <AlertCircle size={18} className="inline mr-2" /> {error}
+            <div className="mt-2 text-xs text-slate-500">
+              To enable persistence, run <code className="font-mono">supabase/schema.sql</code> in your Supabase SQL editor and add the environment variables from <code className="font-mono">.env.example</code>.
+            </div>
+          </div>
+        )}
+
+        {/* Loading state */}
+        {loading && (
+          <div className="mt-8 card p-12 text-center">
+            <div className="animate-pulse text-slate-400">Loading your mailings…</div>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && !error && mailings.length === 0 && (
+          <div className="mt-8 card p-12 text-center">
+            <Mail size={32} className="mx-auto text-slate-300" />
+            <h2 className="mt-4 text-lg font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>No mailings yet</h2>
+            <p className="mt-2 text-sm text-slate-400">Start your first appeal to see it here.</p>
+            <Link to="/workflows/denied-claim" className="btn-amber mt-4">Start an appeal <ArrowRight size={16} /></Link>
+          </div>
+        )}
+
+        {/* Mailings table */}
+        {!loading && !error && filteredMailings.length > 0 && (
+          <div className="mt-8 card overflow-hidden">
+            <div className="flex items-center justify-between border-b border-warm-border px-5 py-4">
+              <h2 className="font-semibold text-indigo-700">Recent mailings</h2>
+              <div className="relative">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+                <input
+                  className="input-field pl-9 py-2 text-sm"
+                  placeholder="Search mailings..."
+                  style={{ width: 200 }}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block">
+              <table className="w-full text-sm">
+                <thead className="bg-indigo-50 text-left text-xs font-semibold text-indigo-500">
+                  <tr>
+                    <th className="px-5 py-3">Reference</th>
+                    <th className="px-5 py-3">Type</th>
+                    <th className="px-5 py-3">Recipient</th>
+                    <th className="px-5 py-3">Date</th>
+                    <th className="px-5 py-3">Mail type</th>
+                    <th className="px-5 py-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-warm-border">
+                  {filteredMailings.map((m) => (
+                    <tr key={m.id} className="hover:bg-cream transition-colors cursor-pointer">
+                      <td className="px-5 py-3.5 font-mono text-xs font-semibold text-indigo-700">{m.id.slice(0, 12)}</td>
+                      <td className="px-5 py-3.5 text-slate-500">{m.workflowId?.replace(/-/g, " ") || "—"}</td>
+                      <td className="px-5 py-3.5 text-slate-500">{m.recipient?.name || "—"}</td>
+                      <td className="px-5 py-3.5 text-slate-400">{m.createdAt ? new Date(m.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</td>
+                      <td className="px-5 py-3.5 text-slate-400 capitalize">{m.mailingMethod || "—"}</td>
+                      <td className="px-5 py-3.5">
+                        <span className={(statusConfig[m.status] || statusConfig.draft).badge}>
+                          {(statusConfig[m.status] || statusConfig.draft).label}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="divide-y divide-warm-border md:hidden">
+              {filteredMailings.map((m) => (
+                <div key={m.id} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-semibold text-indigo-700">{m.id.slice(0, 12)}</span>
+                    <span className={(statusConfig[m.status] || statusConfig.draft).badge}>
+                      {(statusConfig[m.status] || statusConfig.draft).label}
+                    </span>
+                  </div>
+                  <p className="mt-2 font-semibold text-indigo-700 capitalize">{m.workflowId?.replace(/-/g, " ") || "Appeal"}</p>
+                  <p className="mt-1 text-sm text-slate-400">{m.recipient?.name}</p>
+                  <div className="mt-2 flex items-center gap-3 text-xs text-slate-300">
+                    <span>{m.createdAt ? new Date(m.createdAt).toLocaleDateString() : "—"}</span>
+                    <span>·</span>
+                    <span className="capitalize">{m.mailingMethod}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* No search results */}
+        {!loading && !error && mailings.length > 0 && filteredMailings.length === 0 && (
+          <div className="mt-8 card p-12 text-center">
+            <Search size={24} className="mx-auto text-slate-300" />
+            <p className="mt-3 text-sm text-slate-400">No mailings match "{search}"</p>
+          </div>
+        )}
+
+        {/* Latest tracking — real tracking number from most recent mailing */}
+        {!loading && !error && latestTracked && (
+          <div className="mt-6 card p-5">
+            <div className="flex items-center gap-2">
+              <PackageCheck size={18} className="text-amber-500" />
+              <h2 className="font-semibold text-indigo-700">Latest tracking</h2>
+            </div>
+            <p className="mt-1 text-sm text-slate-400">
+              {latestTracked.id.slice(0, 12)} · {latestTracked.mailingMethod?.charAt(0).toUpperCase() + latestTracked.mailingMethod?.slice(1) || "Standard"}
+              {latestTracked.trackingNumber && (
+                <> · <span className="font-mono text-indigo-700">{latestTracked.trackingNumber}</span></>
+              )}
+            </p>
+            <div className="mt-4">
+              <div className="flex items-center gap-3 rounded-lg bg-indigo-50 px-4 py-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50">
+                  {(statusConfig[latestTracked.status] || statusConfig.draft).label === "Delivered"
+                    ? <CheckCircle2 size={16} className="text-amber-600" />
+                    : <PackageCheck size={16} className="text-amber-500" />}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-indigo-700">
+                    {(statusConfig[latestTracked.status] || statusConfig.draft).label}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {latestTracked.updatedAt ? new Date(latestTracked.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Awaiting status update"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Auth prompt for guests */}
+        {!user && !loading && (
+          <div className="mt-6 flex items-center gap-3 rounded-xl border border-dashed border-warm-border bg-white p-5 text-sm text-slate-400">
+            <TrendingUp size={18} className="text-amber-500" />
+            <span><Link to="/auth" className="text-amber-600 hover:underline font-medium">Sign in</Link> to save drafts, track mailings, and keep a permanent record of your appeals.</span>
+          </div>
+        )}
       </div></section>
       <SiteFooter />
     </main>

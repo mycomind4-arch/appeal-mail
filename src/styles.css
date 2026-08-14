@@ -149,3 +149,12 @@ h1, h2, h3, h4, h5, h6 {
 .prose-content p { margin-top: 1rem; font-size: .9rem; line-height: 1.75; color: #475569; }
 .prose-content ul { margin-top: 1rem; padding-left: 1.25rem; }
 .prose-content ul li { font-size: .9rem; line-height: 1.75; color: #475569; margin-top: .5rem; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: .5rem;
+  border-radius: .75rem; border: 1px solid #c7d2fe; background: white;
+  padding: .7rem 1.5rem; font-weight: 600; font-size: .9rem; color: #312e81;
+  transition: all .2s; cursor: pointer;
+}
+.btn-secondary:hover { border-color: #312e81; background: #eef2ff; }
+.btn-secondary:disabled { opacity: .4; cursor: not-allowed; }
