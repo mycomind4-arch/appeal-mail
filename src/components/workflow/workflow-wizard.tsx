@@ -1,6 +1,6 @@
 import { AppShell, StatusBadge, DeadlineCard, ReadinessScore, EmptyState, SourceReference, ConfidenceBadge, IssueCard, AIActionBar, ActivityFeed, NAV_ICONS, NAV_LABELS, type WorkspaceNav } from "@/components/workspace/app-shell";
 import { FileUp, ShieldAlert, CheckCircle2, Mail, PackageCheck, Stamp, CreditCard, Check, AlertTriangle, Clock, FileText, Link2, Scale, Gavel, Calendar, Paperclip, Send, Award, Download, Copy, FileSearch, LayoutDashboard, CalendarClock, TrendingUp, ArrowRight } from "lucide-react";
-import { useMemo, useState, useCallback, useRef } from "react";
+import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { workflows, type WorkflowId, type WorkflowDefinition, type WorkflowStep } from "@/domain/workflows";
 import { createDecision, type Decision, daysUntilDeadline, deadlineStatus } from "@/domain/decision";
 import { createGround, type AppealGround, type GroundType, GROUND_TYPE_LABELS, GROUND_TYPE_DESCRIPTIONS, groundToParagraph } from "@/domain/ground";
@@ -42,6 +42,23 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
   const definition = workflows[workflowId];
 
   // Step navigation
+  // User identity for ownership-aware persistence
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function getUser() {
+      try {
+        const { getSupabaseClient } = await import("@/platform/supabase");
+        const supabase = await getSupabaseClient();
+        if (!supabase) return;
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) setUserId(session.user.id);
+      } catch {
+        // Not logged in — userId stays null
+      }
+    }
+    getUser();
+  }, []);
   const [step, setStep] = useState(0);
   const totalSteps = definition.stepLabels.length;
   const progress = useMemo(() => Math.round((step / (totalSteps - 1)) * 100), [step, totalSteps]);
@@ -515,7 +532,7 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
         proof: p,
         status: "mailed",
       });
-      await saveAppeal({ data: { appeal: updated } });
+      await saveAppeal({ data: { appeal: updated, userId: userId || "anonymous" } });
       setSavedToDb(true);
     } catch (err) {
       console.error("Failed to save appeal:", err);

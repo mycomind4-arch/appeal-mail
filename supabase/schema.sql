@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS appeals (
   packet JSONB,
   proof JSONB,
   timeline JSONB DEFAULT '[]'::jsonb,
+  version INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -49,17 +50,35 @@ CREATE TABLE IF NOT EXISTS recipients (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Audit events table (immutable audit trail — append-only)
+CREATE TABLE IF NOT EXISTS audit_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_type TEXT NOT NULL,
+  occurred_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  actor TEXT NOT NULL DEFAULT 'system',
+  subject_id TEXT NOT NULL,
+  owner_id UUID NOT NULL,
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_appeals_user_id ON appeals(user_id);
 CREATE INDEX IF NOT EXISTS idx_appeals_status ON appeals(status);
+CREATE INDEX IF NOT EXISTS idx_appeals_version ON appeals(id, version);
 CREATE INDEX IF NOT EXISTS idx_mailings_appeal_id ON mailings(appeal_id);
 CREATE INDEX IF NOT EXISTS idx_mailings_status ON mailings(status);
 CREATE INDEX IF NOT EXISTS idx_recipients_user_id ON recipients(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_events_subject ON audit_events(subject_id);
+CREATE INDEX IF NOT EXISTS idx_audit_events_owner ON audit_events(owner_id);
+CREATE INDEX IF NOT EXISTS idx_audit_events_type ON audit_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_audit_events_occurred ON audit_events(occurred_at DESC);
 
 -- Row Level Security
 ALTER TABLE appeals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE mailings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE recipients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_events ENABLE ROW LEVEL SECURITY;
 
 -- Users can only see their own data
 CREATE POLICY "Users can view own appeals" ON appeals FOR SELECT USING (auth.uid() = user_id);
@@ -78,6 +97,10 @@ CREATE POLICY "Users can view own recipients" ON recipients FOR SELECT USING (au
 CREATE POLICY "Users can insert own recipients" ON recipients FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete own recipients" ON recipients FOR DELETE USING (auth.uid() = user_id);
 
+-- Audit events: users can only read their own audit trail (append-only — no updates or deletes)
+CREATE POLICY "Users can view own audit events" ON audit_events FOR SELECT USING (auth.uid() = owner_id);
+-- No INSERT/UPDATE/DELETE policies for audit_events via RLS — only service role can write
+
 -- Auto-update updated_at
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
@@ -92,3 +115,30 @@ CREATE TRIGGER appeals_updated_at BEFORE UPDATE ON appeals
 
 CREATE TRIGGER mailings_updated_at BEFORE UPDATE ON mailings
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- MIGRATION: Add version column to existing appeals table
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- Add version column if it doesn't exist (safe for existing data — defaults to 1)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'appeals' AND column_name = 'version'
+  ) THEN
+    ALTER TABLE appeals ADD COLUMN version INTEGER NOT NULL DEFAULT 1;
+  END IF;
+END $$;
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- ROLLBACK NOTES:
+-- To rollback this migration:
+-- 1. ALTER TABLE appeals DROP COLUMN IF EXISTS version;
+-- 2. DROP TABLE IF EXISTS audit_events;
+-- 3. DROP INDEX IF EXISTS idx_appeals_version;
+-- 4. DROP INDEX IF EXISTS idx_audit_events_subject;
+-- 5. DROP INDEX IF EXISTS idx_audit_events_owner;
+-- 6. DROP INDEX IF EXISTS idx_audit_events_type;
+-- 7. DROP INDEX IF EXISTS idx_audit_events_occurred;
+-- ═══════════════════════════════════════════════════════════════════════════════

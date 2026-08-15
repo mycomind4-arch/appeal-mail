@@ -3,25 +3,90 @@
    - Text files: FileReader.readAsText()
    - PDF: dynamically imported pdf.js
    - Images: manual entry fallback (OCR future)
+
+   Upgraded with platform document safety:
+   - MIME type validation (never trust client MIME alone)
+   - File size limits per type
+   - Filename sanitization
+   - Content sanitization (prompt injection defense)
+   - Page count limits
    ───────────────────────────────────────────── */
 
-export async function extractTextFromFile(file: File): Promise<string> {
-  const name = file.name.toLowerCase();
+import {
+  validateFile,
+  sanitizeFilename,
+  sanitizeExtractedText,
+  MAX_PDF_BYTES,
+  MAX_IMAGE_BYTES,
+  MAX_TEXT_BYTES,
+  MAX_PAGES,
+  isAllowedMimeType,
+  isDangerousMimeType,
+} from "@/lib/platform/documents";
 
-  // Plain text files
-  if (file.type === "text/plain" || name.endsWith(".txt") || name.endsWith(".md")) {
-    return await file.text();
+export interface ExtractionResult {
+  text: string;
+  warnings: string[];
+  filename: string;
+  pageCount: number;
+}
+
+export interface ExtractionError {
+  error: string;
+  filename: string;
+}
+
+export async function extractTextFromFile(file: File): Promise<string> {
+  const result = await extractTextFromFileSafe(file);
+  if ("error" in result) {
+    return "";
+  }
+  return result.text;
+}
+
+/* ── Safe extraction with validation and sanitization ── */
+
+export async function extractTextFromFileSafe(
+  file: File,
+): Promise<ExtractionResult | ExtractionError> {
+  const filename = sanitizeFilename(file.name);
+  const mimeType = file.type || guessMimeType(filename);
+  const size = file.size;
+
+  // Validate file safety
+  const validation = validateFile({
+    filename,
+    mimeType,
+    size,
+  });
+
+  if (!validation.ok) {
+    return {
+      error: validation.error.message,
+      filename,
+    };
   }
 
-  // PDF — use pdf.js (dynamic import to keep bundle small)
-  if (file.type === "application/pdf" || name.endsWith(".pdf")) {
+  // Extract based on type
+  if (mimeType === "text/plain" || filename.endsWith(".txt") || filename.endsWith(".md")) {
+    const text = await file.text();
+    const { text: cleaned, warnings } = sanitizeExtractedText(text);
+    return { text: cleaned, warnings, filename, pageCount: 1 };
+  }
+
+  if (mimeType === "application/pdf" || filename.endsWith(".pdf")) {
     try {
       const pdfjs = await import("pdfjs-dist");
       const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-      const textParts: string[] = [];
 
-      for (let i = 1; i <= Math.min(pdf.numPages, 20); i++) {
+      // Check page count
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      const pageCount = Math.min(pdf.numPages, MAX_PAGES);
+
+      const textParts: string[] = [];
+      const allWarnings: string[] = [];
+
+      for (let i = 1; i <= pageCount; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
         const pageText = content.items
@@ -30,34 +95,64 @@ export async function extractTextFromFile(file: File): Promise<string> {
         textParts.push(pageText);
       }
 
-      return textParts.join("\n\n");
+      const rawText = textParts.join("\n\n");
+      const { text: cleanedText, warnings } = sanitizeExtractedText(rawText);
+      allWarnings.push(...warnings);
+
+      return { text: cleanedText, warnings: allWarnings, filename, pageCount };
     } catch (err) {
-      console.warn("PDF extraction failed, falling back to manual entry:", err);
-      return "";
+      console.warn("PDF extraction failed:", err);
+      return { text: "", warnings: ["PDF extraction failed — manual entry required"], filename, pageCount: 0 };
     }
   }
 
-  // Images — would need OCR (tesseract.js), for now return empty
-  if (file.type.startsWith("image/")) {
-    return "";
+  // Images — would need OCR
+  if (mimeType.startsWith("image/")) {
+    return { text: "", warnings: ["Image files require OCR — manual entry needed"], filename, pageCount: 0 };
   }
 
-  return "";
+  return { error: `Unsupported file type: ${mimeType}`, filename };
 }
 
 /* Check if a file type is supported for text extraction */
 export function isExtractable(file: File): boolean {
-  return (
-    file.type === "text/plain" ||
-    file.type === "application/pdf" ||
-    file.type.startsWith("image/") ||
-    file.name.toLowerCase().endsWith(".txt") ||
-    file.name.toLowerCase().endsWith(".md") ||
-    file.name.toLowerCase().endsWith(".pdf")
-  );
+  const mimeType = file.type || guessMimeType(file.name);
+  return isAllowedMimeType(mimeType);
 }
 
 /* Check if a file needs OCR (image-based) */
 export function needsOCR(file: File): boolean {
   return file.type.startsWith("image/");
+}
+
+/* Validate a file before upload (client-side pre-check) */
+export function validateUploadFile(file: File): { valid: boolean; error?: string } {
+  const filename = sanitizeFilename(file.name);
+  const mimeType = file.type || guessMimeType(filename);
+  const validation = validateFile({
+    filename,
+    mimeType,
+    size: file.size,
+  });
+
+  if (!validation.ok) {
+    return { valid: false, error: validation.error.message };
+  }
+  return { valid: true };
+}
+
+/* ── MIME type guessing from extension (never trust client MIME alone) ── */
+function guessMimeType(filename: string): string {
+  const ext = filename.toLowerCase().split(".").pop();
+  switch (ext) {
+    case "pdf": return "application/pdf";
+    case "png": return "image/png";
+    case "jpg":
+    case "jpeg": return "image/jpeg";
+    case "tif":
+    case "tiff": return "image/tiff";
+    case "txt": return "text/plain";
+    case "md": return "text/plain";
+    default: return "application/octet-stream";
+  }
 }
