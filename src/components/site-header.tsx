@@ -6,6 +6,14 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
   const [open, setOpen] = useState(false);
   const transparent = variant === "transparent";
 
+  const links = [
+    { label: "Workflows", href: "/workflows" },
+    { label: "How it works", href: "/#how" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Resources", href: "/resources" },
+    { label: "FAQ", href: "/faq" },
+  ];
+
   return (
     <header className={`sticky top-0 z-50 border-b transition-all ${transparent ? "border-transparent bg-transparent" : "border-warm-border bg-white/95 backdrop-blur-sm"}`}>
       <div className="container flex min-h-14 items-center justify-between py-3">
@@ -19,16 +27,10 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {[
-            { label: "How it works", href: "/#how" },
-            { label: "What you can appeal", href: "/#workflows" },
-            { label: "Pricing", href: "/pricing" },
-            { label: "Resources", href: "/resources" },
-            { label: "FAQ", href: "/faq" },
-          ].map((item) => (
-            <a key={item.label} href={item.href} className={`text-sm font-medium transition-colors ${transparent ? "text-white/70 hover:text-white" : "text-slate-500 hover:text-indigo-700"}`}>
+          {links.map((item) => (
+            <Link key={item.label} to={item.href} className={`text-sm font-medium transition-colors ${transparent ? "text-white/70 hover:text-white" : "text-slate-500 hover:text-indigo-700"}`}>
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -49,19 +51,14 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
       {open && (
         <div className="border-t border-warm-border bg-white md:hidden">
           <div className="container flex flex-col gap-1 py-3">
-            {[
-              { label: "How it works", href: "/#how" },
-              { label: "What you can appeal", href: "/#workflows" },
-              { label: "Pricing", href: "/pricing" },
-              { label: "Resources", href: "/resources" },
-              { label: "FAQ", href: "/faq" },
-              { label: "My Mailings", href: "/dashboard" },
-              { label: "Contact", href: "/contact" },
-            ].map((item) => (
-              <a key={item.label} href={item.href} className="rounded-md px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-cream hover:text-indigo-700" onClick={() => setOpen(false)}>
+            {links.map((item) => (
+              <Link key={item.label} to={item.href} className="rounded-md px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-cream hover:text-indigo-700" onClick={() => setOpen(false)}>
                 {item.label}
-              </a>
+              </Link>
             ))}
+            <Link to="/dashboard" className="rounded-md px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-cream hover:text-indigo-700" onClick={() => setOpen(false)}>
+              My Mailings
+            </Link>
             <Link to="/workflows/denied-claim" className="btn-amber btn-sm mt-2 justify-center" onClick={() => setOpen(false)}>
               Start
             </Link>
