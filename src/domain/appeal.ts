@@ -71,14 +71,17 @@ export function updateAppeal(appeal: Appeal, updates: Partial<Appeal>): Appeal {
   });
 }
 
-/* Check if an appeal is ready to mail */
+/* Check if an appeal is ready to mail.
+   Both safe readiness paths require an explicit "ready" status. */
 export function isReadyToMail(appeal: Appeal): boolean {
+  if (appeal.status !== "ready" || !appeal.review) return false;
+
+  const issues = appeal.review.issuesRequiringAttention;
+  const score = appeal.review.score;
+
   return (
-    appeal.status === "ready" &&
-    !!appeal.review &&
-    appeal.review.score >= 60 &&
-    appeal.review.issuesRequiringAttention === 0 ||
-    (appeal.review?.issuesRequiringAttention ?? 0) <= 2 && (appeal.review?.score ?? 0) >= 80
+    (score >= 60 && issues === 0) ||
+    (score >= 80 && issues <= 2)
   );
 }
 
