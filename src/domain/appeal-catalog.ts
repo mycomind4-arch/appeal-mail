@@ -145,10 +145,10 @@ export const APPEAL_CATALOG: AppealWorkflowEntry[] = [
       "appeal letter for insurance denial",
     ],
     route: "/appeal/insurance-claim",
-    status: "COMING_SOON",
+    status: "IMPLEMENTED",
     engine: "Insurance Appeal Engine",
-    executable: false,
-    cta: "Join the workflow",
+    executable: true,
+    cta: "Start Appeal",
   },
   {
     slug: "health-insurance",
