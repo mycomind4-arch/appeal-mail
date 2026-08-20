@@ -20,6 +20,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
+import { Route as AppealSlugRouteImport } from './routes/appeal/$slug'
 import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
 import { Route as ResourcesSlugRouteImport } from './routes/resources/$slug'
 import { Route as WorkflowsCourtRulingRouteImport } from './routes/workflows/court-ruling'
@@ -82,6 +83,11 @@ const WorkflowsRoute = WorkflowsRouteImport.update({
   path: '/workflows',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppealSlugRoute = AppealSlugRouteImport.update({
+  id: '/appeal/$slug',
+  path: '/appeal/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
   id: '/resources/',
   path: '/resources/',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/workflows': typeof WorkflowsRouteWithChildren
+  '/appeal/$slug': typeof AppealSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/court-ruling': typeof WorkflowsCourtRulingRoute
   '/workflows/denied-claim': typeof WorkflowsDeniedClaimRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/workflows': typeof WorkflowsRouteWithChildren
+  '/appeal/$slug': typeof AppealSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/court-ruling': typeof WorkflowsCourtRulingRoute
   '/workflows/denied-claim': typeof WorkflowsDeniedClaimRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/workflows': typeof WorkflowsRouteWithChildren
+  '/appeal/$slug': typeof AppealSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/court-ruling': typeof WorkflowsCourtRulingRoute
   '/workflows/denied-claim': typeof WorkflowsDeniedClaimRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/workflows'
+    | '/appeal/$slug'
     | '/resources/$slug'
     | '/workflows/court-ruling'
     | '/workflows/denied-claim'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/workflows'
+    | '/appeal/$slug'
     | '/resources/$slug'
     | '/workflows/court-ruling'
     | '/workflows/denied-claim'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/workflows'
+    | '/appeal/$slug'
     | '/resources/$slug'
     | '/workflows/court-ruling'
     | '/workflows/denied-claim'
@@ -245,6 +257,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   WorkflowsRoute: typeof WorkflowsRouteWithChildren
+  AppealSlugRoute: typeof AppealSlugRoute
   ResourcesSlugRoute: typeof ResourcesSlugRoute
   ResourcesIndexRoute: typeof ResourcesIndexRoute
 }
@@ -328,6 +341,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/appeal/$slug': {
+      id: '/appeal/$slug'
+      path: '/appeal/$slug'
+      fullPath: '/appeal/$slug'
+      preLoaderRoute: typeof AppealSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources/': {
       id: '/resources/'
       path: '/resources'
@@ -403,6 +423,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   WorkflowsRoute: WorkflowsRouteWithChildren,
+  AppealSlugRoute: AppealSlugRoute,
   ResourcesSlugRoute: ResourcesSlugRoute,
   ResourcesIndexRoute: ResourcesIndexRoute,
 }

@@ -1,37 +1,32 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Scale, Mail, ShieldCheck, Sparkles, Clock, PackageCheck, Lock, FileUp, ChevronDown, Send, Eye, Stamp, Gavel, FileText, TrendingUp, Quote, ShieldAlert, CalendarClock, FileSearch } from "lucide-react";
+import { ArrowRight, CheckCircle2, Scale, Mail, ShieldCheck, Sparkles, Clock, PackageCheck, Lock, FileUp, ChevronDown, Send, Eye, Stamp, Gavel, FileText, TrendingUp, Quote, ShieldAlert, CalendarClock, FileSearch, Search } from "lucide-react";
 import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { APPEAL_CATALOG, CATEGORY_ORDER, CATEGORY_DESCRIPTIONS, getCatalogStats, getWorkflowsByCategory, type AppealCategory } from "@/domain/appeal-catalog";
 
 export const Route = createFileRoute("/")({ component: HomePage });
-
-const workflows = [
-  { title: "Appeal a Denied Claim", description: "Prepare an appeal letter for a denied insurance claim, benefit denial, or workers' compensation decision.", icon: FileText, href: "/workflows/denied-claim" },
-  { title: "Appeal a Government Decision", description: "Prepare an appeal for a denied government benefit, licensing decision, or agency ruling.", icon: Scale, href: "/workflows/government-decision" },
-  { title: "Appeal a Court Ruling", description: "Prepare an appeal for a small claims, traffic, or municipal court decision.", icon: Gavel, href: "/workflows/court-ruling" },
-  { title: "Submit a Reconsideration", description: "Request an internal review or reconsideration before filing a formal appeal.", icon: Mail, href: "/workflows/reconsideration" },
-];
 
 const features = [
   { icon: Eye, title: "Appeal X-Ray™ analysis", desc: "Upload your decision and supporting documents. We cross-reference everything to find date conflicts, unaddressed evidence, unsupported conclusions, and contradictions — each finding source-linked and explicitly uncertainty-aware.", featured: true },
   { icon: CalendarClock, title: "Appeal Timeline™", desc: "We reconstruct the entire case history automatically from your documents. Every event gets an integrity status — documented, inferred, conflicting, or unknown — with evidence linked to each one. Timeline conflicts become appeal grounds with one click.", featured: true },
   { icon: ShieldAlert, title: "Appeal Stress Test™", desc: "We attack every ground from the decision-maker's perspective, score each argument 0-100, and find your weakest link. Before mailing, we scan your draft for exaggerated claims and suggest precise revisions.", featured: true },
   { icon: Sparkles, title: "AI-assisted drafting", desc: "Approved findings automatically become appeal grounds with linked evidence. The draft is built from your analysis, not a blank page. Everything is editable." },
-  { icon: Scale, title: "Guided appeal workflows", desc: "Each workflow is specialized for your decision type — denied claims, government decisions, court rulings, or reconsiderations." },
+  { icon: Scale, title: "Guided appeal workflows", desc: "Each workflow is specialized for your decision type — insurance, disability, unemployment, benefits, workers' comp, VA, and more." },
   { icon: Send, title: "Physical mail with tracking", desc: "Your appeal is printed, enveloped, and mailed via USPS. Track delivery and keep proof of timely submission." },
   { icon: ShieldCheck, title: "Proof of timely filing", desc: "Certified mail options include signature tracking and return receipt — your record that the appeal was received on time. SHA-256 proof certificates." },
   { icon: Lock, title: "Secure & private", desc: "Your documents are encrypted, never shared, and never used for marketing or AI training. Delete your data anytime." },
 ];
 
 const steps = [
-  { n: "01", title: "Upload", desc: "Upload the decision letter and every supporting document you have — receipts, correspondence, reports." },
-  { n: "02", title: "Analyze", desc: "The Appeal X-Ray™ cross-references your documents to find date conflicts, unaddressed evidence, and contradictions — each finding source-linked and uncertainty-aware." },
-  { n: "03", title: "Timeline", desc: "The Appeal Timeline™ reconstructs the entire case history automatically. Every event gets an integrity status — documented, inferred, conflicting, or unknown — and evidence is attached to each one." },
-  { n: "04", title: "Build", desc: "Approved findings and timeline conflicts automatically become appeal grounds with linked evidence. Review and edit every word." },
-  { n: "05", title: "Stress Test", desc: "We attack every ground from the decision-maker's perspective, score each argument 0-100, and find your weakest link — then show you exactly how to fix it." },
-  { n: "06", title: "Send", desc: "Before mailing, we scan your draft for exaggerated claims and unsupported assertions. Then choose your mailing — certified with return receipt is recommended." },
-  { n: "07", title: "Prove", desc: "Track delivery and keep a permanent, tamper-evident record of your timely filing." },
+  { n: "01", title: "Upload Decision", desc: "Upload the decision letter and every supporting document you have — receipts, correspondence, reports." },
+  { n: "02", title: "Understand What Happened", desc: "The Appeal X-Ray™ cross-references your documents to find date conflicts, unaddressed evidence, and contradictions — each finding source-linked and uncertainty-aware." },
+  { n: "03", title: "Identify Problems", desc: "Pinpoint factual errors, procedural mistakes, missing evidence, and contradictions in the decision." },
+  { n: "04", title: "Organize Evidence", desc: "Connect documents and facts to each issue. Every piece of evidence is linked to the ground it supports." },
+  { n: "05", title: "Build Appeal", desc: "Approved findings and timeline conflicts automatically become appeal grounds with linked evidence. Review and edit every word." },
+  { n: "06", title: "Review", desc: "We attack every ground from the decision-maker's perspective, score each argument 0-100, and find your weakest link — then show you exactly how to fix it." },
+  { n: "07", title: "Send", desc: "Before mailing, we scan your draft for exaggerated claims and unsupported assertions. Then choose your mailing — certified with return receipt is recommended." },
+  { n: "08", title: "Track / Prove", desc: "Track delivery and keep a permanent, tamper-evident record of your timely filing." },
 ];
 
 const stats = [
@@ -41,50 +36,32 @@ const stats = [
   { value: "0", label: "Printers needed" },
 ];
 
-const testimonials = [
-  { quote: "My insurance claim was denied and the appeal deadline was 30 days. Appeal Mail helped me organize my response and mail it certified with return receipt. The signed card came back as proof.", author: "Sarah K.", role: "Denied Insurance Claim" },
-  { quote: "I needed to appeal a Social Security decision and had no idea where to start. The guided workflow walked me through every step. Nothing was sent until I reviewed and approved it.", author: "Marcus J.", role: "SSA Appeal" },
-  { quote: "Having all my appeal mailings tracked in one dashboard is exactly what I needed. I can see exactly when each one was delivered.", author: "Diane F.", role: "Multiple Appeals" },
-];
-
-const comparison = [
-  { feature: "Cross-document analysis (Appeal X-Ray™)", us: true, them: false },
-  { feature: "Automatic timeline reconstruction (Appeal Timeline™)", us: true, them: false },
-  { feature: "Event integrity status (documented, inferred, conflicting, unknown)", us: true, them: false },
-  { feature: "Timeline conflict detection with one-click 'Add to Appeal'", us: true, them: false },
-  { feature: "Timeline gap detection with suggested missing records", us: true, them: false },
-  { feature: "Deadline engine with conflict detection", us: true, them: false },
-  { feature: "Adversarial stress testing (Appeal Stress Test™)", us: true, them: false },
-  { feature: "Argument strength scoring (0-100 per ground)", us: true, them: false },
-  { feature: "Draft vulnerability detection (exaggeration, unsupported claims)", us: true, them: false },
-  { feature: "Weakest link identification with fix suggestions", us: true, them: false },
-  { feature: "Source-linked findings with confidence levels", us: true, them: false },
-  { feature: "Evidence gap analysis with suggestions", us: true, them: false },
-  { feature: "Visual appeal map (decision → grounds)", us: true, them: false },
-  { feature: "Guided appeal workflows (not blank-page chat)", us: true, them: false },
-  { feature: "AI never invents facts or legal conclusions", us: true, them: "varies" },
-  { feature: "Physical mail with tracking", us: true, them: false },
-  { feature: "Certified mail with return receipt", us: true, them: false },
-  { feature: "Proof of timely filing records", us: true, them: false },
-  { feature: "Appeal mailing history dashboard", us: true, them: false },
-  { feature: "No printer or post office visit needed", us: true, them: "DIY" },
-  { feature: "You review before anything is sent", us: true, them: "varies" },
+const trustItems = [
+  { icon: Sparkles, title: "AI-assisted analysis", desc: "Cross-document analysis identifies issues you might miss." },
+  { icon: FileSearch, title: "Evidence-supported drafting", desc: "Every claim in your appeal links back to a source document." },
+  { icon: Eye, title: "Source-aware reasoning", desc: "Findings cite the exact document and passage they come from." },
+  { icon: ShieldCheck, title: "User review before sending", desc: "Nothing is mailed until you review and approve it." },
+  { icon: Lock, title: "No fabricated facts", desc: "The AI never invents facts, legal conclusions, or evidence." },
+  { icon: Mail, title: "No automatic mailing", desc: "Physical mail is never sent without your explicit authorization." },
 ];
 
 const faqItems = [
   { q: "Is this legal advice?", a: "No. Appeal Mail is a correspondence tool, not a law firm. We help you prepare and send appeal documents — we do not provide legal advice, and AI never invents facts or legal conclusions." },
-  { q: "What types of decisions can I appeal?", a: "Denied insurance claims, government benefit decisions, licensing rulings, small claims and traffic court decisions, and internal reconsideration requests." },
+  { q: "What types of decisions can I appeal?", a: "Insurance claim denials, health insurance decisions, SSI and SSDI denials, unemployment determinations, Medicaid and SNAP denials, workers' compensation denials, VA claim denials, and administrative or licensing decisions. Browse the full directory on the Workflows page." },
+  { q: "Which appeal workflows are available now?", a: "The Insurance Appeal workflow is available now. Other appeal types — SSI, SSDI, unemployment, Medicaid, SNAP, workers' comp, VA, and more — are on the roadmap and clearly marked as Coming Soon." },
   { q: "How does the mailing work?", a: "Your final document is printed, placed in an envelope, and mailed via USPS. You can choose first-class, certified, or certified with return receipt for proof of delivery." },
   { q: "Is my data secure?", a: "All documents are stored with encryption, never shared with third parties, and never used for marketing. You can request full deletion at any time." },
   { q: "What does it cost?", a: "Costs start at $4.99 per mailing, including printing, paper, envelope, and postage. Certified starts at $14.94. No subscription required." },
 ];
 
 function HomePage() {
+  const stats_catalog = getCatalogStats();
+
   return (
     <main>
       <SiteHeader />
 
-      {/* Hero — paper aesthetic, no dark background */}
+      {/* Hero */}
       <section className="relative overflow-hidden border-b border-rule">
         <div className="container relative py-20 md:py-28">
           <div className="max-w-3xl">
@@ -98,8 +75,8 @@ function HomePage() {
               Appeal Mail helps you analyze an adverse decision, organize the record, identify potential issues, build a supported appeal, and send it with a permanent mailing record.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <a href="/workflows/denied-claim" className="btn-amber text-base">Start an Appeal <ArrowRight size={18} /></a>
-              <a href="#how" className="btn-outline text-base">See how it works</a>
+              <Link to="/workflows/denied-claim" className="btn-amber text-base">Start an Appeal <ArrowRight size={18} /></Link>
+              <Link to="/workflows" className="btn-outline text-base">Explore Appeal Types</Link>
             </div>
             <p className="mt-6 text-sm text-muted-foreground">Not a law firm. Not legal advice. You remain in control of the facts and final document.</p>
           </div>
@@ -110,20 +87,21 @@ function HomePage() {
           <div className="container py-6">
             <div className="flex items-center gap-3 overflow-x-auto">
               {[
-                { label: "Decision", icon: FileText },
-                { label: "Appeal X-Ray", icon: Scale },
-                { label: "Timeline", icon: CalendarClock },
-                { label: "Stress Test", icon: ShieldAlert },
+                { label: "Upload", icon: FileUp },
+                { label: "Understand", icon: Eye },
+                { label: "Analyze", icon: Scale },
                 { label: "Evidence", icon: FileSearch },
-                { label: "Appeal", icon: Gavel },
-                { label: "Proof", icon: ShieldCheck },
+                { label: "Build", icon: Gavel },
+                { label: "Review", icon: ShieldAlert },
+                { label: "Send", icon: Send },
+                { label: "Prove", icon: ShieldCheck },
               ].map((item, i) => (
                 <div key={item.label} className="flex items-center gap-3 flex-shrink-0">
                   <div className="flex items-center gap-2 rounded-md border border-rule bg-card px-3 py-2">
                     <item.icon size={16} className="text-stamp" />
                     <span className="text-sm font-medium text-muted-foreground">{item.label}</span>
                   </div>
-                  {i < 6 && <ArrowRight size={14} className="text-rule" />}
+                  {i < 7 && <ArrowRight size={14} className="text-rule" />}
                 </div>
               ))}
             </div>
@@ -143,34 +121,78 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Workflows */}
+      {/* Workflow catalog preview */}
       <section id="workflows" className="py-16 md:py-24">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
             <div className="eyebrow">What you can appeal</div>
-            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Start with the decision you received.</h2>
-            <p className="mt-4 text-muted-foreground">Each workflow is designed around a distinct appeal job and routes into the working Appeal Mail application.</p>
+            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Find your appeal type.</h2>
+            <p className="mt-4 text-muted-foreground">From insurance denials to disability benefits to workers' comp — each workflow is built around a specific appeal situation.</p>
           </div>
-          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {workflows.map((w) => (
-              <Link to={w.href} key={w.title} className="card envelope-card-hover group p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}>
-                  <w.icon size={24} className="text-stamp" />
+          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {CATEGORY_ORDER.map((cat: AppealCategory) => {
+              const workflows = getWorkflowsByCategory(cat);
+              return (
+                <Link
+                  key={cat}
+                  to="/workflows"
+                  className="card envelope-card-hover group p-6"
+                >
+                  <div className="flex items-start justify-between">
+                    <h3 className="text-lg text-ink" style={{ fontFamily: "var(--font-serif)" }}>{cat}</h3>
+                    <span className="font-mono text-xs text-muted-foreground">{workflows.length}</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{CATEGORY_DESCRIPTIONS[cat]}</p>
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {workflows.slice(0, 3).map((w) => (
+                      <span key={w.slug} className="rounded-full border border-rule bg-paper px-2.5 py-0.5 text-xs text-muted-foreground">
+                        {w.title}
+                      </span>
+                    ))}
+                    {workflows.length > 3 && (
+                      <span className="rounded-full border border-rule bg-paper px-2.5 py-0.5 text-xs text-muted-foreground">
+                        +{workflows.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-stamp">
+                    Browse {cat.toLowerCase()} appeals
+                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+          <div className="mt-10 text-center">
+            <Link to="/workflows" className="btn-outline">View all {stats_catalog.total} appeal workflows <ArrowRight size={16} /></Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust / Safety */}
+      <section className="border-y border-rule bg-paper-deep/30">
+        <div className="container py-16 md:py-24">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="eyebrow">Trust & safety</div>
+            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>You stay in control.</h2>
+            <p className="mt-4 text-muted-foreground">Appeal Mail assists with analysis and drafting. You make the decisions.</p>
+          </div>
+          <div className="mx-auto mt-12 max-w-4xl grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {trustItems.map((t) => (
+              <div key={t.title} className="rounded-xl border border-rule bg-card p-5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}>
+                  <t.icon size={20} className="text-stamp" />
                 </div>
-                <h3 className="mt-5 text-lg text-ink" style={{ fontFamily: "var(--font-serif)" }}>{w.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">{w.description}</p>
-                <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-stamp">
-                  Open workflow
-                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                </span>
-              </Link>
+                <h3 className="mt-4 text-sm font-semibold text-ink">{t.title}</h3>
+                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{t.desc}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="border-y border-rule bg-card">
+      <section className="border-b border-rule bg-card">
         <div className="container py-16 md:py-24">
           <div className="mx-auto max-w-2xl text-center">
             <div className="eyebrow">How it works</div>
@@ -218,63 +240,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="border-y border-rule bg-card">
-        <div className="container py-16 md:py-24">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="eyebrow">From users</div>
-            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>People who got their appeals in on time.</h2>
-          </div>
-          <div className="mt-14 grid gap-5 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <div key={t.author} className="card p-6">
-                <Quote size={28} className="text-stamp" />
-                <p className="mt-4 text-sm leading-7 text-muted-foreground">{t.quote}</p>
-                <div className="mt-5 border-t border-rule pt-4">
-                  <p className="text-sm font-semibold text-ink">{t.author}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Comparison table */}
-      <section className="py-16 md:py-24">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="eyebrow">Why Appeal Mail</div>
-            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Built for appeals. Not a chatbot.</h2>
-            <p className="mt-4 text-muted-foreground">Every feature is designed for the appeal job — from document analysis to proof of filing.</p>
-          </div>
-          <div className="mx-auto mt-14 max-w-4xl overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-rule">
-                  <th className="py-4 pr-4 text-left font-semibold text-ink">Feature</th>
-                  <th className="px-4 py-4 text-center font-semibold text-ink">Appeal Mail</th>
-                  <th className="px-4 py-4 text-center font-semibold text-muted-foreground">Generic AI chat</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparison.map((row) => (
-                  <tr key={row.feature} className="border-b border-rule">
-                    <td className="py-3.5 pr-4 text-muted-foreground">{row.feature}</td>
-                    <td className="px-4 py-3.5 text-center">
-                      {row.us === true ? <CheckCircle2 size={18} className="mx-auto text-stamp" /> : <span className="text-muted-foreground">{row.us}</span>}
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      {row.them === false ? <span className="text-muted-foreground">—</span> : row.them === true ? <CheckCircle2 size={18} className="mx-auto text-muted-foreground" /> : <span className="text-muted-foreground">{row.them}</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       {/* FAQ */}
       <section id="faq" className="border-t border-rule bg-card py-16 md:py-24">
         <div className="container">
@@ -302,7 +267,10 @@ function HomePage() {
             </div>
             <h2 className="text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Start your appeal today.</h2>
             <p className="mx-auto mt-4 max-w-lg text-muted-foreground">Start a guided workflow, review your draft, and mail it — all in one place.</p>
-            <Link to="/workflows/denied-claim" className="btn-amber mt-8 text-base">Start now <ArrowRight size={18} /></Link>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link to="/workflows/denied-claim" className="btn-amber text-base">Start now <ArrowRight size={18} /></Link>
+              <Link to="/workflows" className="btn-outline text-base">Explore appeal types</Link>
+            </div>
           </div>
         </div>
       </section>
