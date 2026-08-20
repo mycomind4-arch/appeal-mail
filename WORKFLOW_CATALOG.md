@@ -1,79 +1,122 @@
 # WORKFLOW_CATALOG.md — Appeal Mail
 
-**Date:** 2026-08-19
-**Source:** docs/SEO_KEYWORD_MAP.md, docs/MASTER_WORKFLOW_DIRECTORY.md
+**Date:** 2026-08-20
+**Source:** src/domain/appeal-catalog.ts
 
 ---
 
-## Implemented Workflows
+## Summary
 
-| ID | Display Name | Domain | Status | Implementation | SEO Target | Keyword | MSV | CPC | Competition | Commercial Intent | User Intent | Implementation Difficulty | Reuse Score | Factory Ready |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `denied-claim` | Appeal a Denied Claim | Insurance/Benefits | **active** | Shared wizard | `/workflows/denied-claim` | appeal denied claim | — | — | — | HIGH | "My claim was denied, I want to appeal" | LOW (exists) | 1.0 (canonical) | ✗ |
-| `government-decision` | Appeal a Government Decision | Government | **active** | Shared wizard | `/workflows/government-decision` | appeal government decision | — | — | — | HIGH | "I disagree with a government agency decision" | LOW (exists) | 1.0 (canonical) | ✗ |
-| `court-ruling` | Appeal a Court Ruling | Legal | **active** | Shared wizard | `/workflows/court-ruling` | appeal court ruling | — | — | — | HIGH | "I want to appeal a court decision" | LOW (exists) | 1.0 (canonical) | ✗ |
-| `reconsideration` | Submit a Reconsideration | Government/Insurance | **active** | Shared wizard | `/workflows/reconsideration` | letter for reconsideration | 170 | — | — | MEDIUM | "I want to request reconsideration before formal appeal" | LOW (exists) | 1.0 (canonical) | ✗ |
+- **Total workflows:** 19
+- **Implemented:** 1 (Insurance Appeal via `/workflows/denied-claim`)
+- **Coming soon:** 18
+- **Categories:** 7
 
-## Planned Workflows
+## Categories and Workflows
 
-| ID | Display Name | Domain | Status | Implementation | SEO Target | Keyword | MSV | CPC | Competition | Commercial Intent | User Intent | Implementation Difficulty | Reuse Score | Factory Ready | Authoritative Sources Required |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `insurance-appeal` | Insurance Appeal Letter | Insurance | **planned** | `implemented: false` | `/workflows/insurance-appeal` | appeal insurance letter sample | 320 | — | LOW | HIGH | "My insurance claim was denied, I need an appeal letter" | MEDIUM | 0.85 (denied-claim base) | ✗ | Insurance policy terms, state insurance regs, ACA appeals process |
-| `financial-aid-appeal` | Financial Aid Appeal Letter | Education | **planned** | `implemented: false` | `/workflows/financial-aid-appeal` | financial aid appeal letter | 1,000 | — | MEDIUM | HIGH (education) | "My financial aid was reduced, I want to appeal" | MEDIUM | 0.70 (generic appeal base) | ✗ | FAFSA SAI formula, school SAP policy, DOE guidance |
-| `sap-appeal` | SAP Appeal Letter | Education | **planned** | `implemented: false` | `/workflows/sap-appeal` | SAP appeal letter | 210 | — | LOW | HIGH (education) | "I failed SAP and need to appeal to keep financial aid" | MEDIUM | 0.65 | ✗ | Federal SAP requirements, school policy docs |
-| `edd-appeal` | EDD Appeal Letter | Government/Benefits | **planned** | `implemented: false` | `/workflows/edd-appeal` | EDD appeal letter example | 110 | — | LOW | HIGH | "EDD denied my benefits, I need to appeal" | MEDIUM | 0.75 (government-decision base) | ✗ | CA EDD appeal process, UI code, CUIAB decisions |
-| `fema-appeal` | FEMA Appeal Letter | Government/Benefits | **planned** | `implemented: false` | `/workflows/fema-appeal` | FEMA appeal letter example | 110 | — | LOW | MEDIUM | "FEMA denied my disaster assistance, I want to appeal" | MEDIUM | 0.70 | ✗ | FEMA appeals process, Stafford Act, 60-day deadline |
-| `medicare-appeal` | Medicare Appeal Letter | Healthcare/Government | **planned** | `implemented: false` | `/workflows/medicare-appeal` | Medicare appeal letter examples | 70 | — | LOW | HIGH (healthcare) | "Medicare denied my coverage, I want to appeal" | HIGH (5 levels) | 0.60 | ✗ | Medicare appeals process (42 CFR 405), CMS guidance, 5-level system |
-| `va-appeal` | VA Appeal Letter | Government/Benefits | **planned** | `implemented: false` | `/workflows/va-appeal` | VA caregiver appeal letter sample | 70 | — | LOW | HIGH | "VA denied my claim/caregiver benefits, I want to appeal" | HIGH (BVA process) | 0.60 | ✗ | VA appeals modernization (AMA), BVA decisions, Form 10182 |
+### Insurance (7 workflows — all COMING_SOON)
 
-## Workflow Priority Matrix
+| Slug | Title | Route | Status | Primary Keyword |
+|------|-------|-------|--------|-----------------|
+| insurance-claim | Insurance Claim Appeal | /appeal/insurance-claim | COMING_SOON | denial of insurance claim |
+| health-insurance | Health Insurance Appeal | /appeal/health-insurance | COMING_SOON | health insurance appeal |
+| prior-authorization | Prior Authorization Appeal | /appeal/prior-authorization | COMING_SOON | prior authorization appeal |
+| out-of-network | Out-of-Network Appeal | /appeal/out-of-network | COMING_SOON | out-of-network appeal |
+| timely-filing | Timely Filing Appeal | /appeal/timely-filing | COMING_SOON | timely filing appeal |
+| medicare | Medicare Appeal | /appeal/medicare | COMING_SOON | Medicare appeal |
+| dental-insurance | Dental Insurance Appeal | /appeal/dental-insurance | COMING_SOON | dental insurance appeal |
 
-### Tier 1 — Implement Next (highest MSV × lowest difficulty)
-1. **Insurance Appeal** — 320 MSV, LOW competition, HIGH reuse (0.85 from denied-claim), MEDIUM difficulty
-2. **Financial Aid Appeal** — 1,000 MSV, MEDIUM competition, HIGH commercial intent, MEDIUM difficulty
+### Disability & Social Security (5 workflows — all COMING_SOON)
 
-### Tier 2 — Strong Candidates
-3. **EDD Appeal** — 110 MSV, LOW competition, HIGH intent, MEDIUM difficulty
-4. **SAP Appeal** — 210 MSV, LOW competition, niche education sub-market
+| Slug | Title | Route | Status | Primary Keyword |
+|------|-------|-------|--------|-----------------|
+| ssi | SSI Appeal | /appeal/ssi | COMING_SOON | SSI appeal |
+| ssdi | SSDI Appeal | /appeal/ssdi | COMING_SOON | denied SSDI |
+| social-security-reconsideration | Social Security Reconsideration | /appeal/social-security-reconsideration | COMING_SOON | Social Security reconsideration |
+| social-security-overpayment | Social Security Overpayment Appeal | /appeal/social-security-overpayment | COMING_SOON | Social Security overpayment appeal |
+| appeals-council | Appeals Council Appeal | /appeal/appeals-council | COMING_SOON | SSDI Appeals Council |
 
-### Tier 3 — Future Expansion
-5. **FEMA Appeal** — 110 MSV, LOW competition, disaster niche
-6. **Medicare Appeal** — 70 MSV, HIGH complexity (5 levels)
-7. **VA Appeal** — 70 MSV, HIGH complexity (AMA process)
+### Unemployment (2 workflows — all COMING_SOON)
 
-## Canonical Workflow IDs
+| Slug | Title | Route | Status | Primary Keyword |
+|------|-------|-------|--------|-----------------|
+| unemployment | Unemployment Appeal | /appeal/unemployment | COMING_SOON | unemployment appeal |
+| edd | EDD Appeal | /appeal/edd | COMING_SOON | EDD appeal |
+
+### Government Benefits (2 workflows — all COMING_SOON)
+
+| Slug | Title | Route | Status | Primary Keyword |
+|------|-------|-------|--------|-----------------|
+| medicaid | Medicaid Appeal | /appeal/medicaid | COMING_SOON | appeal for Medicaid |
+| snap | SNAP / Food Stamp Appeal | /appeal/snap | COMING_SOON | SNAP appeal |
+
+### Workers' Compensation (1 workflow — COMING_SOON)
+
+| Slug | Title | Route | Status | Primary Keyword |
+|------|-------|-------|--------|-----------------|
+| workers-comp | Workers' Compensation Appeal | /appeal/workers-comp | COMING_SOON | workers compensation appeal |
+
+### Veterans (1 workflow — COMING_SOON)
+
+| Slug | Title | Route | Status | Primary Keyword |
+|------|-------|-------|--------|-----------------|
+| va-claim | VA Claim Appeal | /appeal/va-claim | COMING_SOON | appeal VA claim |
+
+### Administrative (2 workflows — all COMING_SOON)
+
+| Slug | Title | Route | Status | Primary Keyword |
+|------|-------|-------|--------|-----------------|
+| agency-decision | Agency Decision Appeal | /appeal/agency-decision | COMING_SOON | agency decision appeal |
+| licensing | Licensing Appeal | /appeal/licensing | COMING_SOON | licensing appeal |
+
+## Implementation Engine Architecture (planned, NOT implemented)
 
 ```
-appeal-mail
-├── denied-claim         (ACTIVE — shared wizard)
-├── government-decision  (ACTIVE — shared wizard)
-├── court-ruling         (ACTIVE — shared wizard)
-├── reconsideration      (ACTIVE — shared wizard)
-├── insurance-appeal     (PLANNED — highest-value next)
-├── financial-aid-appeal (PLANNED — highest MSV)
-├── sap-appeal           (PLANNED — education niche)
-├── edd-appeal           (PLANNED — benefits niche)
-├── fema-appeal          (PLANNED — disaster niche)
-├── medicare-appeal      (PLANNED — healthcare, complex)
-└── va-appeal            (PLANNED — veterans, complex)
+Insurance Appeal Engine
+    ├── Insurance Claim Appeal
+    ├── Health Insurance Appeal
+    ├── Prior Authorization Appeal
+    ├── Out-of-Network Appeal
+    ├── Timely Filing Appeal
+    ├── Medicare Appeal
+    └── Dental Insurance Appeal
+
+Disability Appeal Engine
+    ├── SSI Appeal
+    ├── SSDI Appeal
+    ├── Social Security Reconsideration
+    ├── Social Security Overpayment Appeal
+    └── Appeals Council Appeal
+
+Unemployment Appeal Engine
+    ├── Unemployment Appeal
+    └── EDD Appeal
+
+Benefits Appeal Engine
+    ├── Medicaid Appeal
+    └── SNAP Appeal
+
+Workers Compensation Engine
+    └── Workers Comp Appeal
+
+Veterans Appeal Engine
+    └── VA Claim Appeal
+
+Administrative Appeal Engine
+    ├── Agency Decision Appeal
+    └── Licensing Appeal
 ```
 
-## Current Implementation State
+## Executable Runtime
 
-All 4 existing workflows share a single `WorkflowWizard` component (1512 lines) with the same 18-step pipeline:
-- Upload → X-Ray → Decision Review → Timeline → Grounds → Evidence → Arguments → Stress Test → Draft → Final Stress Test → Readiness → Packet → Recipient → Mailing → Checkout → Proof → Done
+Only `/workflows/denied-claim` (Insurance Appeal) enters the WorkflowWizard runtime.
 
-**No workflow has:**
-- Per-workflow extraction logic
-- Per-workflow domain intelligence
-- Per-workflow validation
-- Per-workflow SEO pages
-- Factory registration
+The `/appeal/$slug` dynamic route renders placeholder pages and NEVER invokes:
+- WorkflowWizard
+- X-Ray analysis
+- Stress test
+- Draft generation
+- Mailing flow
+- Checkout
 
-**All workflows share:**
-- Same domain models (Decision, Ground, Evidence, XRay)
-- Same extraction engine (pattern matching)
-- Same X-Ray analysis
-- Same stress test
-- Same draft generation
-- Same mailing pipeline
+Placeholder workflows cannot accidentally execute.

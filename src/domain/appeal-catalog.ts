@@ -1194,3 +1194,29 @@ export function validateCatalog(): { valid: boolean; errors: string[] } {
 
   return { valid: errors.length === 0, errors };
 }
+
+/* ═══════════════════════════════════════════════════════════
+   CATEGORY SLUGS — for category parent pages
+   ═══════════════════════════════════════════════════════════ */
+
+export const CATEGORY_SLUGS: Record<AppealCategory, string> = {
+  "Insurance": "insurance",
+  "Disability & Social Security": "disability",
+  "Unemployment": "unemployment",
+  "Government Benefits": "benefits",
+  "Workers' Compensation": "workers-comp",
+  "Veterans": "veterans",
+  "Administrative": "administrative",
+};
+
+export const SLUG_TO_CATEGORY: Record<string, AppealCategory> = Object.fromEntries(
+  Object.entries(CATEGORY_SLUGS).map(([cat, slug]) => [slug, cat as AppealCategory])
+);
+
+export function getCategoryBySlug(slug: string): AppealCategory | undefined {
+  return SLUG_TO_CATEGORY[slug];
+}
+
+export function getCategoryRoute(category: AppealCategory): string {
+  return `/appeal/${CATEGORY_SLUGS[category]}`;
+}

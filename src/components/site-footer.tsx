@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Scale } from "lucide-react";
-import { CATEGORY_ORDER, getWorkflowsByCategory, getCatalogStats } from "@/domain/appeal-catalog";
+import { CATEGORY_ORDER, CATEGORY_SLUGS, getWorkflowsByCategory, getCatalogStats } from "@/domain/appeal-catalog";
 
 export function SiteFooter() {
   const stats = getCatalogStats();
@@ -38,7 +38,7 @@ export function SiteFooter() {
                 const count = getWorkflowsByCategory(cat).length;
                 return (
                   <li key={cat}>
-                    <Link to="/workflows" className="hover:text-stamp transition-colors">
+                    <Link to="/appeal/$slug" params={{ slug: CATEGORY_SLUGS[cat] }} className="hover:text-stamp transition-colors">
                       {cat} ({count})
                     </Link>
                   </li>

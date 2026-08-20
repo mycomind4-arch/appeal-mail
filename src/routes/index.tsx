@@ -3,7 +3,7 @@ import { ArrowRight, CheckCircle2, Scale, Mail, ShieldCheck, Sparkles, Clock, Pa
 import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { APPEAL_CATALOG, CATEGORY_ORDER, CATEGORY_DESCRIPTIONS, getCatalogStats, getWorkflowsByCategory, type AppealCategory } from "@/domain/appeal-catalog";
+import { APPEAL_CATALOG, CATEGORY_ORDER, CATEGORY_DESCRIPTIONS, CATEGORY_SLUGS, getCatalogStats, getWorkflowsByCategory, type AppealCategory } from "@/domain/appeal-catalog";
 
 export const Route = createFileRoute("/")({ component: HomePage });
 
