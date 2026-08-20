@@ -1,4 +1,5 @@
 import type { CapabilityPack, ConstructedWorkflow } from "./workflow-capabilities";
+import { loadCapabilities } from "./workflow-capabilities";
 
 export const REQUIRED_GOLD_CAPABILITIES: readonly CapabilityPack[] = [
   "document-classification",
@@ -32,32 +33,12 @@ const REQUIRED_STEPS = [
 ] as const;
 
 /**
- * Capabilities are certified from concrete packs, not from the factory's
- * default capability labels. Specialized analysis capabilities must also be
- * explicitly declared by the analysis pack.
+ * Certification must consume the same executable capability resolution used by
+ * constructWorkflow(). Pipeline labels and the mere presence of a pack must
+ * never manufacture capabilities.
  */
 export function getExecutableCapabilities(workflow: ConstructedWorkflow): Set<CapabilityPack> {
-  const packs = workflow.packs;
-  const executable = new Set<CapabilityPack>();
-  if (!packs) return executable;
-
-  executable.add("document-classification");
-  executable.add("fact-extraction");
-  executable.add("deadline-analysis");
-  executable.add("evidence-analysis");
-  executable.add("contradiction-analysis");
-  executable.add("drafting");
-  executable.add("draft-validation");
-  executable.add("readiness-review");
-  executable.add("submission");
-  executable.add("mailing");
-  executable.add("proof");
-
-  for (const capability of packs.analysis.capabilities) {
-    executable.add(capability);
-  }
-
-  return executable;
+  return new Set(loadCapabilities(workflow.definition, workflow.packs));
 }
 
 export function evaluateGoldStandardGate(workflow: ConstructedWorkflow): GoldStandardGateResult {
