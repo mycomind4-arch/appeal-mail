@@ -54,11 +54,7 @@ export const ALL_CAPABILITIES: readonly CapabilityPack[] = [
   "proof",
 ] as const;
 
-// ── Lifecycle ─────────────────────────────────────────────────
-
 export type WorkflowLifecycle = "blueprint" | "functional" | "authority";
-
-// ── Document Pack ─────────────────────────────────────────────
 
 export interface DocumentPack {
   name: string;
@@ -68,8 +64,6 @@ export interface DocumentPack {
   minConfidence: number;
 }
 
-// ── Deadline Pack ─────────────────────────────────────────────
-
 export interface DeadlinePack {
   name: string;
   triggeringEvents: string[];
@@ -77,8 +71,6 @@ export interface DeadlinePack {
   jurisdictionDependent: boolean;
   computationRules: string[];
 }
-
-// ── Evidence Pack ─────────────────────────────────────────────
 
 export interface EvidencePack {
   name: string;
@@ -88,8 +80,6 @@ export interface EvidencePack {
   missingEvidenceBehavior: string;
 }
 
-// ── Analysis Pack ─────────────────────────────────────────────
-
 export interface AnalysisPack {
   name: string;
   capabilities: CapabilityPack[];
@@ -97,8 +87,6 @@ export interface AnalysisPack {
   riskFactors: string[];
   outputSections: string[];
 }
-
-// ── Draft Pack ───────────────────────────────────────────────
 
 export interface DraftPack {
   name: string;
@@ -108,8 +96,6 @@ export interface DraftPack {
   toneRules: string[];
 }
 
-// ── Validation Pack ──────────────────────────────────────────
-
 export interface ValidationPack {
   name: string;
   factualChecks: string[];
@@ -117,8 +103,6 @@ export interface ValidationPack {
   unsupportedAssertionChecks: string[];
   adversarialChecks: string[];
 }
-
-// ── Submission Pack ──────────────────────────────────────────
 
 export interface SubmissionPack {
   name: string;
@@ -128,8 +112,6 @@ export interface SubmissionPack {
   supportsTracking: boolean;
   proofRequirements: string[];
 }
-
-// ── Domain Pack Set ───────────────────────────────────────────
 
 export interface DomainPackSet {
   engine: "appeal";
@@ -141,8 +123,6 @@ export interface DomainPackSet {
   validation: ValidationPack;
   submission: SubmissionPack;
 }
-
-// ── Pack Registry ─────────────────────────────────────────────
 
 const PACK_REGISTRY: Record<string, DomainPackSet> = {};
 
@@ -158,8 +138,6 @@ export function getRegisteredWorkflowIds(): string[] {
   return Object.keys(PACK_REGISTRY);
 }
 
-// ── Quality Gate ──────────────────────────────────────────────
-
 export interface QualityGate {
   documentRecognition: boolean;
   factGrounding: boolean;
@@ -169,8 +147,6 @@ export interface QualityGate {
   submissionReadiness: boolean;
   proofReady: boolean;
 }
-
-// ── Constructed Workflow ─────────────────────────────────────
 
 export interface ConstructedWorkflow {
   definition: WorkflowDefinition;
@@ -182,8 +158,6 @@ export interface ConstructedWorkflow {
   errors: string[];
   ready: boolean;
 }
-
-// ── Factory Pipeline ──────────────────────────────────────────
 
 export function validateDefinition(def: WorkflowDefinition): string[] {
   const errors: string[] = [];
@@ -201,29 +175,29 @@ export function validateDefinition(def: WorkflowDefinition): string[] {
 export function loadCapabilities(def: WorkflowDefinition, packs?: DomainPackSet): CapabilityPack[] {
   const caps = new Set<CapabilityPack>();
 
-  // Base capabilities for all appeal workflows
-  caps.add("document-classification");
-  caps.add("fact-extraction");
-  caps.add("deadline-analysis");
-  caps.add("evidence-analysis");
-  caps.add("contradiction-analysis");
-  caps.add("drafting");
-  caps.add("draft-validation");
-  caps.add("readiness-review");
-  caps.add("submission");
-  caps.add("mailing");
-  caps.add("proof");
-
-  // Add capabilities from domain pack analysis
+  // These capabilities are only executable when their concrete packs exist.
+  if (packs?.document) {
+    caps.add("document-classification");
+    caps.add("fact-extraction");
+  }
+  if (packs?.deadline) caps.add("deadline-analysis");
+  if (packs?.evidence) caps.add("evidence-analysis");
   if (packs?.analysis?.capabilities) {
     for (const cap of packs.analysis.capabilities) caps.add(cap);
   }
+  if (packs?.draft) caps.add("drafting");
+  if (packs?.validation) caps.add("draft-validation");
+  if (packs?.submission) {
+    caps.add("submission");
+    if (packs.submission.supportsMailing) caps.add("mailing");
+    if (packs.submission.supportsTracking) caps.add("proof");
+  }
 
-  // Add capabilities based on workflow steps
-  if (def.steps.includes("xray")) caps.add("xray-analysis");
-  if (def.steps.includes("timeline")) caps.add("timeline-analysis");
-  if (def.steps.includes("stress-test")) caps.add("stress-testing");
-  if (def.steps.includes("final-stress-test")) caps.add("stress-testing");
+  // Pipeline steps are evidence of intended behavior, not implementation.
+  // They must never manufacture executable capability by themselves.
+  if (def.steps.includes("xray") && packs?.analysis?.capabilities.includes("xray-analysis")) caps.add("xray-analysis");
+  if (def.steps.includes("timeline") && packs?.analysis?.capabilities.includes("timeline-analysis")) caps.add("timeline-analysis");
+  if ((def.steps.includes("stress-test") || def.steps.includes("final-stress-test")) && packs?.analysis?.capabilities.includes("stress-testing")) caps.add("stress-testing");
 
   return Array.from(caps);
 }
@@ -241,11 +215,11 @@ export function evaluateQualityGate(
   return {
     documentRecognition: hasDoc,
     factGrounding: hasDoc,
-    deadlineVerification: hasDoc,
+    deadlineVerification: hasDoc && !!packs?.deadline,
     evidenceGrounding: hasEvidence,
     draftValidation: hasValidation,
-    submissionReadiness: hasSubmission && hasDraft,
-    proofReady: hasSubmission,
+    submissionReadiness: hasSubmission && hasDraft && packs?.submission.supportsMailing === true,
+    proofReady: hasSubmission && packs?.submission.supportsTracking === true && packs.submission.proofRequirements.length > 0,
   };
 }
 
@@ -261,26 +235,20 @@ export function constructWorkflow(def: WorkflowDefinition): ConstructedWorkflow 
   const warnings: string[] = [];
   const errors: string[] = [];
 
-  // Step 1: Validate definition
   const validationErrors = validateDefinition(def);
   errors.push(...validationErrors);
 
-  // Step 2: Load domain packs
   const packs = getDomainPack(def.id);
   if (!packs) {
-    warnings.push(`No domain pack set registered for ${def.id} — using definition defaults`);
+    warnings.push(`No domain pack set registered for ${def.id} — no executable capabilities are granted`);
   }
 
-  // Step 3: Load capabilities
   const capabilities = loadCapabilities(def, packs);
-
-  // Step 4: Evaluate quality gate
   const qualityGate = evaluateQualityGate(def, packs);
   const lifecycle = determineLifecycle(qualityGate);
 
-  // Step 5: Lifecycle checks
   if (lifecycle === "blueprint") {
-    warnings.push(`Workflow ${def.id} has no domain packs — quality gate is all false`);
+    warnings.push(`Workflow ${def.id} has no executable domain packs — quality gate is all false`);
   }
 
   return {
@@ -320,11 +288,7 @@ export function factoryValidationSummary(workflows: ConstructedWorkflow[]): {
     authorityCount: workflows.filter((w) => w.lifecycle === "authority").length,
     functionalCount: workflows.filter((w) => w.lifecycle === "functional").length,
     blueprintCount: workflows.filter((w) => w.lifecycle === "blueprint").length,
-    errors: workflows
-      .filter((w) => w.errors.length > 0)
-      .map((w) => ({ workflowId: w.definition.id, errors: w.errors })),
-    warnings: workflows
-      .filter((w) => w.warnings.length > 0)
-      .map((w) => ({ workflowId: w.definition.id, warnings: w.warnings })),
+    errors: workflows.filter((w) => w.errors.length > 0).map((w) => ({ workflowId: w.definition.id, errors: w.errors })),
+    warnings: workflows.filter((w) => w.warnings.length > 0).map((w) => ({ workflowId: w.definition.id, warnings: w.warnings })),
   };
 }
