@@ -32,3 +32,4 @@ npm-debug.log*
 .turbo/
 .wrangler/
 trace
+.next/
