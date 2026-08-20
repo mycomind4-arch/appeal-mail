@@ -63,12 +63,32 @@ export function createAppeal(workflowId: WorkflowId, decision: Decision): Appeal
   });
 }
 
+/**
+ * Physical mailing is consequential. An appeal cannot be persisted as
+ * `mailed` merely because a proof packet was assembled locally.
+ * A mailed state requires upstream fulfillment evidence: provider order ID,
+ * mailing timestamp, and a provider-backed proof status.
+ */
+export function canPersistMailedStatus(appeal: Appeal): boolean {
+  const proof = appeal.proof;
+  if (!proof) return false;
+  if (!proof.providerOrderId?.trim()) return false;
+  if (!proof.mailingTimestamp?.trim()) return false;
+  return proof.status === "mailed" || proof.status === "in_transit" || proof.status === "delivered";
+}
+
 export function updateAppeal(appeal: Appeal, updates: Partial<Appeal>): Appeal {
-  return appealSchema.parse({
+  const next = appealSchema.parse({
     ...appeal,
     ...updates,
     updatedAt: new Date().toISOString(),
   });
+
+  if ((updates.status === "mailed" || updates.status === "delivered") && !canPersistMailedStatus(next)) {
+    throw new Error("Cannot mark appeal as mailed or delivered without provider order, mailing timestamp, and provider-backed proof status");
+  }
+
+  return next;
 }
 
 /* Check if an appeal is ready to mail.
