@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
+import { isReadyToMail } from "@/domain/appeal";
+import { loadAppeal } from "./appeal-repository";
 
 /* ─────────────────────────────────────────────
    Stripe checkout integration.
-   Creates a checkout session for mailing
-   payment and returns the redirect URL.
-   Uses dynamic import to keep stripe out of
-   the client bundle.
+   Creates a checkout session only after the
+   owner-scoped appeal passes the canonical
+   readiness gate.
    ───────────────────────────────────────────── */
 
 const MAILING_PRICES: Record<string, number> = {
@@ -35,16 +36,36 @@ export const createCheckoutSession = createServerFn()
     appealId: string;
     recipientName: string;
     workflowId: string;
+    userId: string;
   }) => {
     if (!input.mailingMethod || !MAILING_PRICES[input.mailingMethod]) {
       throw new Error("Invalid mailing method");
     }
-    if (!input.recipientName) {
+    if (!input.appealId.trim()) {
+      throw new Error("Appeal id is required");
+    }
+    if (!input.workflowId.trim()) {
+      throw new Error("Workflow id is required");
+    }
+    if (!input.recipientName.trim()) {
       throw new Error("Recipient name is required");
+    }
+    if (!input.userId.trim()) {
+      throw new Error("Owner identity is required");
     }
     return input;
   })
   .handler(async ({ data }) => {
+    const appeal = await loadAppeal({ data: { id: data.appealId, userId: data.userId } });
+
+    if (appeal.workflowId !== data.workflowId) {
+      throw new Error("Appeal workflow does not match checkout workflow");
+    }
+
+    if (!isReadyToMail(appeal)) {
+      throw new Error("Appeal is not approved and readiness-validated for mailing");
+    }
+
     const stripe = await getStripe();
     const price = MAILING_PRICES[data.mailingMethod];
     const label = MAILING_LABELS[data.mailingMethod];
@@ -75,6 +96,7 @@ export const createCheckoutSession = createServerFn()
         workflow_id: data.workflowId,
         mailing_method: data.mailingMethod,
         recipient_name: data.recipientName,
+        owner_user_id: data.userId,
       },
       success_url: `${process.env.APP_URL || "https://appeal-mail.pages.dev"}/workflows/${data.workflowId}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.APP_URL || "https://appeal-mail.pages.dev"}/workflows/${data.workflowId}?checkout=cancelled`,
