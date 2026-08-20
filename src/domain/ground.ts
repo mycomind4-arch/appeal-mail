@@ -60,6 +60,7 @@ export function createGround(type: GroundType, partial?: Partial<AppealGround>):
     confidence: 0.5,
     userConfirmed: false,
     draftLanguage: "",
+    source: "user_provided",
     supportingEvidenceIds: [],
     ...partial,
   });

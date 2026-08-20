@@ -31,9 +31,15 @@ const REF_PATTERNS = [
 
 /* Agency / organization patterns */
 const AGENCY_PATTERNS = [
+  /* Insurance company name after a header line like "CLAIM DENIAL NOTICE" */
+  /^(?:CLAIM\s+)?(?:DENIAL|NOTICE|DETERMINATION|DECISION|EXPLANATION\s+OF\s+BENEFITS)[^\n]*\n+([A-Z][A-Za-z\s&(.,]+(?:Insurance|Company|Corporation|Inc\.?|LLC|Co\.)[^\n]*)/im,
+  /* Company name at start of a line that includes "Insurance" or "Company" */
+  /^([A-Z][A-Za-z\s&.]+(?:Insurance|Company|Corporation|Inc\.?|LLC|Co\.)[^\n]*)/m,
+  /* Government agency patterns */
   /(?:from|by|issued by|department of|bureau of|office of|division of)\s+([A-Z][A-Za-z\s&,]{3,60}?)(?:\.|,|;|\n|$)/,
-  /^(.{5,80}?)\s*\n\s*(?:decision|notice|ruling|determination|order|letter)/im,
-  /\b(Department|Bureau|Office|Division|Administration|Agency|Service|Board|Commission|Tribunal|Court|Agency)\s+of\s+([A-Z][A-Za-z\s&]{3,50}?)(?:\.|,|\n|$)/,
+  /\b(Department|Bureau|Office|Division|Administration|Agency|Service|Board|Commission|Tribunal|Court)\s+of\s+([A-Z][A-Za-z\s&]{3,50}?)(?:\.|,|\n|$)/,
+  /* Generic header: "SOMETHING\n\ndecision/notice/..." — but exclude lines with $ or digits */
+  /^([A-Z][A-Za-z\s&.,]{5,80}?)\s*\n\s*(?:decision|notice|ruling|determination|order|letter)/im,
 ];
 
 /* Decision type keywords */
@@ -155,29 +161,87 @@ function extractAppealInstructions(text: string): string | null {
   return null;
 }
 
-/* Extract decision reasons — look for numbered lists or "because" clauses */
+/* Extract dollar amounts from text */
+function extractAmounts(text: string): { label: string; value: string }[] {
+  const amounts: { label: string; value: string }[] = [];
+  const amountPattern = /\$([\d,]+\.?\d*)/g;
+  let match;
+  while ((match = amountPattern.exec(text)) !== null && amounts.length < 10) {
+    const value = "$" + match[1];
+    // Avoid duplicates
+    if (!amounts.some(a => a.value === value)) {
+      amounts.push({ label: "Amount", value });
+    }
+  }
+  return amounts;
+}
+
+/* Extract decision reasons — look for numbered lists, "because" clauses, and reason headers */
 function extractReasons(text: string): DecisionReason[] {
   const reasons: DecisionReason[] = [];
 
-  // Pattern: "1. Reason text" or "1) Reason text"
-  const numberedPattern = /(?:^|\n)\s*(\d+)[.)]\s+([A-Z][^.]{20,300}\.?)/gm;
+  // Pattern: "Reason for Denial:" / "Reason:" / "Grounds for Denial:" header followed by text
+  const reasonHeaderPattern = /(?:reason\s+for\s+(?:denial|determination|decision)|reason(?:s)?|ground(?:s)?\s+for\s+(?:denial|determination|decision)|determination|denial\s+reason)\s*[:.]?\s*\n?([A-Z][^\n]{20,400})/gi;
   let match;
-  while ((match = numberedPattern.exec(text)) !== null) {
+  while ((match = reasonHeaderPattern.exec(text)) !== null && reasons.length < 10) {
     reasons.push({
       id: crypto.randomUUID(),
-      text: match[2].trim(),
+      text: match[1].trim(),
       confidence: 0.7,
     });
+  }
+
+  // Pattern: "1. Reason text" or "1) Reason text"
+  const numberedPattern = /(?:^|\n)\s*(\d+)[.)]\s+([A-Z][^.]{20,300}\.?)/gm;
+  while ((match = numberedPattern.exec(text)) !== null && reasons.length < 10) {
+    // Avoid duplicating reasons already captured
+    const text = match[2].trim();
+    if (!reasons.some(r => r.text.includes(text.substring(0, 30)) || text.includes(r.text.substring(0, 30)))) {
+      reasons.push({
+        id: crypto.randomUUID(),
+        text,
+        confidence: 0.7,
+      });
+    }
   }
 
   // Pattern: "because..." or "the reason for..." or "based on..."
   const becausePattern = /(?:because|the reason for|based on|due to|on the grounds? that)\s+([A-Z][^.]{20,300}\.?)/gi;
   while ((match = becausePattern.exec(text)) !== null && reasons.length < 10) {
-    reasons.push({
-      id: crypto.randomUUID(),
-      text: match[1].trim(),
-      confidence: 0.6,
-    });
+    const text = match[1].trim();
+    if (!reasons.some(r => r.text.includes(text.substring(0, 30)) || text.includes(r.text.substring(0, 30)))) {
+      reasons.push({
+        id: crypto.randomUUID(),
+        text,
+        confidence: 0.6,
+      });
+    }
+  }
+
+  // Pattern: "This service is not covered" / "not covered under your plan"
+  const notCoveredPattern = /(?:this\s+(?:service|claim|treatment|procedure)\s+is\s+not\s+covered(?:\s+under\s+(?:your|the)\s+(?:plan|policy))?)/gi;
+  while ((match = notCoveredPattern.exec(text)) !== null && reasons.length < 10) {
+    const text = match[0].trim();
+    if (!reasons.some(r => r.text.includes(text.substring(0, 30)) || text.includes(r.text.substring(0, 30)))) {
+      reasons.push({
+        id: crypto.randomUUID(),
+        text,
+        confidence: 0.6,
+      });
+    }
+  }
+
+  // Pattern: "We have denied ... " / "denying your claim" with context
+  const deniedPattern = /(?:we\s+(?:have\s+)?(?:denied|deny|are\s+denying)|your\s+claim\s+(?:has\s+been\s+)?denied|claim\s+is\s+denied)\s+(?:because\s+)?(?:that\s+)?([A-Z][^.]{20,300}\.?)/gi;
+  while ((match = deniedPattern.exec(text)) !== null && reasons.length < 10) {
+    const text = match[1].trim();
+    if (!reasons.some(r => r.text.includes(text.substring(0, 30)) || text.includes(r.text.substring(0, 30)))) {
+      reasons.push({
+        id: crypto.randomUUID(),
+        text,
+        confidence: 0.65,
+      });
+    }
   }
 
   return reasons.slice(0, 8);
@@ -234,21 +298,41 @@ export function extractFromText(text: string): ExtractionResult {
   const agency = extractAgency(text);
   const referenceNumber = extractReferenceNumber(text);
   const allDates = extractAllDates(text);
-  const decisionDate = allDates.length > 0 ? allDates[0] : null;
+  // Try to find a date near "Date:" header — this is usually the decision/denial date
+  let decisionDate: string | null = null;
+  const dateHeaderMatch = text.match(/\bDate\s*:\s*(\w+ \d{1,2},? \d{4}|\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4}-\d{2}-\d{2})/i);
+  if (dateHeaderMatch) {
+    const parsed = new Date(dateHeaderMatch[1]);
+    if (!isNaN(parsed.getTime())) {
+      decisionDate = parsed.toISOString().split("T")[0];
+    } else {
+      decisionDate = dateHeaderMatch[1];
+    }
+  }
+  // Fall back to first date if no "Date:" header found
+  if (!decisionDate && allDates.length > 0) {
+    decisionDate = allDates[0];
+  }
   const deadlineInfo = extractDeadlineDate(text);
   const decisionTypeLabel = detectDecisionType(text);
   const appealInstructions = extractAppealInstructions(text);
   const reasons = extractReasons(text);
   const chronology = buildTimeline(text, allDates);
 
+  // Extract dollar amounts
+  const amounts = extractAmounts(text);
+
   // Build facts from extracted data
   const facts: DecisionFact[] = [];
   if (agency) facts.push({ id: crypto.randomUUID(), label: "Agency", value: agency, source: "extracted", confidence: 0.7 });
   if (referenceNumber) facts.push({ id: crypto.randomUUID(), label: "Reference Number", value: referenceNumber, source: "extracted", confidence: 0.8 });
   if (decisionDate) facts.push({ id: crypto.randomUUID(), label: "Decision Date", value: decisionDate, source: "extracted", confidence: 0.6 });
+  for (const amt of amounts) {
+    facts.push({ id: crypto.randomUUID(), label: amt.label, value: amt.value, source: "extracted", confidence: 0.7 });
+  }
 
   // Calculate overall confidence
-  const extractedFields = [agency, referenceNumber, decisionDate, deadlineInfo.date, decisionTypeLabel, appealInstructions].filter(Boolean);
+  const extractedFields = [agency, referenceNumber, decisionDate, deadlineInfo.date, decisionTypeLabel, appealInstructions, ...amounts.map(a => a.value)].filter(Boolean);
   const extractionConfidence = Math.min(0.95, 0.3 + extractedFields.length * 0.1 + reasons.length * 0.05);
 
   return {
@@ -288,6 +372,13 @@ export function applyExtraction(decision: Decision, result: ExtractionResult): D
           source: "extracted",
           appealInstructions: result.deadline.appealInstructions,
           daysRemaining: undefined,
+        }
+      : result.deadline?.daysWindow
+      ? {
+          type: "appeal",
+          source: "extracted",
+          appealInstructions: result.deadline.appealInstructions,
+          daysRemaining: result.deadline.daysWindow,
         }
       : decision.deadline,
     reasons: result.reasons.length > decision.reasons.length ? result.reasons : decision.reasons,
