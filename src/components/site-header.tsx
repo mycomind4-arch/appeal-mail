@@ -36,9 +36,9 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
 
         <div className="hidden items-center gap-1 md:flex">
           {links.map((item) => (
-            <a key={item.label} href={item.href} className={`px-3 py-2 text-sm transition-colors ${transparent ? "text-white/80 hover:text-white" : "text-ink-soft hover:text-foreground"}`}>
+            <Link key={item.label} to={item.href} className={`px-3 py-2 text-sm transition-colors ${transparent ? "text-white/80 hover:text-white" : "text-ink-soft hover:text-foreground"}`}>
               {item.label}
-            </a>
+            </Link>
           ))}
           <Link to="/dashboard" className={`ml-2 px-3 py-2 text-sm transition-colors ${transparent ? "text-white/90 hover:text-white" : "text-ink-soft hover:text-foreground"}`}>
             My Mailings
@@ -61,9 +61,9 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
         <div className="border-t border-rule bg-paper md:hidden">
           <div className="flex flex-col gap-1 px-4 py-3">
             {links.map((item) => (
-              <a key={item.label} href={item.href} className="rounded-md px-3 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-muted/50 hover:text-foreground" onClick={() => setOpen(false)}>
+              <Link key={item.label} to={item.href} className="rounded-md px-3 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-muted/50 hover:text-foreground" onClick={() => setOpen(false)}>
                 {item.label}
-              </a>
+              </Link>
             ))}
             <Link to="/dashboard" className="rounded-md px-3 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-muted/50 hover:text-foreground" onClick={() => setOpen(false)}>My Mailings</Link>
             <Link to="/workflows/denied-claim" className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground" onClick={() => setOpen(false)}>Start an Appeal</Link>
