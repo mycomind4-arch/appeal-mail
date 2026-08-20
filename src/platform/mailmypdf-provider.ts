@@ -9,7 +9,7 @@ function mapMailType(method: MailingOrderDraft["method"]): MailType {
   }
 }
 
-function mapStatus(status: unknown): MailingStatus["state"] {
+export function mapMailMyPDFStatus(status: unknown): MailingStatus["state"] {
   switch (status) {
     case "created":
     case "submitted": return "submitted";
@@ -63,7 +63,7 @@ export class MailMyPDFProvider implements MailingProvider {
     const communication = await getCommunication(providerOrderId);
     const updatedAt = typeof communication.updated_at === "string" ? communication.updated_at : new Date().toISOString();
     return {
-      state: mapStatus(communication.status),
+      state: mapMailMyPDFStatus(communication.status),
       trackingNumber: typeof communication.tracking_number === "string" ? communication.tracking_number : undefined,
       updatedAt,
     };
