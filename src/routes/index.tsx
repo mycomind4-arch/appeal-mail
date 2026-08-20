@@ -3,9 +3,37 @@ import { ArrowRight, CheckCircle2, Scale, Mail, ShieldCheck, Sparkles, Clock, Pa
 import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { APPEAL_CATALOG, CATEGORY_ORDER, CATEGORY_DESCRIPTIONS, CATEGORY_SLUGS, getCatalogStats, getWorkflowsByCategory, type AppealCategory } from "@/domain/appeal-catalog";
+import { APPEAL_CATALOG, CATEGORY_ORDER, CATEGORY_DESCRIPTIONS, CATEGORY_SLUGS, getCatalogStats, getWorkflowsByCategory, getCategoryRoute, type AppealCategory } from "@/domain/appeal-catalog";
 
-export const Route = createFileRoute("/")({ component: HomePage });
+export const Route = createFileRoute("/")({
+  component: HomePage,
+  head: () => ({
+    meta: [
+      { title: "Appeal Mail — Understand the Decision. Build the Appeal. Mail It." },
+      { name: "description", content: "Appeal Mail helps you analyze adverse decisions, organize evidence, build supported appeals, and mail them with proof of delivery. Insurance appeals available now. More workflow types coming soon." },
+      { property: "og:title", content: "Appeal Mail — Understand the Decision. Build the Appeal. Mail It." },
+      { property: "og:description", content: "AI-assisted appeal analysis, evidence-supported drafting, and physical mail with tracking. Upload your denial letter and build a stronger appeal." },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Appeal Mail",
+          description: "AI-assisted appeal analysis and mailing. Understand the decision, build the appeal, send it with proof.",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "/workflows?q={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        }),
+      },
+    ],
+  }),
+});
 
 const features = [
   { icon: Eye, title: "Appeal X-Ray™ analysis", desc: "Upload your decision and supporting documents. We cross-reference everything to find date conflicts, unaddressed evidence, unsupported conclusions, and contradictions — each finding source-linked and explicitly uncertainty-aware.", featured: true },
@@ -25,8 +53,8 @@ const steps = [
   { n: "04", title: "Organize Evidence", desc: "Connect documents and facts to each issue. Every piece of evidence is linked to the ground it supports." },
   { n: "05", title: "Build Appeal", desc: "Approved findings and timeline conflicts automatically become appeal grounds with linked evidence. Review and edit every word." },
   { n: "06", title: "Review", desc: "We attack every ground from the decision-maker's perspective, score each argument 0-100, and find your weakest link — then show you exactly how to fix it." },
-  { n: "07", title: "Send", desc: "Before mailing, we scan your draft for exaggerated claims and unsupported assertions. Then choose your mailing — certified with return receipt is recommended." },
-  { n: "08", title: "Track / Prove", desc: "Track delivery and keep a permanent, tamper-evident record of your timely filing." },
+  { n: "07", title: "Send", desc: "Before mailing, we scan your draft for exaggerated claims and unsupported assertions. Then MailMyPDF prints, envelops, and sends your document via USPS — certified with return receipt is recommended." },
+  { n: "08", title: "Track / Prove", desc: "MailMyPDF tracks delivery and gives you a permanent, tamper-evident proof certificate with SHA-256 hash — your record that the appeal was filed on time." },
 ];
 
 const stats = [
@@ -72,7 +100,7 @@ function HomePage() {
               <span className="text-stamp">Send it with proof.</span>
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground">
-              Appeal Mail helps you analyze an adverse decision, organize the record, identify potential issues, build a supported appeal, and send it with a permanent mailing record.
+              Understand the decision. Build the right appeal. Mail it from your browser — with tracking and proof of delivery powered by MailMyPDF.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link to="/workflows/denied-claim" className="btn-amber text-base">Start an Appeal <ArrowRight size={18} /></Link>
@@ -135,7 +163,8 @@ function HomePage() {
               return (
                 <Link
                   key={cat}
-                  to="/workflows"
+                  to="/appeal/$slug"
+                  params={{ slug: CATEGORY_SLUGS[cat] }}
                   className="card envelope-card-hover group p-6"
                 >
                   <div className="flex items-start justify-between">
@@ -236,6 +265,41 @@ function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* MailMyPDF Ecosystem */}
+      <section className="border-y border-rule bg-paper-deep/30">
+        <div className="container py-16 md:py-24">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="eyebrow">Powered by MailMyPDF</div>
+            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>From your browser to the mailbox.</h2>
+            <p className="mt-4 text-muted-foreground">Appeal Mail handles the analysis and drafting. MailMyPDF handles the physical delivery — printing, enveloping, tracking, and proof of filing.</p>
+          </div>
+          <div className="mx-auto mt-12 max-w-4xl grid gap-5 md:grid-cols-3">
+            <div className="rounded-xl border border-rule bg-card p-6 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}>
+                <Send size={24} className="text-stamp" />
+              </div>
+              <h3 className="mt-4 text-lg text-ink" style={{ fontFamily: "var(--font-serif)" }}>Mail from your browser</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">No printer, no envelope, no trip to the post office. Your appeal is printed and mailed directly.</p>
+            </div>
+            <div className="rounded-xl border border-rule bg-card p-6 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}>
+                <PackageCheck size={24} className="text-stamp" />
+              </div>
+              <h3 className="mt-4 text-lg text-ink" style={{ fontFamily: "var(--font-serif)" }}>Track every step</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">USPS tracking from drop-off to delivery. Certified mail includes signature confirmation.</p>
+            </div>
+            <div className="rounded-xl border border-rule bg-card p-6 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}>
+                <ShieldCheck size={24} className="text-stamp" />
+              </div>
+              <h3 className="mt-4 text-lg text-ink" style={{ fontFamily: "var(--font-serif)" }}>Proof of timely filing</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">SHA-256 proof certificates and return receipts — your permanent record that the appeal was received on time.</p>
+            </div>
           </div>
         </div>
       </section>
