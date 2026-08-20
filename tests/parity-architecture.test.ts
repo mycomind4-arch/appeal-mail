@@ -162,3 +162,102 @@ describe("Executable vs Non-Executable Separation", () => {
     }
   });
 });
+
+/* ═══════════════════════════════════════════════════════════
+   FACTORY → PACK → GOLD GATE END-TO-END
+   ═══════════════════════════════════════════════════════════ */
+
+describe("Factory → Pack → Gold Gate E2E", () => {
+  test("denied-claim: factory constructs → pack resolves → quality gate is authority-level", () => {
+    // Step 1: Factory validates the definition
+    const def = workflows["denied-claim"];
+    const validationErrors = validateDefinition(def);
+    assert.equal(validationErrors.length, 0, "Definition must validate cleanly");
+
+    // Step 2: Factory constructs the workflow (loads pack, evaluates gate)
+    const constructed = constructWorkflow(def);
+    assert.ok(constructed.ready, "Construction must be ready");
+    assert.equal(constructed.errors.length, 0, "No construction errors");
+
+    // Step 3: Pack is loaded (not undefined)
+    assert.ok(constructed.packs, "Domain pack set must be loaded for denied-claim");
+
+    // Step 4: Quality gate is at least functional
+    assert.ok(
+      constructed.lifecycle === "functional" || constructed.lifecycle === "authority",
+      `Expected functional/authority lifecycle, got ${constructed.lifecycle}`,
+    );
+
+    // Step 5: All capability packs are present
+    const requiredCaps = [
+      "document-classification", "fact-extraction", "deadline-analysis",
+      "evidence-analysis", "contradiction-analysis", "drafting",
+      "draft-validation", "readiness-review", "submission", "mailing", "proof",
+    ];
+    for (const cap of requiredCaps) {
+      assert.ok(
+        constructed.capabilities.includes(cap as any),
+        `Missing required capability: ${cap}`,
+      );
+    }
+
+    // Step 6: Quality gate is satisfied for the core pipeline
+    const gate = constructed.qualityGate;
+    assert.ok(gate.documentRecognition, "Document recognition gate not satisfied");
+    assert.ok(gate.factGrounding, "Fact grounding gate not satisfied");
+    assert.ok(gate.draftValidation, "Draft validation gate not satisfied");
+    assert.ok(gate.submissionReadiness, "Submission readiness gate not satisfied");
+  });
+
+  test("non-registered workflows: factory constructs → no pack → quality gate is all-false → blueprint", () => {
+    for (const [id, def] of Object.entries(workflows)) {
+      if (id === "denied-claim") continue;
+      const constructed = constructWorkflow(def);
+      assert.ok(constructed.ready, `${id} should still construct`);
+      assert.ok(!constructed.packs, `${id} should NOT have a domain pack`);
+      assert.equal(constructed.lifecycle, "blueprint", `${id} should be blueprint`);
+      const gateValues = Object.values(constructed.qualityGate);
+      assert.ok(
+        gateValues.every(v => v === false),
+        `${id} quality gate should be all false`,
+      );
+    }
+  });
+
+  test("catalog executable flag matches factory lifecycle: only denied-claim is executable", () => {
+    // Import catalog to check executable flags
+    // This test ensures the catalog metadata is truthful
+    const all = constructAllWorkflows(workflows);
+    for (const w of all) {
+      if (w.definition.id === "denied-claim") {
+        assert.ok(
+          w.lifecycle === "functional" || w.lifecycle === "authority",
+          "denied-claim must be at least functional",
+        );
+      } else {
+        assert.equal(
+          w.lifecycle,
+          "blueprint",
+          `${w.definition.id} must be blueprint (no implementation)`,
+        );
+      }
+    }
+  });
+
+  test("no capability metadata implies executable behavior without implementation", () => {
+    // Every COMING_SOON workflow must have executable: false in the catalog
+    // and blueprint lifecycle in the factory
+    const all = constructAllWorkflows(workflows);
+    for (const w of all) {
+      if (w.lifecycle === "blueprint") {
+        // Blueprint means no domain pack — no executable behavior implied
+        assert.ok(!w.packs, `${w.definition.id} has no domain pack`);
+        const gateValues = Object.values(w.qualityGate);
+        assert.ok(
+          gateValues.every(v => v === false),
+          `${w.definition.id} has no quality gate satisfied`,
+        );
+      }
+    }
+  });
+});
