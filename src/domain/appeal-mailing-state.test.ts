@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { canPersistMailedStatus, type Appeal } from "./appeal";
+import { canPersistMailedStatus, updateAppeal, type Appeal } from "./appeal";
 
 const baseAppeal = { proof: undefined } as unknown as Appeal;
 
 describe("Appeal mailing state", () => {
   it("blocks mailed status without provider fulfillment evidence", () => {
     expect(canPersistMailedStatus(baseAppeal)).toBe(false);
+    expect(() => updateAppeal(baseAppeal, { status: "mailed" })).toThrow(/provider order/i);
   });
 
   it("requires provider id, mailing timestamp, and provider-backed proof status", () => {
