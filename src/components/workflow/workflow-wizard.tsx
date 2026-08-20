@@ -1,4 +1,5 @@
 import { AppShell, StatusBadge, DeadlineCard, ReadinessScore, EmptyState, SourceReference, ConfidenceBadge, IssueCard, AIActionBar, ActivityFeed, NAV_ICONS, NAV_LABELS, type WorkspaceNav } from "@/components/workspace/app-shell";
+import { Link } from "@tanstack/react-router";
 import { FileUp, ShieldAlert, CheckCircle2, Mail, PackageCheck, Stamp, CreditCard, Check, AlertTriangle, Clock, FileText, Link2, Scale, Gavel, Calendar, Paperclip, Send, Award, Download, Copy, FileSearch, LayoutDashboard, CalendarClock, TrendingUp, ArrowRight } from "lucide-react";
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { workflows, type WorkflowId, type WorkflowDefinition, type WorkflowStep } from "@/domain/workflows";
@@ -1481,8 +1482,8 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
                   )}
 
                   <div className="mt-6 flex justify-center gap-3">
-                    <a href="/dashboard" className="btn-secondary text-sm">Back to dashboard</a>
-                    <a href={`/workflows/${workflowId}`} className="btn-primary text-sm">Start new appeal</a>
+                    <Link to="/dashboard" className="btn-secondary text-sm">Back to dashboard</Link>
+                    <Link to="/workflows/$workflowId" params={{ workflowId }} className="btn-primary text-sm">Start new appeal</Link>
                   </div>
                 </div>
               </>
