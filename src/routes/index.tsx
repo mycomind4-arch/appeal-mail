@@ -82,32 +82,31 @@ const faqItems = [
 function HomePage() {
   return (
     <main>
-      <SiteHeader variant="transparent" />
+      <SiteHeader />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-indigo-950" style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #14122e 70%, #0d0b20 100%)" }}>
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "url(&quot;data:image/svg+xml,%3Csvg width=&#x27;80&#x27; height=&#x27;80&#x27; viewBox=&#x27;0 0 80 80&#x27; xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3E%3Cg fill=&#x27;none&#x27; fill-rule=&#x27;evenodd&#x27;%3E%3Cg fill=&#x27;%23f59e0b&#x27; fill-opacity=&#x27;0.15&#x27;%3E%3Cpath d=&#x27;M40 42l-5-5h10l-5 5zm0-15l-5 5h10l-5-5zM20 20h40v40H20V20zm5 5v30h30V25H25z&#x27;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;)" }}></div>
+      {/* Hero — paper aesthetic, no dark background */}
+      <section className="relative overflow-hidden border-b border-rule">
         <div className="container relative py-20 md:py-28">
           <div className="max-w-3xl">
-            <div className="badge badge-amber mb-6" style={{ background: "rgba(245,158,11,.12)", color: "#fbbf24" }}>Don't let the deadline pass</div>
-            <h1 className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl" style={{ fontFamily: "var(--font-serif)" }}>
+            <span className="postmark mb-6">Don't let the deadline pass</span>
+            <h1 className="mt-6 text-4xl leading-tight text-ink md:text-5xl lg:text-6xl" style={{ fontFamily: "var(--font-serif)" }}>
               Build your appeal.<br />
               Back it with evidence.<br />
-              <span className="text-amber-400">Send it with proof.</span>
+              <span className="text-stamp">Send it with proof.</span>
             </h1>
-            <p className="mt-7 max-w-xl text-lg leading-8 text-white/60">
+            <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground">
               Appeal Mail helps you analyze an adverse decision, organize the record, identify potential issues, build a supported appeal, and send it with a permanent mailing record.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <a href="/workflows/denied-claim" className="btn-amber text-base">Start an Appeal <ArrowRight size={18} /></a>
-              <a href="#how" className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-6 py-3.5 font-semibold text-white/90 transition hover:bg-white/5">See how it works</a>
+              <a href="#how" className="btn-outline text-base">See how it works</a>
             </div>
-            <p className="mt-6 text-sm text-white/40">Not a law firm. Not legal advice. You remain in control of the facts and final document.</p>
+            <p className="mt-6 text-sm text-muted-foreground">Not a law firm. Not legal advice. You remain in control of the facts and final document.</p>
           </div>
         </div>
 
-        {/* Visual flow: DECISION → X-RAY → TIMELINE → STRESS TEST → EVIDENCE → APPEAL → PROOF */}
-        <div className="border-t border-white/5 bg-black/10">
+        {/* Visual flow */}
+        <div className="border-t border-rule bg-paper-deep">
           <div className="container py-6">
             <div className="flex items-center gap-3 overflow-x-auto">
               {[
@@ -118,13 +117,13 @@ function HomePage() {
                 { label: "Evidence", icon: FileSearch },
                 { label: "Appeal", icon: Gavel },
                 { label: "Proof", icon: ShieldCheck },
-              ].map((item, i, arr) => (
+              ].map((item, i) => (
                 <div key={item.label} className="flex items-center gap-3 flex-shrink-0">
-                  <div className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-2">
-                    <item.icon size={16} className="text-amber-400" />
-                    <span className="text-sm font-medium text-white/70">{item.label}</span>
+                  <div className="flex items-center gap-2 rounded-md border border-rule bg-card px-3 py-2">
+                    <item.icon size={16} className="text-stamp" />
+                    <span className="text-sm font-medium text-muted-foreground">{item.label}</span>
                   </div>
-                  {i < arr.length - 1 && <ArrowRight size={14} className="text-white/20" />}
+                  {i < 6 && <ArrowRight size={14} className="text-rule" />}
                 </div>
               ))}
             </div>
@@ -132,52 +131,37 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="border-b border-warm-border bg-white py-8">
-        <div className="container grid grid-cols-2 gap-6 md:grid-cols-4">
-          {stats.map(({ value, label }) => (
-            <div key={label} className="text-center">
-              <p className="text-3xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{value}</p>
-              <p className="mt-1 text-xs text-slate-400">{label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Trust Bar */}
-      <section className="border-b border-warm-border bg-cream py-6">
-        <div className="container flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm text-slate-400">
-          {[
-            { icon: Lock, text: "Bank-grade encryption" },
-            { icon: PackageCheck, text: "USPS tracking included" },
-            { icon: ShieldCheck, text: "Proof of timely filing" },
-            { icon: Eye, text: "You review before anything is sent" },
-          ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-2">
-              <Icon size={16} className="text-amber-500" /> {text}
+      {/* Stats */}
+      <section className="border-b border-rule bg-card">
+        <div className="container grid grid-cols-2 gap-8 py-12 md:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>{s.value}</p>
+              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Workflows */}
-      <section id="workflows" className="bg-cream py-16 md:py-24">
+      <section id="workflows" className="py-16 md:py-24">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="eyebrow">Start with the denial</div>
-            <h2 className="mt-3 text-3xl font-bold text-indigo-700 md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>What are you appealing?</h2>
-            <p className="mt-4 text-slate-400">Choose a guided starting point. Appeal Mail is designed around appeal correspondence, not generic AI chat.</p>
+            <div className="eyebrow">What you can appeal</div>
+            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Start with the decision you received.</h2>
+            <p className="mt-4 text-muted-foreground">Each workflow is designed around a distinct appeal job and routes into the working Appeal Mail application.</p>
           </div>
-          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {workflows.map(({ title, description, icon: Icon, href }) => (
-              <Link key={title} to={href} className="card group p-6 transition hover:-translate-y-1 hover:shadow-lg">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50">
-                  <Icon size={24} className="text-indigo-700" />
+          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {workflows.map((w) => (
+              <Link to={w.href} key={w.title} className="card envelope-card-hover group p-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}>
+                  <w.icon size={24} className="text-stamp" />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-400">{description}</p>
-                <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-amber-600">
-                  Start workflow <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                <h3 className="mt-5 text-lg text-ink" style={{ fontFamily: "var(--font-serif)" }}>{w.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{w.description}</p>
+                <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-stamp">
+                  Open workflow
+                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
             ))}
@@ -185,78 +169,103 @@ function HomePage() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how" className="bg-white py-16 md:py-24">
-        <div className="container">
-          <div className="mx-auto max-w-2xl">
-            <div className="eyebrow">The process</div>
-            <h2 className="mt-3 text-3xl font-bold text-indigo-700 md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>How Appeal Mail works</h2>
-            <p className="mt-4 text-slate-400">From denial to filed appeal in four clear steps. Nothing is sent until you review and approve it.</p>
-          </div>
-          <div className="mt-12 grid gap-8 md:grid-cols-4">
-            {steps.map(({ n, title, desc }, i) => (
-              <div key={n} className="relative">
-                {i < steps.length - 1 && (
-                  <div className="absolute left-[2.2rem] top-12 hidden h-px w-[calc(100%-2rem)] bg-gradient-to-r from-warm-border to-transparent md:block" />
-                )}
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-700 text-white">
-                  <span className="text-sm font-bold">{n}</span>
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-400">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Features */}
-      <section id="features" className="bg-cream py-16 md:py-24">
-        <div className="container">
-          <div className="mx-auto max-w-2xl">
-            <div className="eyebrow">Why Appeal Mail</div>
-            <h2 className="mt-3 text-3xl font-bold text-indigo-700 md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Built for appeal deadlines</h2>
-            <p className="mt-4 text-slate-400">Everything you need to prepare, send, and prove your appeal — in one place.</p>
+      <section className="border-y border-rule bg-card">
+        <div className="container py-16 md:py-24">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="eyebrow">How it works</div>
+            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Tools that do the hard part for you.</h2>
+            <p className="mt-4 text-muted-foreground">Analysis, timeline, stress testing, and drafting — built specifically for appeals, not a generic chat.</p>
           </div>
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {features.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="card p-6">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-50">
-                  <Icon size={22} className="text-amber-600" />
+          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {features.map((f) => (
+              <div key={f.title} className={`card p-6 ${f.featured ? "ring-1 ring-stamp/30" : ""}`}>
+                {f.featured && <span className="postmark mb-4">Signature</span>}
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}>
+                  <f.icon size={24} className="text-stamp" />
                 </div>
-                <h3 className="mt-4 font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-400">{desc}</p>
+                <h3 className="mt-5 text-lg text-ink" style={{ fontFamily: "var(--font-serif)" }}>{f.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Comparison */}
-      <section className="bg-white py-16 md:py-24">
-        <div className="container max-w-3xl">
-          <div className="text-center">
-            <div className="eyebrow">The difference</div>
-            <h2 className="mt-3 text-3xl font-bold text-indigo-700 md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Appeal Mail vs. doing it yourself</h2>
+      {/* Steps */}
+      <section id="how" className="py-16 md:py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="eyebrow">Step by step</div>
+            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>From decision to proof of filing.</h2>
+            <p className="mt-4 text-muted-foreground">A guided workflow that moves you from the decision letter to a mailed, tracked appeal — no printer needed.</p>
           </div>
-          <div className="mt-10 overflow-x-auto">
-            <table className="w-full text-sm border border-warm-border rounded-xl overflow-hidden">
-              <thead className="bg-indigo-700 text-white">
-                <tr>
-                  <th className="px-5 py-4 text-left font-semibold">Feature</th>
-                  <th className="px-5 py-4 text-center font-semibold" style={{ fontFamily: "var(--font-serif)" }}>Appeal Mail</th>
-                  <th className="px-5 py-4 text-center font-semibold">DIY</th>
+          <div className="mx-auto mt-14 max-w-3xl space-y-6">
+            {steps.map((s) => (
+              <div key={s.n} className="flex gap-6">
+                <div className="flex-shrink-0">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-rule bg-card text-sm font-semibold text-stamp" style={{ fontFamily: "var(--font-mono)" }}>
+                    {s.n}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl text-ink" style={{ fontFamily: "var(--font-serif)" }}>{s.title}</h3>
+                  <p className="mt-2 text-muted-foreground">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="border-y border-rule bg-card">
+        <div className="container py-16 md:py-24">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="eyebrow">From users</div>
+            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>People who got their appeals in on time.</h2>
+          </div>
+          <div className="mt-14 grid gap-5 md:grid-cols-3">
+            {testimonials.map((t) => (
+              <div key={t.author} className="card p-6">
+                <Quote size={28} className="text-stamp" />
+                <p className="mt-4 text-sm leading-7 text-muted-foreground">{t.quote}</p>
+                <div className="mt-5 border-t border-rule pt-4">
+                  <p className="text-sm font-semibold text-ink">{t.author}</p>
+                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison table */}
+      <section className="py-16 md:py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="eyebrow">Why Appeal Mail</div>
+            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Built for appeals. Not a chatbot.</h2>
+            <p className="mt-4 text-muted-foreground">Every feature is designed for the appeal job — from document analysis to proof of filing.</p>
+          </div>
+          <div className="mx-auto mt-14 max-w-4xl overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-rule">
+                  <th className="py-4 pr-4 text-left font-semibold text-ink">Feature</th>
+                  <th className="px-4 py-4 text-center font-semibold text-ink">Appeal Mail</th>
+                  <th className="px-4 py-4 text-center font-semibold text-muted-foreground">Generic AI chat</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-warm-border">
-                {comparison.map(({ feature, us, them }) => (
-                  <tr key={feature} className="hover:bg-cream/50">
-                    <td className="px-5 py-3.5 text-slate-500 font-medium">{feature}</td>
-                    <td className="px-5 py-3.5 text-center">
-                      {us === true ? <CheckCircle2 size={18} className="mx-auto text-amber-600" /> : <span className="text-slate-400">{us}</span>}
+              <tbody>
+                {comparison.map((row) => (
+                  <tr key={row.feature} className="border-b border-rule">
+                    <td className="py-3.5 pr-4 text-muted-foreground">{row.feature}</td>
+                    <td className="px-4 py-3.5 text-center">
+                      {row.us === true ? <CheckCircle2 size={18} className="mx-auto text-stamp" /> : <span className="text-muted-foreground">{row.us}</span>}
                     </td>
-                    <td className="px-5 py-3.5 text-center">
-                      {them === false ? <span className="text-slate-300">—</span> : <span className="text-slate-400">{them}</span>}
+                    <td className="px-4 py-3.5 text-center">
+                      {row.them === false ? <span className="text-muted-foreground">—</span> : row.them === true ? <CheckCircle2 size={18} className="mx-auto text-muted-foreground" /> : <span className="text-muted-foreground">{row.them}</span>}
                     </td>
                   </tr>
                 ))}
@@ -266,109 +275,35 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="bg-cream py-16 md:py-24">
+      {/* FAQ */}
+      <section id="faq" className="border-t border-rule bg-card py-16 md:py-24">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="eyebrow">What people say</div>
-            <h2 className="mt-3 text-3xl font-bold text-indigo-700 md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Real appeals, real outcomes</h2>
-          </div>
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <div key={t.author} className="card p-6">
-                <Quote size={24} className="text-amber-200" />
-                <p className="mt-3 text-sm leading-7 text-slate-500">"{t.quote}"</p>
-                <div className="mt-5 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 font-bold text-indigo-500" style={{ fontFamily: "var(--font-serif)" }}>
-                    {t.author.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-indigo-700">{t.author}</p>
-                    <p className="text-xs text-slate-400">{t.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Preview */}
-      <section id="pricing" className="bg-white py-16 md:py-24">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="eyebrow">Simple pricing</div>
-            <h2 className="mt-3 text-3xl font-bold text-indigo-700 md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Pay per mailing. No subscription.</h2>
-            <p className="mt-4 text-slate-400">Prices include printing, paper, envelope, and postage.</p>
-          </div>
-          <div className="mt-12 grid gap-5 md:grid-cols-4">
-            {[
-              { type: "Standard", price: "$4.99", desc: "3–7 business days, tracking included", icon: Mail },
-              { type: "Certified", price: "$14.94", desc: "Delivery tracking + confirmation", icon: PackageCheck },
-              { type: "Registered", price: "$32.49", desc: "Secure handling + tracking, insured", icon: Stamp, featured: true },
-            ].map(({ type, price, desc, icon: Icon, featured }) => (
-              <div key={type} className={`card p-6 text-center ${featured ? "ring-2 ring-amber-400" : ""}`}>
-                {featured && <div className="badge badge-amber mb-3">Most popular</div>}
-                <Icon size={28} className="mx-auto text-indigo-700" />
-                <h3 className="mt-4 font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{type}</h3>
-                <p className="mt-2 text-3xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{price}</p>
-                <p className="mt-2 text-xs text-slate-400">{desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <Link to="/pricing" className="btn-outline">See full pricing <ArrowRight size={16} /></Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust & Safety */}
-      <section id="trust" className="bg-cream py-16 md:py-20">
-        <div className="container">
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="card p-6">
-              <Lock size={24} className="text-amber-500" />
-              <h2 className="mt-4 text-lg font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Your facts stay yours</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">AI assists with organization and drafting. It will never invent facts, deadlines, or legal conclusions. Your documents are encrypted and never shared.</p>
-            </div>
-            <div className="card p-6">
-              <Clock size={24} className="text-amber-500" />
-              <h2 className="mt-4 text-lg font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Deadlines are everything</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">Appeal deadlines can be as short as 10–30 days. Every workflow prompts you to note yours. Certified mail with return receipt proves you filed on time.</p>
-            </div>
-            <div className="card p-6">
-              <Scale size={24} className="text-amber-500" />
-              <h2 className="mt-4 text-lg font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Know what we're not</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">Appeal Mail is not a law firm and does not provide legal advice. If your appeal involves complex legal questions, consult a qualified attorney.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Preview */}
-      <section id="faq" className="bg-white py-16 md:py-24">
-        <div className="container max-w-3xl">
-          <div className="text-center">
             <div className="eyebrow">Questions</div>
-            <h2 className="mt-3 text-3xl font-bold text-indigo-700 md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Frequently asked</h2>
+            <h2 className="mt-3 text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Before you start.</h2>
           </div>
-          <div className="mt-10 space-y-3">
+          <div className="mx-auto mt-12 max-w-2xl space-y-3">
             {faqItems.map((item) => (
               <FAQItem key={item.q} q={item.q} a={item.a} />
             ))}
           </div>
-          <div className="mt-8 text-center">
+          <div className="mt-10 text-center">
             <Link to="/faq" className="btn-outline">See all questions <ArrowRight size={16} /></Link>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section style={{ background: "linear-gradient(135deg, #312e81 0%, #1e1b4b 100%)" }} className="py-16 md:py-20">
-        <div className="container text-center">
-          <h2 className="text-3xl font-bold text-white md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Ready to appeal?</h2>
-          <p className="mx-auto mt-4 max-w-lg text-white/60">Start a guided workflow, review your draft, and mail it — all in one place.</p>
-          <Link to="/workflows/denied-claim" className="btn-amber mt-8 text-base">Start now <ArrowRight size={18} /></Link>
+      <section className="py-16 md:py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ background: "color-mix(in oklab, var(--stamp) 10%, transparent)" }}>
+              <Scale size={32} className="text-stamp" />
+            </div>
+            <h2 className="text-3xl text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>Start your appeal today.</h2>
+            <p className="mx-auto mt-4 max-w-lg text-muted-foreground">Start a guided workflow, review your draft, and mail it — all in one place.</p>
+            <Link to="/workflows/denied-claim" className="btn-amber mt-8 text-base">Start now <ArrowRight size={18} /></Link>
+          </div>
         </div>
       </section>
 
@@ -382,10 +317,10 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   return (
     <div className="card overflow-hidden">
       <button className="flex w-full items-center justify-between p-5 text-left" onClick={() => setOpen(!open)}>
-        <span className="font-semibold text-indigo-700">{q}</span>
-        <ChevronDown size={18} className={`shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        <span className="font-semibold text-ink" style={{ fontFamily: "var(--font-sans)" }}>{q}</span>
+        <ChevronDown size={18} className={`shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="px-5 pb-5 text-sm leading-6 text-slate-400">{a}</div>}
+      {open && <div className="px-5 pb-5 text-sm leading-6 text-muted-foreground">{a}</div>}
     </div>
   );
 }

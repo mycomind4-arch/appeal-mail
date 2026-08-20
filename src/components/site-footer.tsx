@@ -3,52 +3,53 @@ import { Scale } from "lucide-react";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-warm-border bg-white">
+    <footer className="border-t border-rule bg-card">
       <div className="container py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-700">
-                <Scale size={16} className="text-amber-400" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: "var(--ink)" }}>
+                <Scale size={16} className="text-stamp" />
               </div>
-              <span className="text-base font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>Appeal Mail</span>
+              <span className="text-base font-semibold text-ink" style={{ fontFamily: "var(--font-serif)" }}>Appeal Mail</span>
             </div>
-            <p className="mt-3 text-sm leading-6 text-slate-400">Prepare and send appeals for denied claims and decisions with confidence.</p>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">Prepare and send appeals for denied claims and decisions with confidence.</p>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-indigo-700">Product</h3>
-            <ul className="mt-3 space-y-2 text-sm text-slate-400">
-              <li><a href="/#how" className="hover:text-amber-600">How it works</a></li>
-              <li><a href="/#workflows" className="hover:text-amber-600">What you can appeal</a></li>
-              <li><Link to="/pricing" className="hover:text-amber-600">Pricing</Link></li>
-              <li><Link to="/dashboard" className="hover:text-amber-600">My Mailings</Link></li>
-              <li><Link to="/faq" className="hover:text-amber-600">FAQ</Link></li>
+            <h3 className="text-sm font-semibold text-ink">Product</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li><a href="/#how" className="hover:text-stamp">How it works</a></li>
+              <li><a href="/#workflows" className="hover:text-stamp">What you can appeal</a></li>
+              <li><Link to="/pricing" className="hover:text-stamp">Pricing</Link></li>
+              <li><Link to="/dashboard" className="hover:text-stamp">My Mailings</Link></li>
+              <li><Link to="/faq" className="hover:text-stamp">FAQ</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-indigo-700">Resources</h3>
-            <ul className="mt-3 space-y-2 text-sm text-slate-400">
-              <li><Link to="/resources" className="hover:text-amber-600">Guides</Link></li>
-              <li><Link to="/about" className="hover:text-amber-600">About</Link></li>
-              <li><Link to="/contact" className="hover:text-amber-600">Contact</Link></li>
-              <li><Link to="/privacy" className="hover:text-amber-600">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-amber-600">Terms of Service</Link></li>
+            <h3 className="text-sm font-semibold text-ink">Workflows</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li><Link to="/workflows/denied-claim" className="hover:text-stamp">Denied Claim</Link></li>
+              <li><Link to="/workflows/government-decision" className="hover:text-stamp">Government Decision</Link></li>
+              <li><Link to="/workflows/court-ruling" className="hover:text-stamp">Court Ruling</Link></li>
+              <li><Link to="/workflows/reconsideration" className="hover:text-stamp">Reconsideration</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-indigo-700">Important</h3>
-            <p className="mt-3 text-xs leading-5 text-slate-400">
-              Appeal Mail is not a law firm and does not provide legal advice. Appeal deadlines can be very short — note yours immediately.
-            </p>
+            <h3 className="text-sm font-semibold text-ink">Company</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li><Link to="/about" className="hover:text-stamp">About</Link></li>
+              <li><Link to="/contact" className="hover:text-stamp">Contact</Link></li>
+              <li><Link to="/privacy" className="hover:text-stamp">Privacy</Link></li>
+              <li><Link to="/terms" className="hover:text-stamp">Terms</Link></li>
+            </ul>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t border-warm-border pt-6 text-xs text-slate-400 md:flex-row md:items-center md:justify-between">
-          <span>© 2026 Appeal Mail. Powered by MailMyPDF.</span>
-          <span>Information is educational and product-related, not legal advice.</span>
+        <div className="mt-10 border-t border-rule pt-6">
+          <p className="text-xs text-muted-foreground">Appeal Mail is not a law firm and does not provide legal advice. You remain in control of the facts and final document.</p>
         </div>
       </div>
     </footer>
