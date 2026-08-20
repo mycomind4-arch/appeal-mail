@@ -76,4 +76,22 @@ describe("Appeal Mail Gold Standard gate", () => {
     expect(result.passed).toBe(false);
     expect(result.missingCapabilities).toEqual(["xray-analysis", "timeline-analysis", "stress-testing", "response-strategy"]);
   });
+
+  it("does not infer generic capabilities from an unrelated pack", () => {
+    const partial: DomainPackSet = {
+      ...completePacks,
+      document: undefined as unknown as DomainPackSet["document"],
+      deadline: undefined as unknown as DomainPackSet["deadline"],
+      evidence: undefined as unknown as DomainPackSet["evidence"],
+      draft: undefined as unknown as DomainPackSet["draft"],
+      validation: undefined as unknown as DomainPackSet["validation"],
+      analysis: { ...completePacks.analysis, capabilities: [] },
+      submission: undefined as unknown as DomainPackSet["submission"],
+    };
+    const executable = getExecutableCapabilities(workflow(partial));
+    expect(executable.size).toBe(0);
+    const result = evaluateGoldStandardGate(workflow(partial));
+    expect(result.passed).toBe(false);
+    expect(result.missingCapabilities).toEqual([...REQUIRED_GOLD_CAPABILITIES]);
+  });
 });
