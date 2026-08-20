@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { WorkflowWizard } from "@/components/workflow/workflow-wizard";
 import { workflows } from "@/domain/workflows";
 import { constructWorkflow } from "@/domain/workflow-capabilities";
@@ -34,11 +34,16 @@ function DeniedClaim() {
   }
 
   return (
-    <WorkflowWizard
-      workflowId="denied-claim"
-      metaTitle="Appeal a Denied Claim — Appeal Mail"
-      metaDescription="Guided workflow to prepare and mail an appeal for a denied insurance claim, benefit denial, or workers' compensation decision."
-      componentName="DeniedClaim"
-    />
+    <main>
+      <div className="mx-auto max-w-6xl px-6 pt-6">
+        <Link to="/workflows/denied-claim-ai" className="inline-flex rounded-full border border-ink px-4 py-2 text-xs font-semibold">Open multi-LLM AI review →</Link>
+      </div>
+      <WorkflowWizard
+        workflowId="denied-claim"
+        metaTitle="Appeal a Denied Claim — Appeal Mail"
+        metaDescription="Guided workflow to prepare and mail an appeal for a denied insurance claim, benefit denial, or workers' compensation decision."
+        componentName="DeniedClaim"
+      />
+    </main>
   );
 }
