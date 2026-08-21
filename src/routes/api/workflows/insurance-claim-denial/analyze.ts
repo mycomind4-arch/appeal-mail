@@ -68,6 +68,18 @@ export const APIRoute = createAPIFileRoute("/api/workflows/insurance-claim-denia
         evidenceMentioned?: string[]; uncertainties?: string[]; confidence?: string;
       };
 
+      const evidenceLabels = analysis.evidenceMentioned?.length ? analysis.evidenceMentioned : ["Source denial document"];
+      const evidence = evidenceLabels.map((label) => createEvidence("document", label, { documentId: document.id, documentFilename: document.filename, uploadedAt: new Date().toISOString() }));
+      const issueItems = analysis.issues?.length ? analysis.issues : [{ issue: "Review the stated denial basis against the supplied evidence", whyItMatters: "The denial should be evaluated against the actual source record.", evidenceNeeded: [] }];
+      const grounds = issueItems.map((issue, index) => createGround("factual_error", {
+        id: `ground-${index}-${crypto.randomUUID()}`,
+        claim: issue.issue || "Review a stated denial issue",
+        source: issue.whyItMatters || "Identified by document analysis",
+        confidence: 0.65,
+        supportingEvidenceIds: evidence.map((item) => item.id),
+        unresolvedIssue: issue.evidenceNeeded?.join(", "),
+      }));
+
       const decision = createDecision("claim_denial", {
         id: crypto.randomUUID(), documentId: document.id, documentFilename: document.filename, agency: analysis.issuer || undefined,
         referenceNumber: analysis.referenceNumber || undefined, decisionDate: analysis.decisionDate || undefined,
@@ -75,26 +87,15 @@ export const APIRoute = createAPIFileRoute("/api/workflows/insurance-claim-denia
         deadline: analysis.deadline ? { date: analysis.deadline, type: "appeal", source: "extracted" } : undefined,
         facts: (analysis.keyFacts || []).map((value, index) => ({ id: `${index}-${crypto.randomUUID()}`, label: `Fact ${index + 1}`, value, source: "extracted", confidence: 0.8 })),
         reasons: (analysis.reasons || []).map((text, index) => ({ id: `${index}-${crypto.randomUUID()}`, text, confidence: 0.9 })),
-        issues: (analysis.issues || []).map((item, index) => ({ id: `${index}-${crypto.randomUUID()}`, description: item.issue || "Issue identified in denial", type: "factual_dispute", severity: "medium", sourceExcerpt: item.whyItMatters })),
-        rawText: JSON.stringify(analysis),
-        extractedAt: new Date().toISOString(), extractionConfidence: analysis.confidence === "high" ? 0.9 : analysis.confidence === "medium" ? 0.7 : 0.5,
+        issues: issueItems.map((item, index) => ({ id: `${index}-${crypto.randomUUID()}`, description: item.issue || "Issue identified in denial", type: "factual_dispute", severity: "medium", sourceExcerpt: item.whyItMatters })),
+        rawText: JSON.stringify(analysis), extractedAt: new Date().toISOString(),
+        extractionConfidence: analysis.confidence === "high" ? 0.9 : analysis.confidence === "medium" ? 0.7 : 0.5,
       });
-
-      const grounds = (analysis.issues || []).map((issue, index) => createGround("factual_error", {
-        id: `ground-${index}-${crypto.randomUUID()}`,
-        claim: issue.issue || "Review a stated denial issue",
-        source: issue.whyItMatters || "Identified by document analysis",
-        confidence: 0.65,
-        unresolvedIssue: issue.evidenceNeeded?.join(", "),
-      }));
-      const evidence = (analysis.evidenceMentioned || []).map((label) => createEvidence("document", label, { documentId: document.id, documentFilename: document.filename, uploadedAt: new Date().toISOString() }));
-      if (evidence.length && grounds.length) grounds[0].supportingEvidenceIds = evidence.map((item) => item.id);
 
       const appeal = createAppeal("insurance-claim-denial", decision);
       appeal.grounds = grounds;
       appeal.evidence = evidence;
       appeal.updatedAt = new Date().toISOString();
-
       const supabase = await getSupabaseServer();
       const { error } = await supabase.from("appeals").insert({
         id: appeal.id, user_id: user.id, workflow_id: appeal.workflowId, status: appeal.status,
