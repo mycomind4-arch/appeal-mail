@@ -2,7 +2,7 @@
  * Multi-Provider LLM Service
  *
  * Supports three providers:
- * - Google Gemini (gemini-3-flash-preview / gemini-1.5-pro)
+ * - Google Gemini (gemini-3.6-flash / gemini-1.5-pro)
  * - Anthropic Claude (claude-sonnet-4-20250514 / claude-3-5-sonnet)
  * - OpenAI (gpt-4o / gpt-4o-mini)
  *
@@ -63,7 +63,7 @@ export function getProviderLabel(provider: LLMProvider): string {
 
 export function getDefaultModel(provider: LLMProvider): string {
   const models: Record<LLMProvider, string> = {
-    gemini: "gemini-3-flash-preview",
+    gemini: "gemini-3.6-flash",
     claude: "claude-sonnet-4-20250514",
     openai: "gpt-4o",
   };
