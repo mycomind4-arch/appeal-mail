@@ -5,7 +5,7 @@ import { evaluateGoldStandardGate } from "@/domain/gold-standard-gate";
 import { workflows } from "@/domain/workflows";
 
 export const Route = createFileRoute("/workflows/financial-aid-appeal")({
-  head: () => ({ meta: [{ title: "Financial Aid Appeal — Appeal Mail" }, { name: "description", content: "Upload a financial-aid decision, build a documented appeal, review it, and prepare it for mailing." }] }),
+  head: () => ({ meta: [{ title: "Financial Aid Appeal — Appeal Mail" }, { name: "description", content: "Upload a financial-aid decision, build a documented appeal, review it, and prepare it for mailing." }, { property: "og:title", content: "Financial Aid Appeal — Appeal Mail — Appeal Mail" }, { property: "og:description", content: "Upload a financial-aid decision, build a documented appeal, review it, and prepare it for mailing." }, { name: "twitter:card", content: "summary" }, { name: "twitter:title", content: "Financial Aid Appeal — Appeal Mail — Appeal Mail" }, { name: "twitter:description", content: "Upload a financial-aid decision, build a documented appeal, review it, and prepare it for mailing." }], links: [{ rel: "canonical", href: "/workflows/financial-aid-appeal" }] }),
   component: Page,
 });
 

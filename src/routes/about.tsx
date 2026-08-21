@@ -3,10 +3,19 @@ import { Scale, Sparkles, Mail, ShieldCheck, ArrowRight, FileCheck } from "lucid
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 export const Route = createFileRoute("/about")({
-  head: () => ({ meta: [
-    { title: "About — Appeal Mail" },
-    { name: "description", content: "Appeal Mail helps people prepare and send appeals for denied claims and decisions with guided workflows, AI-assisted drafting, and physical mail with tracking." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "About — Appeal Mail" },
+      { name: "description", content: "Appeal Mail helps people prepare and send appeals for denied claims and decisions with guided workflows, AI-assisted drafting, and physical mail with tracking." },
+      { property: "og:title", content: "About — Appeal Mail" },
+      { property: "og:description", content: "Appeal Mail helps people prepare and send appeals for denied claims and decisions with guided workflows, AI-assisted drafting, and physical mail with tracking." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "About — Appeal Mail" },
+      { name: "twitter:description", content: "Appeal Mail helps people prepare and send appeals for denied claims and decisions with guided workflows, AI-assisted drafting, and physical mail with tracking." },
+    ],
+    links: [{ rel: "canonical", href: "/about" }],
+  }),
   component: AboutPage,
 });
 function AboutPage() {

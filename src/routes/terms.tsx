@@ -3,10 +3,19 @@ import { FileText, ShieldAlert } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 export const Route = createFileRoute("/terms")({
-  head: () => ({ meta: [
-    { title: "Terms of Service — Appeal Mail" },
-    { name: "description", content: "Terms of service for Appeal Mail." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Terms of Service — Appeal Mail" },
+      { name: "description", content: "Terms of service for Appeal Mail." },
+      { property: "og:title", content: "Terms of Service — Appeal Mail" },
+      { property: "og:description", content: "Terms of service for Appeal Mail." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Terms of Service — Appeal Mail" },
+      { name: "twitter:description", content: "Terms of service for Appeal Mail." },
+    ],
+    links: [{ rel: "canonical", href: "/terms" }],
+  }),
   component: TermsPage,
 });
 const sections = [

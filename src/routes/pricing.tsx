@@ -3,10 +3,19 @@ import { Mail, PackageCheck, ShieldCheck, Stamp, Check, ArrowRight, Clock, Shiel
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 export const Route = createFileRoute("/pricing")({
-  head: () => ({ meta: [
-    { title: "Pricing — Appeal Mail" },
-    { name: "description", content: "Simple per-mailing pricing. Standard $4.99, Certified $14.94, Registered $32.49. Page-count tiers available. No subscription." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Pricing — Appeal Mail" },
+      { name: "description", content: "Simple per-mailing pricing. Standard $4.99, Certified $14.94, Registered $32.49. Page-count tiers available. No subscription." },
+      { property: "og:title", content: "Pricing — Appeal Mail" },
+      { property: "og:description", content: "Simple per-mailing pricing. Standard $4.99, Certified $14.94, Registered $32.49. Page-count tiers available. No subscription." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Pricing — Appeal Mail" },
+      { name: "twitter:description", content: "Simple per-mailing pricing. Standard $4.99, Certified $14.94, Registered $32.49. Page-count tiers available. No subscription." },
+    ],
+    links: [{ rel: "canonical", href: "/pricing" }],
+  }),
   component: PricingPage,
 });
 const tiers = [

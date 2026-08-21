@@ -4,10 +4,19 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 export const Route = createFileRoute("/contact")({
-  head: () => ({ meta: [
-    { title: "Contact — Appeal Mail" },
-    { name: "description", content: "Get in touch with the Appeal Mail team." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Contact — Appeal Mail" },
+      { name: "description", content: "Get in touch with the Appeal Mail team." },
+      { property: "og:title", content: "Contact — Appeal Mail" },
+      { property: "og:description", content: "Get in touch with the Appeal Mail team." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Contact — Appeal Mail" },
+      { name: "twitter:description", content: "Get in touch with the Appeal Mail team." },
+    ],
+    links: [{ rel: "canonical", href: "/contact" }],
+  }),
   component: ContactPage,
 });
 function ContactPage() {

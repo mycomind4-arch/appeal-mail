@@ -1,4 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PriorAuthorizationDenialWorkspace } from "@/components/workflow/prior-authorization-denial-workspace";
-export const Route=createFileRoute("/workflows/prior-authorization-denial")({component:PriorAuthorizationDenialRoute});
+export const Route=createFileRoute("/workflows/prior-authorization-denial")({head:()=>({meta:[{title:"Appeal a Prior Authorization Denial — Appeal Mail"},{name:"description",content:"Upload the denial and prepare a focused prior-authorization appeal."},{property:"og:title",content:"Appeal a Prior Authorization Denial — Appeal Mail"},{property:"og:description",content:"Upload the denial and prepare a focused prior-authorization appeal."},{name:"twitter:card",content:"summary"},{name:"twitter:title",content:"Appeal a Prior Authorization Denial — Appeal Mail"},{name:"twitter:description",content:"Upload the denial and prepare a focused prior-authorization appeal."}],links:[{rel:"canonical",href:"/workflows/prior-authorization-denial"}]}),component:PriorAuthorizationDenialRoute});
 function PriorAuthorizationDenialRoute(){return <PriorAuthorizationDenialWorkspace/>;}

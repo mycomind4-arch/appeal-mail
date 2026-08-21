@@ -30,6 +30,9 @@ export const Route = createFileRoute("/appeal/$slug")({
           { property: "og:title", content: seoTitle },
           { property: "og:description", content: seoDescription },
           { property: "og:type", content: "website" },
+          { name: "twitter:card", content: "summary" },
+          { name: "twitter:title", content: seoTitle },
+          { name: "twitter:description", content: seoDescription },
         ],
         links: [{ rel: "canonical", href: `/appeal/${slug}` }],
         scripts: [
@@ -45,6 +48,18 @@ export const Route = createFileRoute("/appeal/$slug")({
                 name: w.title,
                 url: w.route,
               })),
+            }),
+          },
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: "/" },
+                { "@type": "ListItem", position: 2, name: "Appeals", item: "/appeal" },
+                { "@type": "ListItem", position: 3, name: `${category} Appeals`, item: `/appeal/${slug}` },
+              ],
             }),
           },
         ],
@@ -68,6 +83,9 @@ export const Route = createFileRoute("/appeal/$slug")({
         { property: "og:title", content: workflow.seoTitle },
         { property: "og:description", content: workflow.seoDescription },
         { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
+        { name: "twitter:title", content: workflow.seoTitle },
+        { name: "twitter:description", content: workflow.seoDescription },
       ],
       links: [{ rel: "canonical", href: workflow.route }],
       scripts: [
@@ -84,6 +102,18 @@ export const Route = createFileRoute("/appeal/$slug")({
               name: "Appeal Mail",
               url: "/",
             },
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "/" },
+              { "@type": "ListItem", position: 2, name: "Appeals", item: "/appeal" },
+              { "@type": "ListItem", position: 3, name: workflow.title, item: workflow.route },
+            ],
           }),
         },
       ],

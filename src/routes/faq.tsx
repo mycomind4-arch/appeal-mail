@@ -4,10 +4,19 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 export const Route = createFileRoute("/faq")({
-  head: () => ({ meta: [
-    { title: "FAQ — Appeal Mail" },
-    { name: "description", content: "Answers to common questions about Appeal Mail: how it works, mailing, privacy, legal scope, and pricing." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "FAQ — Appeal Mail" },
+      { name: "description", content: "Answers to common questions about Appeal Mail: how it works, mailing, privacy, legal scope, and pricing." },
+      { property: "og:title", content: "FAQ — Appeal Mail" },
+      { property: "og:description", content: "Answers to common questions about Appeal Mail: how it works, mailing, privacy, legal scope, and pricing." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "FAQ — Appeal Mail" },
+      { name: "twitter:description", content: "Answers to common questions about Appeal Mail: how it works, mailing, privacy, legal scope, and pricing." },
+    ],
+    links: [{ rel: "canonical", href: "/faq" }],
+  }),
   component: FAQPage,
 });
 const categories = [

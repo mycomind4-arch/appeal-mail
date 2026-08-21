@@ -3,10 +3,19 @@ import { ShieldCheck, Lock, FileText, Trash2, Mail } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 export const Route = createFileRoute("/privacy")({
-  head: () => ({ meta: [
-    { title: "Privacy Policy — Appeal Mail" },
-    { name: "description", content: "How Appeal Mail collects, uses, stores, and protects your data and documents." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Privacy Policy — Appeal Mail" },
+      { name: "description", content: "How Appeal Mail collects, uses, stores, and protects your data and documents." },
+      { property: "og:title", content: "Privacy Policy — Appeal Mail" },
+      { property: "og:description", content: "How Appeal Mail collects, uses, stores, and protects your data and documents." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Privacy Policy — Appeal Mail" },
+      { name: "twitter:description", content: "How Appeal Mail collects, uses, stores, and protects your data and documents." },
+    ],
+    links: [{ rel: "canonical", href: "/privacy" }],
+  }),
   component: PrivacyPage,
 });
 const sections = [

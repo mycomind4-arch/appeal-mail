@@ -2,4 +2,8 @@ User-agent: *
 Allow: /
 Disallow: /dashboard
 Disallow: /auth
-Sitemap: https://appeal-mail.pages.dev/sitemap.xml
+Disallow: /account
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://mycomind4-arch-appeal-mail.pages.dev/sitemap.xml
