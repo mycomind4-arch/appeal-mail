@@ -1,6 +1,6 @@
 import { createAPIFileRoute } from "@tanstack/react-start";
 import { getWorkflow } from "@/domain/workflows";
-import { getSupabaseServer, requireAuthenticatedUser } from "@/platform/supabase";
+import { requireAuthenticatedUser } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
@@ -19,7 +19,7 @@ async function resolveGemini() {
     body: JSON.stringify({ task: "analysis" }),
   });
   const payload = await response.json().catch(() => null) as { provider?: string; apiKey?: string; model?: string; promptOverride?: string } | null;
-  if (!response.ok || !payload?.apiKey || !payload.model) throw new Error(payload && "error" in payload ? String((payload as any).error) : "Gemini configuration is unavailable.");
+  if (!response.ok || !payload?.apiKey || !payload.model) throw new Error("Gemini configuration is unavailable.");
   if (payload.provider !== "gemini") throw new Error("Appeal Mail is currently configured for Gemini. Add another provider in the MailMyPDF admin when ready.");
   return payload;
 }
@@ -57,7 +57,6 @@ export const APIRoute = createAPIFileRoute("/api/workflows/$workflowId/analyze")
       const text = body?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("").trim();
       if (!text) throw new Error("Gemini returned no analysis.");
       let analysis: unknown; try { analysis = JSON.parse(text); } catch { throw new Error("Gemini returned invalid structured analysis."); }
-
       return Response.json({ ok: true, userId: user.id, workflowId: workflow.id, workflow: { title: workflow.title, primaryKeyword: workflow.primaryKeyword }, document, analysis, provider: "gemini", model: gemini.model });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to analyze document.";
