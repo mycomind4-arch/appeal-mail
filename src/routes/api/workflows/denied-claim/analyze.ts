@@ -1,5 +1,5 @@
 import { createAPIFileRoute } from "@tanstack/react-start";
-import { requireAuthenticatedUser } from "@/platform/supabase";
+import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 
 type ProviderConfig = {
   provider: "anthropic" | "openai" | "gemini";
@@ -30,10 +30,14 @@ function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   throw new Error("Denied Claim currently accepts PDF, PNG, and JPEG source documents.");
 }
 
+function asString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
 export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/analyze")({
   POST: async ({ request }) => {
     try {
-      await requireAuthenticatedUser(request);
+      const user = await requireAuthenticatedUser(request);
       const form = await request.formData();
       const file = form.get("document");
       if (!(file instanceof File)) return Response.json({ error: "A source document is required." }, { status: 400 });
@@ -72,10 +76,88 @@ export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/analyze"
       const text = body?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("").trim();
       if (!text) throw new Error("Gemini returned no analysis.");
 
-      let analysis: unknown;
-      try { analysis = JSON.parse(text); } catch { throw new Error("Gemini returned invalid structured analysis."); }
+      const analysis = JSON.parse(text) as Record<string, unknown>;
+      const now = new Date().toISOString();
+      const decisionId = crypto.randomUUID();
+      const appealId = crypto.randomUUID();
+      const keyFacts = Array.isArray(analysis.keyFacts) ? analysis.keyFacts : [];
+      const denialReasons = Array.isArray(analysis.denialReasons) ? analysis.denialReasons : [];
+      const issues = Array.isArray(analysis.issues) ? analysis.issues : [];
 
-      return Response.json({ ok: true, workflowId: "denied-claim", fileName: file.name, analysis, provider: "gemini", model: provider.model });
+      const facts = keyFacts.map((fact, index) => ({
+        id: crypto.randomUUID(),
+        label: typeof fact === "string" ? `Extracted fact ${index + 1}` : asString((fact as any)?.label) || `Extracted fact ${index + 1}`,
+        value: typeof fact === "string" ? fact : asString((fact as any)?.value) || asString((fact as any)?.text),
+        source: "extracted",
+        confidence: 0.9,
+      }));
+
+      const reasons = denialReasons.map((reason) => ({
+        id: crypto.randomUUID(),
+        text: asString(reason),
+        confidence: 0.9,
+      })).filter((reason) => reason.text.length > 0);
+
+      const decisionIssues = issues.map((issue) => {
+        const item = typeof issue === "string" ? { issue } : issue as any;
+        return {
+          id: crypto.randomUUID(),
+          description: asString(item.issue) || asString(item.description),
+          type: "factual_dispute",
+          severity: "medium",
+          sourceExcerpt: asString(item.whyItMatters),
+        };
+      }).filter((issue) => issue.description.length > 0);
+
+      const deadlineValue = asString(analysis.deadline);
+      const deadline = deadlineValue ? {
+        date: deadlineValue,
+        type: "appeal",
+        source: "extracted",
+        appealInstructions: asString(analysis.appealInstructions),
+      } : undefined;
+
+      const decision = {
+        id: decisionId,
+        type: "claim_denial",
+        documentFilename: file.name,
+        agency: asString(analysis.issuer),
+        referenceNumber: asString(analysis.referenceNumber),
+        decisionDate: asString(analysis.decisionDate),
+        deadline,
+        facts,
+        reasons,
+        citedRules: [],
+        appealInstructions: asString(analysis.appealInstructions),
+        chronology: [],
+        issues: decisionIssues,
+        extractedAt: now,
+        extractionConfidence: analysis.confidence === "high" ? 0.9 : analysis.confidence === "medium" ? 0.7 : 0.5,
+        rawText: JSON.stringify(analysis),
+      };
+
+      const supabase = await getSupabaseServer();
+      const { error: insertError } = await supabase.from("appeals").insert({
+        id: appealId,
+        user_id: user.id,
+        workflow_id: "denied-claim",
+        status: "in_progress",
+        decision,
+        grounds: [],
+        evidence: [],
+        arguments: [],
+        draft: "",
+        review: null,
+        packet: null,
+        proof: null,
+        timeline: [],
+        version: 1,
+        created_at: now,
+        updated_at: now,
+      });
+      if (insertError) throw new Error(`Unable to save appeal: ${insertError.message}`);
+
+      return Response.json({ ok: true, workflowId: "denied-claim", appealId, fileName: file.name, analysis, provider: "gemini", model: provider.model });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to analyze document.";
       const status = /authentication|required|token/i.test(message) ? 401 : 502;
