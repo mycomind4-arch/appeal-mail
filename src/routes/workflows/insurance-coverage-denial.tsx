@@ -1,0 +1,3 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { InsuranceCoverageDenialWorkspace } from "@/components/workflow/insurance-coverage-denial-workspace";
+export const Route=createFileRoute("/workflows/insurance-coverage-denial")({head:()=>({meta:[{title:"Insurance Coverage Denial — Appeal Mail"},{name:"description",content:"Upload an insurance coverage denial and build a documented response."}]}),component:InsuranceCoverageDenialWorkspace});
