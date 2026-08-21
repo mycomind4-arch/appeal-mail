@@ -1,4 +1,5 @@
 import { createAPIFileRoute } from "@tanstack/react-start";
+import { requireAuthenticatedUser } from "@/platform/supabase";
 
 type ProviderConfig = { provider: "anthropic" | "openai" | "gemini"; apiKey: string; apiBaseUrl?: string | null; model: string; promptOverride?: string | null };
 
@@ -29,6 +30,7 @@ async function callGemini(config: ProviderConfig, system: string, user: string) 
 export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/draft")({
   POST: async ({ request }) => {
     try {
+      await requireAuthenticatedUser(request);
       const payload = await request.json() as { extracted?: unknown; analysis?: unknown };
       if (!payload.extracted || !payload.analysis) return Response.json({ error: "Analysis results are required." }, { status: 400 });
       const draftConfig = await resolveProvider("draft");
@@ -37,7 +39,9 @@ export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/draft")(
       const validation = await callGemini(validationConfig, "Audit this appeal draft against the supplied analysis. Identify unsupported facts, missing evidence, contradictions, deadline problems, tone problems, and material defects. Return concise JSON with valid:boolean, issues:string[], suggestions:string[].", JSON.stringify({ analysis: payload.analysis, draft }));
       return Response.json({ ok: true, draft, validation, draftProvider: draftConfig.provider, validationProvider: validationConfig.provider });
     } catch (error) {
-      return Response.json({ error: error instanceof Error ? error.message : "Unable to create appeal draft." }, { status: 502 });
+      const message = error instanceof Error ? error.message : "Unable to create appeal draft.";
+      const status = /authentication|required|token/i.test(message) ? 401 : 502;
+      return Response.json({ error: message }, { status });
     }
   },
 });
