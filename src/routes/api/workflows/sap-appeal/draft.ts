@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { getWorkflow } from "@/domain/workflows";
 
@@ -19,7 +19,7 @@ async function callGemini(c: any, prompt: string) {
   if (!t) throw new Error("Gemini returned no response.");
   return t;
 }
-export const APIRoute = createAPIFileRoute("/api/workflows/sap-appeal/draft")({ POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/sap-appeal/draft")({server:{handlers:{ POST: async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request);
     const input = await request.json() as any;
@@ -55,4 +55,4 @@ export const APIRoute = createAPIFileRoute("/api/workflows/sap-appeal/draft")({ 
     const message = error instanceof Error ? error.message : "Unable to create SAP appeal response.";
     return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 });
   }
-} });
+} }}});

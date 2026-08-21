@@ -1,9 +1,9 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { runReadinessReview } from "@/domain/review";
 import { assemblePacket } from "@/domain/packet";
 
-export const APIRoute = createAPIFileRoute("/api/workflows/sap-appeal/approve")({ POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/sap-appeal/approve")({server:{handlers:{ POST: async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request);
     const input = await request.json() as any;
@@ -32,4 +32,4 @@ export const APIRoute = createAPIFileRoute("/api/workflows/sap-appeal/approve")(
     const message = error instanceof Error ? error.message : "Unable to approve SAP appeal.";
     return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 });
   }
-} });
+} }}});

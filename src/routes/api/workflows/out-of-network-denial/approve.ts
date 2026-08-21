@@ -1,8 +1,8 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { runReadinessReview } from "@/domain/review";
 import { assemblePacket } from "@/domain/packet";
-export const APIRoute = createAPIFileRoute("/api/workflows/out-of-network-denial/approve")({ POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/out-of-network-denial/approve")({server:{handlers:{ POST: async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request); const input = await request.json() as any;
     const appealId = input.appealId?.trim(); const recipient = input.recipient; const mailingMethod = input.mailingMethod;
@@ -22,4 +22,4 @@ export const APIRoute = createAPIFileRoute("/api/workflows/out-of-network-denial
     if (updateError) throw new Error(`Unable to approve appeal: ${updateError.message}`);
     return Response.json({ ok: true, appealId, status: "ready", review, packet });
   } catch (error) { const message = error instanceof Error ? error.message : "Unable to approve out-of-network appeal."; return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 }); }
-} });
+} }}});

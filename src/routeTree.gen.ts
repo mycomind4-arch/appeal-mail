@@ -55,6 +55,72 @@ import { Route as WorkflowsSapAppealRouteImport } from './routes/workflows/sap-a
 import { Route as WorkflowsScholarshipAppealRouteImport } from './routes/workflows/scholarship-appeal'
 import { Route as WorkflowsSocialSecurityDenialRouteImport } from './routes/workflows/social-security-denial'
 import { Route as WorkflowsUnemploymentDenialRouteImport } from './routes/workflows/unemployment-denial'
+import { Route as ApiAdminAppealsRouteImport } from './routes/api/admin/appeals'
+import { Route as ApiAdminHealthRouteImport } from './routes/api/admin/health'
+import { Route as ApiAuthStatusRouteImport } from './routes/api/auth/status'
+import { Route as ApiWorkflowsCarInsuranceAppealApproveRouteImport } from './routes/api/workflows/car-insurance-appeal/approve'
+import { Route as ApiWorkflowsCarInsuranceAppealDraftRouteImport } from './routes/api/workflows/car-insurance-appeal/draft'
+import { Route as ApiWorkflowsClaimDenialLetterApproveRouteImport } from './routes/api/workflows/claim-denial-letter/approve'
+import { Route as ApiWorkflowsClaimDenialLetterDraftRouteImport } from './routes/api/workflows/claim-denial-letter/draft'
+import { Route as ApiWorkflowsCourtRulingApproveRouteImport } from './routes/api/workflows/court-ruling/approve'
+import { Route as ApiWorkflowsCourtRulingDraftRouteImport } from './routes/api/workflows/court-ruling/draft'
+import { Route as ApiWorkflowsDeniedClaimAnalyzeRouteImport } from './routes/api/workflows/denied-claim/analyze'
+import { Route as ApiWorkflowsDeniedClaimApproveRouteImport } from './routes/api/workflows/denied-claim/approve'
+import { Route as ApiWorkflowsDeniedClaimDraftRouteImport } from './routes/api/workflows/denied-claim/draft'
+import { Route as ApiWorkflowsDentalInsuranceAppealApproveRouteImport } from './routes/api/workflows/dental-insurance-appeal/approve'
+import { Route as ApiWorkflowsDentalInsuranceAppealDraftRouteImport } from './routes/api/workflows/dental-insurance-appeal/draft'
+import { Route as ApiWorkflowsDriversLicenseSuspensionApproveRouteImport } from './routes/api/workflows/drivers-license-suspension/approve'
+import { Route as ApiWorkflowsDriversLicenseSuspensionDraftRouteImport } from './routes/api/workflows/drivers-license-suspension/draft'
+import { Route as ApiWorkflowsEddDenialApproveRouteImport } from './routes/api/workflows/edd-denial/approve'
+import { Route as ApiWorkflowsEddDenialDraftRouteImport } from './routes/api/workflows/edd-denial/draft'
+import { Route as ApiWorkflowsFafsaAppealApproveRouteImport } from './routes/api/workflows/fafsa-appeal/approve'
+import { Route as ApiWorkflowsFafsaAppealDraftRouteImport } from './routes/api/workflows/fafsa-appeal/draft'
+import { Route as ApiWorkflowsFinancialAidAppealApproveRouteImport } from './routes/api/workflows/financial-aid-appeal/approve'
+import { Route as ApiWorkflowsFinancialAidAppealDraftRouteImport } from './routes/api/workflows/financial-aid-appeal/draft'
+import { Route as ApiWorkflowsFinancialAidReinstatementApproveRouteImport } from './routes/api/workflows/financial-aid-reinstatement/approve'
+import { Route as ApiWorkflowsFinancialAidReinstatementDraftRouteImport } from './routes/api/workflows/financial-aid-reinstatement/draft'
+import { Route as ApiWorkflowsFinancialAidSpecialCircumstancesApproveRouteImport } from './routes/api/workflows/financial-aid-special-circumstances/approve'
+import { Route as ApiWorkflowsFinancialAidSpecialCircumstancesDraftRouteImport } from './routes/api/workflows/financial-aid-special-circumstances/draft'
+import { Route as ApiWorkflowsFinancialAidSuspensionAppealApproveRouteImport } from './routes/api/workflows/financial-aid-suspension-appeal/approve'
+import { Route as ApiWorkflowsFinancialAidSuspensionAppealDraftRouteImport } from './routes/api/workflows/financial-aid-suspension-appeal/draft'
+import { Route as ApiWorkflowsGovernmentDecisionApproveRouteImport } from './routes/api/workflows/government-decision/approve'
+import { Route as ApiWorkflowsGovernmentDecisionDraftRouteImport } from './routes/api/workflows/government-decision/draft'
+import { Route as ApiWorkflowsInsuranceClaimDenialApproveRouteImport } from './routes/api/workflows/insurance-claim-denial/approve'
+import { Route as ApiWorkflowsInsuranceClaimDenialDraftRouteImport } from './routes/api/workflows/insurance-claim-denial/draft'
+import { Route as ApiWorkflowsInsuranceCoverageDenialApproveRouteImport } from './routes/api/workflows/insurance-coverage-denial/approve'
+import { Route as ApiWorkflowsInsuranceCoverageDenialDraftRouteImport } from './routes/api/workflows/insurance-coverage-denial/draft'
+import { Route as ApiWorkflowsInsuranceDenialLetterApproveRouteImport } from './routes/api/workflows/insurance-denial-letter/approve'
+import { Route as ApiWorkflowsInsuranceDenialLetterDraftRouteImport } from './routes/api/workflows/insurance-denial-letter/draft'
+import { Route as ApiWorkflowsLicenseRevocationAppealApproveRouteImport } from './routes/api/workflows/license-revocation-appeal/approve'
+import { Route as ApiWorkflowsLicenseRevocationAppealDraftRouteImport } from './routes/api/workflows/license-revocation-appeal/draft'
+import { Route as ApiWorkflowsLicenseSuspensionAppealApproveRouteImport } from './routes/api/workflows/license-suspension-appeal/approve'
+import { Route as ApiWorkflowsLicenseSuspensionAppealDraftRouteImport } from './routes/api/workflows/license-suspension-appeal/draft'
+import { Route as ApiWorkflowsLifeInsuranceDenialApproveRouteImport } from './routes/api/workflows/life-insurance-denial/approve'
+import { Route as ApiWorkflowsLifeInsuranceDenialDraftRouteImport } from './routes/api/workflows/life-insurance-denial/draft'
+import { Route as ApiWorkflowsMedicaidDenialApproveRouteImport } from './routes/api/workflows/medicaid-denial/approve'
+import { Route as ApiWorkflowsMedicaidDenialDraftRouteImport } from './routes/api/workflows/medicaid-denial/draft'
+import { Route as ApiWorkflowsMedicalInsuranceDenialApproveRouteImport } from './routes/api/workflows/medical-insurance-denial/approve'
+import { Route as ApiWorkflowsMedicalInsuranceDenialDraftRouteImport } from './routes/api/workflows/medical-insurance-denial/draft'
+import { Route as ApiWorkflowsMedicalNecessityAppealApproveRouteImport } from './routes/api/workflows/medical-necessity-appeal/approve'
+import { Route as ApiWorkflowsMedicalNecessityAppealDraftRouteImport } from './routes/api/workflows/medical-necessity-appeal/draft'
+import { Route as ApiWorkflowsOutOfNetworkDenialApproveRouteImport } from './routes/api/workflows/out-of-network-denial/approve'
+import { Route as ApiWorkflowsOutOfNetworkDenialDraftRouteImport } from './routes/api/workflows/out-of-network-denial/draft'
+import { Route as ApiWorkflowsPriorAuthorizationDenialApproveRouteImport } from './routes/api/workflows/prior-authorization-denial/approve'
+import { Route as ApiWorkflowsPriorAuthorizationDenialDraftRouteImport } from './routes/api/workflows/prior-authorization-denial/draft'
+import { Route as ApiWorkflowsReconsiderationApproveRouteImport } from './routes/api/workflows/reconsideration/approve'
+import { Route as ApiWorkflowsReconsiderationDraftRouteImport } from './routes/api/workflows/reconsideration/draft'
+import { Route as ApiWorkflowsSapAppealApproveRouteImport } from './routes/api/workflows/sap-appeal/approve'
+import { Route as ApiWorkflowsSapAppealDraftRouteImport } from './routes/api/workflows/sap-appeal/draft'
+import { Route as ApiWorkflowsScholarshipAppealApproveRouteImport } from './routes/api/workflows/scholarship-appeal/approve'
+import { Route as ApiWorkflowsScholarshipAppealDraftRouteImport } from './routes/api/workflows/scholarship-appeal/draft'
+import { Route as ApiWorkflowsSocialSecurityDenialApproveRouteImport } from './routes/api/workflows/social-security-denial/approve'
+import { Route as ApiWorkflowsSocialSecurityDenialDraftRouteImport } from './routes/api/workflows/social-security-denial/draft'
+import { Route as ApiWorkflowsSsdiDenialApproveRouteImport } from './routes/api/workflows/ssdi-denial/approve'
+import { Route as ApiWorkflowsSsdiDenialDraftRouteImport } from './routes/api/workflows/ssdi-denial/draft'
+import { Route as ApiWorkflowsSsiDenialApproveRouteImport } from './routes/api/workflows/ssi-denial/approve'
+import { Route as ApiWorkflowsSsiDenialDraftRouteImport } from './routes/api/workflows/ssi-denial/draft'
+import { Route as ApiWorkflowsUnemploymentDenialApproveRouteImport } from './routes/api/workflows/unemployment-denial/approve'
+import { Route as ApiWorkflowsUnemploymentDenialDraftRouteImport } from './routes/api/workflows/unemployment-denial/draft'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -308,6 +374,399 @@ const WorkflowsUnemploymentDenialRoute =
     path: '/unemployment-denial',
     getParentRoute: () => WorkflowsRoute,
   } as any)
+const ApiAdminAppealsRoute = ApiAdminAppealsRouteImport.update({
+  id: '/api/admin/appeals',
+  path: '/api/admin/appeals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminHealthRoute = ApiAdminHealthRouteImport.update({
+  id: '/api/admin/health',
+  path: '/api/admin/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthStatusRoute = ApiAuthStatusRouteImport.update({
+  id: '/api/auth/status',
+  path: '/api/auth/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWorkflowsCarInsuranceAppealApproveRoute =
+  ApiWorkflowsCarInsuranceAppealApproveRouteImport.update({
+    id: '/api/workflows/car-insurance-appeal/approve',
+    path: '/api/workflows/car-insurance-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsCarInsuranceAppealDraftRoute =
+  ApiWorkflowsCarInsuranceAppealDraftRouteImport.update({
+    id: '/api/workflows/car-insurance-appeal/draft',
+    path: '/api/workflows/car-insurance-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsClaimDenialLetterApproveRoute =
+  ApiWorkflowsClaimDenialLetterApproveRouteImport.update({
+    id: '/api/workflows/claim-denial-letter/approve',
+    path: '/api/workflows/claim-denial-letter/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsClaimDenialLetterDraftRoute =
+  ApiWorkflowsClaimDenialLetterDraftRouteImport.update({
+    id: '/api/workflows/claim-denial-letter/draft',
+    path: '/api/workflows/claim-denial-letter/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsCourtRulingApproveRoute =
+  ApiWorkflowsCourtRulingApproveRouteImport.update({
+    id: '/api/workflows/court-ruling/approve',
+    path: '/api/workflows/court-ruling/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsCourtRulingDraftRoute =
+  ApiWorkflowsCourtRulingDraftRouteImport.update({
+    id: '/api/workflows/court-ruling/draft',
+    path: '/api/workflows/court-ruling/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsDeniedClaimAnalyzeRoute =
+  ApiWorkflowsDeniedClaimAnalyzeRouteImport.update({
+    id: '/api/workflows/denied-claim/analyze',
+    path: '/api/workflows/denied-claim/analyze',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsDeniedClaimApproveRoute =
+  ApiWorkflowsDeniedClaimApproveRouteImport.update({
+    id: '/api/workflows/denied-claim/approve',
+    path: '/api/workflows/denied-claim/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsDeniedClaimDraftRoute =
+  ApiWorkflowsDeniedClaimDraftRouteImport.update({
+    id: '/api/workflows/denied-claim/draft',
+    path: '/api/workflows/denied-claim/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsDentalInsuranceAppealApproveRoute =
+  ApiWorkflowsDentalInsuranceAppealApproveRouteImport.update({
+    id: '/api/workflows/dental-insurance-appeal/approve',
+    path: '/api/workflows/dental-insurance-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsDentalInsuranceAppealDraftRoute =
+  ApiWorkflowsDentalInsuranceAppealDraftRouteImport.update({
+    id: '/api/workflows/dental-insurance-appeal/draft',
+    path: '/api/workflows/dental-insurance-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsDriversLicenseSuspensionApproveRoute =
+  ApiWorkflowsDriversLicenseSuspensionApproveRouteImport.update({
+    id: '/api/workflows/drivers-license-suspension/approve',
+    path: '/api/workflows/drivers-license-suspension/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsDriversLicenseSuspensionDraftRoute =
+  ApiWorkflowsDriversLicenseSuspensionDraftRouteImport.update({
+    id: '/api/workflows/drivers-license-suspension/draft',
+    path: '/api/workflows/drivers-license-suspension/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsEddDenialApproveRoute =
+  ApiWorkflowsEddDenialApproveRouteImport.update({
+    id: '/api/workflows/edd-denial/approve',
+    path: '/api/workflows/edd-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsEddDenialDraftRoute =
+  ApiWorkflowsEddDenialDraftRouteImport.update({
+    id: '/api/workflows/edd-denial/draft',
+    path: '/api/workflows/edd-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFafsaAppealApproveRoute =
+  ApiWorkflowsFafsaAppealApproveRouteImport.update({
+    id: '/api/workflows/fafsa-appeal/approve',
+    path: '/api/workflows/fafsa-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFafsaAppealDraftRoute =
+  ApiWorkflowsFafsaAppealDraftRouteImport.update({
+    id: '/api/workflows/fafsa-appeal/draft',
+    path: '/api/workflows/fafsa-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFinancialAidAppealApproveRoute =
+  ApiWorkflowsFinancialAidAppealApproveRouteImport.update({
+    id: '/api/workflows/financial-aid-appeal/approve',
+    path: '/api/workflows/financial-aid-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFinancialAidAppealDraftRoute =
+  ApiWorkflowsFinancialAidAppealDraftRouteImport.update({
+    id: '/api/workflows/financial-aid-appeal/draft',
+    path: '/api/workflows/financial-aid-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFinancialAidReinstatementApproveRoute =
+  ApiWorkflowsFinancialAidReinstatementApproveRouteImport.update({
+    id: '/api/workflows/financial-aid-reinstatement/approve',
+    path: '/api/workflows/financial-aid-reinstatement/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFinancialAidReinstatementDraftRoute =
+  ApiWorkflowsFinancialAidReinstatementDraftRouteImport.update({
+    id: '/api/workflows/financial-aid-reinstatement/draft',
+    path: '/api/workflows/financial-aid-reinstatement/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFinancialAidSpecialCircumstancesApproveRoute =
+  ApiWorkflowsFinancialAidSpecialCircumstancesApproveRouteImport.update({
+    id: '/api/workflows/financial-aid-special-circumstances/approve',
+    path: '/api/workflows/financial-aid-special-circumstances/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFinancialAidSpecialCircumstancesDraftRoute =
+  ApiWorkflowsFinancialAidSpecialCircumstancesDraftRouteImport.update({
+    id: '/api/workflows/financial-aid-special-circumstances/draft',
+    path: '/api/workflows/financial-aid-special-circumstances/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFinancialAidSuspensionAppealApproveRoute =
+  ApiWorkflowsFinancialAidSuspensionAppealApproveRouteImport.update({
+    id: '/api/workflows/financial-aid-suspension-appeal/approve',
+    path: '/api/workflows/financial-aid-suspension-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsFinancialAidSuspensionAppealDraftRoute =
+  ApiWorkflowsFinancialAidSuspensionAppealDraftRouteImport.update({
+    id: '/api/workflows/financial-aid-suspension-appeal/draft',
+    path: '/api/workflows/financial-aid-suspension-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsGovernmentDecisionApproveRoute =
+  ApiWorkflowsGovernmentDecisionApproveRouteImport.update({
+    id: '/api/workflows/government-decision/approve',
+    path: '/api/workflows/government-decision/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsGovernmentDecisionDraftRoute =
+  ApiWorkflowsGovernmentDecisionDraftRouteImport.update({
+    id: '/api/workflows/government-decision/draft',
+    path: '/api/workflows/government-decision/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsInsuranceClaimDenialApproveRoute =
+  ApiWorkflowsInsuranceClaimDenialApproveRouteImport.update({
+    id: '/api/workflows/insurance-claim-denial/approve',
+    path: '/api/workflows/insurance-claim-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsInsuranceClaimDenialDraftRoute =
+  ApiWorkflowsInsuranceClaimDenialDraftRouteImport.update({
+    id: '/api/workflows/insurance-claim-denial/draft',
+    path: '/api/workflows/insurance-claim-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsInsuranceCoverageDenialApproveRoute =
+  ApiWorkflowsInsuranceCoverageDenialApproveRouteImport.update({
+    id: '/api/workflows/insurance-coverage-denial/approve',
+    path: '/api/workflows/insurance-coverage-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsInsuranceCoverageDenialDraftRoute =
+  ApiWorkflowsInsuranceCoverageDenialDraftRouteImport.update({
+    id: '/api/workflows/insurance-coverage-denial/draft',
+    path: '/api/workflows/insurance-coverage-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsInsuranceDenialLetterApproveRoute =
+  ApiWorkflowsInsuranceDenialLetterApproveRouteImport.update({
+    id: '/api/workflows/insurance-denial-letter/approve',
+    path: '/api/workflows/insurance-denial-letter/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsInsuranceDenialLetterDraftRoute =
+  ApiWorkflowsInsuranceDenialLetterDraftRouteImport.update({
+    id: '/api/workflows/insurance-denial-letter/draft',
+    path: '/api/workflows/insurance-denial-letter/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsLicenseRevocationAppealApproveRoute =
+  ApiWorkflowsLicenseRevocationAppealApproveRouteImport.update({
+    id: '/api/workflows/license-revocation-appeal/approve',
+    path: '/api/workflows/license-revocation-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsLicenseRevocationAppealDraftRoute =
+  ApiWorkflowsLicenseRevocationAppealDraftRouteImport.update({
+    id: '/api/workflows/license-revocation-appeal/draft',
+    path: '/api/workflows/license-revocation-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsLicenseSuspensionAppealApproveRoute =
+  ApiWorkflowsLicenseSuspensionAppealApproveRouteImport.update({
+    id: '/api/workflows/license-suspension-appeal/approve',
+    path: '/api/workflows/license-suspension-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsLicenseSuspensionAppealDraftRoute =
+  ApiWorkflowsLicenseSuspensionAppealDraftRouteImport.update({
+    id: '/api/workflows/license-suspension-appeal/draft',
+    path: '/api/workflows/license-suspension-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsLifeInsuranceDenialApproveRoute =
+  ApiWorkflowsLifeInsuranceDenialApproveRouteImport.update({
+    id: '/api/workflows/life-insurance-denial/approve',
+    path: '/api/workflows/life-insurance-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsLifeInsuranceDenialDraftRoute =
+  ApiWorkflowsLifeInsuranceDenialDraftRouteImport.update({
+    id: '/api/workflows/life-insurance-denial/draft',
+    path: '/api/workflows/life-insurance-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsMedicaidDenialApproveRoute =
+  ApiWorkflowsMedicaidDenialApproveRouteImport.update({
+    id: '/api/workflows/medicaid-denial/approve',
+    path: '/api/workflows/medicaid-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsMedicaidDenialDraftRoute =
+  ApiWorkflowsMedicaidDenialDraftRouteImport.update({
+    id: '/api/workflows/medicaid-denial/draft',
+    path: '/api/workflows/medicaid-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsMedicalInsuranceDenialApproveRoute =
+  ApiWorkflowsMedicalInsuranceDenialApproveRouteImport.update({
+    id: '/api/workflows/medical-insurance-denial/approve',
+    path: '/api/workflows/medical-insurance-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsMedicalInsuranceDenialDraftRoute =
+  ApiWorkflowsMedicalInsuranceDenialDraftRouteImport.update({
+    id: '/api/workflows/medical-insurance-denial/draft',
+    path: '/api/workflows/medical-insurance-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsMedicalNecessityAppealApproveRoute =
+  ApiWorkflowsMedicalNecessityAppealApproveRouteImport.update({
+    id: '/api/workflows/medical-necessity-appeal/approve',
+    path: '/api/workflows/medical-necessity-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsMedicalNecessityAppealDraftRoute =
+  ApiWorkflowsMedicalNecessityAppealDraftRouteImport.update({
+    id: '/api/workflows/medical-necessity-appeal/draft',
+    path: '/api/workflows/medical-necessity-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsOutOfNetworkDenialApproveRoute =
+  ApiWorkflowsOutOfNetworkDenialApproveRouteImport.update({
+    id: '/api/workflows/out-of-network-denial/approve',
+    path: '/api/workflows/out-of-network-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsOutOfNetworkDenialDraftRoute =
+  ApiWorkflowsOutOfNetworkDenialDraftRouteImport.update({
+    id: '/api/workflows/out-of-network-denial/draft',
+    path: '/api/workflows/out-of-network-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsPriorAuthorizationDenialApproveRoute =
+  ApiWorkflowsPriorAuthorizationDenialApproveRouteImport.update({
+    id: '/api/workflows/prior-authorization-denial/approve',
+    path: '/api/workflows/prior-authorization-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsPriorAuthorizationDenialDraftRoute =
+  ApiWorkflowsPriorAuthorizationDenialDraftRouteImport.update({
+    id: '/api/workflows/prior-authorization-denial/draft',
+    path: '/api/workflows/prior-authorization-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsReconsiderationApproveRoute =
+  ApiWorkflowsReconsiderationApproveRouteImport.update({
+    id: '/api/workflows/reconsideration/approve',
+    path: '/api/workflows/reconsideration/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsReconsiderationDraftRoute =
+  ApiWorkflowsReconsiderationDraftRouteImport.update({
+    id: '/api/workflows/reconsideration/draft',
+    path: '/api/workflows/reconsideration/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSapAppealApproveRoute =
+  ApiWorkflowsSapAppealApproveRouteImport.update({
+    id: '/api/workflows/sap-appeal/approve',
+    path: '/api/workflows/sap-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSapAppealDraftRoute =
+  ApiWorkflowsSapAppealDraftRouteImport.update({
+    id: '/api/workflows/sap-appeal/draft',
+    path: '/api/workflows/sap-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsScholarshipAppealApproveRoute =
+  ApiWorkflowsScholarshipAppealApproveRouteImport.update({
+    id: '/api/workflows/scholarship-appeal/approve',
+    path: '/api/workflows/scholarship-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsScholarshipAppealDraftRoute =
+  ApiWorkflowsScholarshipAppealDraftRouteImport.update({
+    id: '/api/workflows/scholarship-appeal/draft',
+    path: '/api/workflows/scholarship-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSocialSecurityDenialApproveRoute =
+  ApiWorkflowsSocialSecurityDenialApproveRouteImport.update({
+    id: '/api/workflows/social-security-denial/approve',
+    path: '/api/workflows/social-security-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSocialSecurityDenialDraftRoute =
+  ApiWorkflowsSocialSecurityDenialDraftRouteImport.update({
+    id: '/api/workflows/social-security-denial/draft',
+    path: '/api/workflows/social-security-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSsdiDenialApproveRoute =
+  ApiWorkflowsSsdiDenialApproveRouteImport.update({
+    id: '/api/workflows/ssdi-denial/approve',
+    path: '/api/workflows/ssdi-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSsdiDenialDraftRoute =
+  ApiWorkflowsSsdiDenialDraftRouteImport.update({
+    id: '/api/workflows/ssdi-denial/draft',
+    path: '/api/workflows/ssdi-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSsiDenialApproveRoute =
+  ApiWorkflowsSsiDenialApproveRouteImport.update({
+    id: '/api/workflows/ssi-denial/approve',
+    path: '/api/workflows/ssi-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSsiDenialDraftRoute =
+  ApiWorkflowsSsiDenialDraftRouteImport.update({
+    id: '/api/workflows/ssi-denial/draft',
+    path: '/api/workflows/ssi-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsUnemploymentDenialApproveRoute =
+  ApiWorkflowsUnemploymentDenialApproveRouteImport.update({
+    id: '/api/workflows/unemployment-denial/approve',
+    path: '/api/workflows/unemployment-denial/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsUnemploymentDenialDraftRoute =
+  ApiWorkflowsUnemploymentDenialDraftRouteImport.update({
+    id: '/api/workflows/unemployment-denial/draft',
+    path: '/api/workflows/unemployment-denial/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -356,6 +815,72 @@ export interface FileRoutesByFullPath {
   '/workflows/unemployment-denial': typeof WorkflowsUnemploymentDenialRoute
   '/resources/': typeof ResourcesIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
+  '/api/admin/appeals': typeof ApiAdminAppealsRoute
+  '/api/admin/health': typeof ApiAdminHealthRoute
+  '/api/auth/status': typeof ApiAuthStatusRoute
+  '/api/workflows/car-insurance-appeal/approve': typeof ApiWorkflowsCarInsuranceAppealApproveRoute
+  '/api/workflows/car-insurance-appeal/draft': typeof ApiWorkflowsCarInsuranceAppealDraftRoute
+  '/api/workflows/claim-denial-letter/approve': typeof ApiWorkflowsClaimDenialLetterApproveRoute
+  '/api/workflows/claim-denial-letter/draft': typeof ApiWorkflowsClaimDenialLetterDraftRoute
+  '/api/workflows/court-ruling/approve': typeof ApiWorkflowsCourtRulingApproveRoute
+  '/api/workflows/court-ruling/draft': typeof ApiWorkflowsCourtRulingDraftRoute
+  '/api/workflows/denied-claim/analyze': typeof ApiWorkflowsDeniedClaimAnalyzeRoute
+  '/api/workflows/denied-claim/approve': typeof ApiWorkflowsDeniedClaimApproveRoute
+  '/api/workflows/denied-claim/draft': typeof ApiWorkflowsDeniedClaimDraftRoute
+  '/api/workflows/dental-insurance-appeal/approve': typeof ApiWorkflowsDentalInsuranceAppealApproveRoute
+  '/api/workflows/dental-insurance-appeal/draft': typeof ApiWorkflowsDentalInsuranceAppealDraftRoute
+  '/api/workflows/drivers-license-suspension/approve': typeof ApiWorkflowsDriversLicenseSuspensionApproveRoute
+  '/api/workflows/drivers-license-suspension/draft': typeof ApiWorkflowsDriversLicenseSuspensionDraftRoute
+  '/api/workflows/edd-denial/approve': typeof ApiWorkflowsEddDenialApproveRoute
+  '/api/workflows/edd-denial/draft': typeof ApiWorkflowsEddDenialDraftRoute
+  '/api/workflows/fafsa-appeal/approve': typeof ApiWorkflowsFafsaAppealApproveRoute
+  '/api/workflows/fafsa-appeal/draft': typeof ApiWorkflowsFafsaAppealDraftRoute
+  '/api/workflows/financial-aid-appeal/approve': typeof ApiWorkflowsFinancialAidAppealApproveRoute
+  '/api/workflows/financial-aid-appeal/draft': typeof ApiWorkflowsFinancialAidAppealDraftRoute
+  '/api/workflows/financial-aid-reinstatement/approve': typeof ApiWorkflowsFinancialAidReinstatementApproveRoute
+  '/api/workflows/financial-aid-reinstatement/draft': typeof ApiWorkflowsFinancialAidReinstatementDraftRoute
+  '/api/workflows/financial-aid-special-circumstances/approve': typeof ApiWorkflowsFinancialAidSpecialCircumstancesApproveRoute
+  '/api/workflows/financial-aid-special-circumstances/draft': typeof ApiWorkflowsFinancialAidSpecialCircumstancesDraftRoute
+  '/api/workflows/financial-aid-suspension-appeal/approve': typeof ApiWorkflowsFinancialAidSuspensionAppealApproveRoute
+  '/api/workflows/financial-aid-suspension-appeal/draft': typeof ApiWorkflowsFinancialAidSuspensionAppealDraftRoute
+  '/api/workflows/government-decision/approve': typeof ApiWorkflowsGovernmentDecisionApproveRoute
+  '/api/workflows/government-decision/draft': typeof ApiWorkflowsGovernmentDecisionDraftRoute
+  '/api/workflows/insurance-claim-denial/approve': typeof ApiWorkflowsInsuranceClaimDenialApproveRoute
+  '/api/workflows/insurance-claim-denial/draft': typeof ApiWorkflowsInsuranceClaimDenialDraftRoute
+  '/api/workflows/insurance-coverage-denial/approve': typeof ApiWorkflowsInsuranceCoverageDenialApproveRoute
+  '/api/workflows/insurance-coverage-denial/draft': typeof ApiWorkflowsInsuranceCoverageDenialDraftRoute
+  '/api/workflows/insurance-denial-letter/approve': typeof ApiWorkflowsInsuranceDenialLetterApproveRoute
+  '/api/workflows/insurance-denial-letter/draft': typeof ApiWorkflowsInsuranceDenialLetterDraftRoute
+  '/api/workflows/license-revocation-appeal/approve': typeof ApiWorkflowsLicenseRevocationAppealApproveRoute
+  '/api/workflows/license-revocation-appeal/draft': typeof ApiWorkflowsLicenseRevocationAppealDraftRoute
+  '/api/workflows/license-suspension-appeal/approve': typeof ApiWorkflowsLicenseSuspensionAppealApproveRoute
+  '/api/workflows/license-suspension-appeal/draft': typeof ApiWorkflowsLicenseSuspensionAppealDraftRoute
+  '/api/workflows/life-insurance-denial/approve': typeof ApiWorkflowsLifeInsuranceDenialApproveRoute
+  '/api/workflows/life-insurance-denial/draft': typeof ApiWorkflowsLifeInsuranceDenialDraftRoute
+  '/api/workflows/medicaid-denial/approve': typeof ApiWorkflowsMedicaidDenialApproveRoute
+  '/api/workflows/medicaid-denial/draft': typeof ApiWorkflowsMedicaidDenialDraftRoute
+  '/api/workflows/medical-insurance-denial/approve': typeof ApiWorkflowsMedicalInsuranceDenialApproveRoute
+  '/api/workflows/medical-insurance-denial/draft': typeof ApiWorkflowsMedicalInsuranceDenialDraftRoute
+  '/api/workflows/medical-necessity-appeal/approve': typeof ApiWorkflowsMedicalNecessityAppealApproveRoute
+  '/api/workflows/medical-necessity-appeal/draft': typeof ApiWorkflowsMedicalNecessityAppealDraftRoute
+  '/api/workflows/out-of-network-denial/approve': typeof ApiWorkflowsOutOfNetworkDenialApproveRoute
+  '/api/workflows/out-of-network-denial/draft': typeof ApiWorkflowsOutOfNetworkDenialDraftRoute
+  '/api/workflows/prior-authorization-denial/approve': typeof ApiWorkflowsPriorAuthorizationDenialApproveRoute
+  '/api/workflows/prior-authorization-denial/draft': typeof ApiWorkflowsPriorAuthorizationDenialDraftRoute
+  '/api/workflows/reconsideration/approve': typeof ApiWorkflowsReconsiderationApproveRoute
+  '/api/workflows/reconsideration/draft': typeof ApiWorkflowsReconsiderationDraftRoute
+  '/api/workflows/sap-appeal/approve': typeof ApiWorkflowsSapAppealApproveRoute
+  '/api/workflows/sap-appeal/draft': typeof ApiWorkflowsSapAppealDraftRoute
+  '/api/workflows/scholarship-appeal/approve': typeof ApiWorkflowsScholarshipAppealApproveRoute
+  '/api/workflows/scholarship-appeal/draft': typeof ApiWorkflowsScholarshipAppealDraftRoute
+  '/api/workflows/social-security-denial/approve': typeof ApiWorkflowsSocialSecurityDenialApproveRoute
+  '/api/workflows/social-security-denial/draft': typeof ApiWorkflowsSocialSecurityDenialDraftRoute
+  '/api/workflows/ssdi-denial/approve': typeof ApiWorkflowsSsdiDenialApproveRoute
+  '/api/workflows/ssdi-denial/draft': typeof ApiWorkflowsSsdiDenialDraftRoute
+  '/api/workflows/ssi-denial/approve': typeof ApiWorkflowsSsiDenialApproveRoute
+  '/api/workflows/ssi-denial/draft': typeof ApiWorkflowsSsiDenialDraftRoute
+  '/api/workflows/unemployment-denial/approve': typeof ApiWorkflowsUnemploymentDenialApproveRoute
+  '/api/workflows/unemployment-denial/draft': typeof ApiWorkflowsUnemploymentDenialDraftRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -403,6 +928,72 @@ export interface FileRoutesByTo {
   '/workflows/unemployment-denial': typeof WorkflowsUnemploymentDenialRoute
   '/resources': typeof ResourcesIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
+  '/api/admin/appeals': typeof ApiAdminAppealsRoute
+  '/api/admin/health': typeof ApiAdminHealthRoute
+  '/api/auth/status': typeof ApiAuthStatusRoute
+  '/api/workflows/car-insurance-appeal/approve': typeof ApiWorkflowsCarInsuranceAppealApproveRoute
+  '/api/workflows/car-insurance-appeal/draft': typeof ApiWorkflowsCarInsuranceAppealDraftRoute
+  '/api/workflows/claim-denial-letter/approve': typeof ApiWorkflowsClaimDenialLetterApproveRoute
+  '/api/workflows/claim-denial-letter/draft': typeof ApiWorkflowsClaimDenialLetterDraftRoute
+  '/api/workflows/court-ruling/approve': typeof ApiWorkflowsCourtRulingApproveRoute
+  '/api/workflows/court-ruling/draft': typeof ApiWorkflowsCourtRulingDraftRoute
+  '/api/workflows/denied-claim/analyze': typeof ApiWorkflowsDeniedClaimAnalyzeRoute
+  '/api/workflows/denied-claim/approve': typeof ApiWorkflowsDeniedClaimApproveRoute
+  '/api/workflows/denied-claim/draft': typeof ApiWorkflowsDeniedClaimDraftRoute
+  '/api/workflows/dental-insurance-appeal/approve': typeof ApiWorkflowsDentalInsuranceAppealApproveRoute
+  '/api/workflows/dental-insurance-appeal/draft': typeof ApiWorkflowsDentalInsuranceAppealDraftRoute
+  '/api/workflows/drivers-license-suspension/approve': typeof ApiWorkflowsDriversLicenseSuspensionApproveRoute
+  '/api/workflows/drivers-license-suspension/draft': typeof ApiWorkflowsDriversLicenseSuspensionDraftRoute
+  '/api/workflows/edd-denial/approve': typeof ApiWorkflowsEddDenialApproveRoute
+  '/api/workflows/edd-denial/draft': typeof ApiWorkflowsEddDenialDraftRoute
+  '/api/workflows/fafsa-appeal/approve': typeof ApiWorkflowsFafsaAppealApproveRoute
+  '/api/workflows/fafsa-appeal/draft': typeof ApiWorkflowsFafsaAppealDraftRoute
+  '/api/workflows/financial-aid-appeal/approve': typeof ApiWorkflowsFinancialAidAppealApproveRoute
+  '/api/workflows/financial-aid-appeal/draft': typeof ApiWorkflowsFinancialAidAppealDraftRoute
+  '/api/workflows/financial-aid-reinstatement/approve': typeof ApiWorkflowsFinancialAidReinstatementApproveRoute
+  '/api/workflows/financial-aid-reinstatement/draft': typeof ApiWorkflowsFinancialAidReinstatementDraftRoute
+  '/api/workflows/financial-aid-special-circumstances/approve': typeof ApiWorkflowsFinancialAidSpecialCircumstancesApproveRoute
+  '/api/workflows/financial-aid-special-circumstances/draft': typeof ApiWorkflowsFinancialAidSpecialCircumstancesDraftRoute
+  '/api/workflows/financial-aid-suspension-appeal/approve': typeof ApiWorkflowsFinancialAidSuspensionAppealApproveRoute
+  '/api/workflows/financial-aid-suspension-appeal/draft': typeof ApiWorkflowsFinancialAidSuspensionAppealDraftRoute
+  '/api/workflows/government-decision/approve': typeof ApiWorkflowsGovernmentDecisionApproveRoute
+  '/api/workflows/government-decision/draft': typeof ApiWorkflowsGovernmentDecisionDraftRoute
+  '/api/workflows/insurance-claim-denial/approve': typeof ApiWorkflowsInsuranceClaimDenialApproveRoute
+  '/api/workflows/insurance-claim-denial/draft': typeof ApiWorkflowsInsuranceClaimDenialDraftRoute
+  '/api/workflows/insurance-coverage-denial/approve': typeof ApiWorkflowsInsuranceCoverageDenialApproveRoute
+  '/api/workflows/insurance-coverage-denial/draft': typeof ApiWorkflowsInsuranceCoverageDenialDraftRoute
+  '/api/workflows/insurance-denial-letter/approve': typeof ApiWorkflowsInsuranceDenialLetterApproveRoute
+  '/api/workflows/insurance-denial-letter/draft': typeof ApiWorkflowsInsuranceDenialLetterDraftRoute
+  '/api/workflows/license-revocation-appeal/approve': typeof ApiWorkflowsLicenseRevocationAppealApproveRoute
+  '/api/workflows/license-revocation-appeal/draft': typeof ApiWorkflowsLicenseRevocationAppealDraftRoute
+  '/api/workflows/license-suspension-appeal/approve': typeof ApiWorkflowsLicenseSuspensionAppealApproveRoute
+  '/api/workflows/license-suspension-appeal/draft': typeof ApiWorkflowsLicenseSuspensionAppealDraftRoute
+  '/api/workflows/life-insurance-denial/approve': typeof ApiWorkflowsLifeInsuranceDenialApproveRoute
+  '/api/workflows/life-insurance-denial/draft': typeof ApiWorkflowsLifeInsuranceDenialDraftRoute
+  '/api/workflows/medicaid-denial/approve': typeof ApiWorkflowsMedicaidDenialApproveRoute
+  '/api/workflows/medicaid-denial/draft': typeof ApiWorkflowsMedicaidDenialDraftRoute
+  '/api/workflows/medical-insurance-denial/approve': typeof ApiWorkflowsMedicalInsuranceDenialApproveRoute
+  '/api/workflows/medical-insurance-denial/draft': typeof ApiWorkflowsMedicalInsuranceDenialDraftRoute
+  '/api/workflows/medical-necessity-appeal/approve': typeof ApiWorkflowsMedicalNecessityAppealApproveRoute
+  '/api/workflows/medical-necessity-appeal/draft': typeof ApiWorkflowsMedicalNecessityAppealDraftRoute
+  '/api/workflows/out-of-network-denial/approve': typeof ApiWorkflowsOutOfNetworkDenialApproveRoute
+  '/api/workflows/out-of-network-denial/draft': typeof ApiWorkflowsOutOfNetworkDenialDraftRoute
+  '/api/workflows/prior-authorization-denial/approve': typeof ApiWorkflowsPriorAuthorizationDenialApproveRoute
+  '/api/workflows/prior-authorization-denial/draft': typeof ApiWorkflowsPriorAuthorizationDenialDraftRoute
+  '/api/workflows/reconsideration/approve': typeof ApiWorkflowsReconsiderationApproveRoute
+  '/api/workflows/reconsideration/draft': typeof ApiWorkflowsReconsiderationDraftRoute
+  '/api/workflows/sap-appeal/approve': typeof ApiWorkflowsSapAppealApproveRoute
+  '/api/workflows/sap-appeal/draft': typeof ApiWorkflowsSapAppealDraftRoute
+  '/api/workflows/scholarship-appeal/approve': typeof ApiWorkflowsScholarshipAppealApproveRoute
+  '/api/workflows/scholarship-appeal/draft': typeof ApiWorkflowsScholarshipAppealDraftRoute
+  '/api/workflows/social-security-denial/approve': typeof ApiWorkflowsSocialSecurityDenialApproveRoute
+  '/api/workflows/social-security-denial/draft': typeof ApiWorkflowsSocialSecurityDenialDraftRoute
+  '/api/workflows/ssdi-denial/approve': typeof ApiWorkflowsSsdiDenialApproveRoute
+  '/api/workflows/ssdi-denial/draft': typeof ApiWorkflowsSsdiDenialDraftRoute
+  '/api/workflows/ssi-denial/approve': typeof ApiWorkflowsSsiDenialApproveRoute
+  '/api/workflows/ssi-denial/draft': typeof ApiWorkflowsSsiDenialDraftRoute
+  '/api/workflows/unemployment-denial/approve': typeof ApiWorkflowsUnemploymentDenialApproveRoute
+  '/api/workflows/unemployment-denial/draft': typeof ApiWorkflowsUnemploymentDenialDraftRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -452,6 +1043,72 @@ export interface FileRoutesById {
   '/workflows/unemployment-denial': typeof WorkflowsUnemploymentDenialRoute
   '/resources/': typeof ResourcesIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
+  '/api/admin/appeals': typeof ApiAdminAppealsRoute
+  '/api/admin/health': typeof ApiAdminHealthRoute
+  '/api/auth/status': typeof ApiAuthStatusRoute
+  '/api/workflows/car-insurance-appeal/approve': typeof ApiWorkflowsCarInsuranceAppealApproveRoute
+  '/api/workflows/car-insurance-appeal/draft': typeof ApiWorkflowsCarInsuranceAppealDraftRoute
+  '/api/workflows/claim-denial-letter/approve': typeof ApiWorkflowsClaimDenialLetterApproveRoute
+  '/api/workflows/claim-denial-letter/draft': typeof ApiWorkflowsClaimDenialLetterDraftRoute
+  '/api/workflows/court-ruling/approve': typeof ApiWorkflowsCourtRulingApproveRoute
+  '/api/workflows/court-ruling/draft': typeof ApiWorkflowsCourtRulingDraftRoute
+  '/api/workflows/denied-claim/analyze': typeof ApiWorkflowsDeniedClaimAnalyzeRoute
+  '/api/workflows/denied-claim/approve': typeof ApiWorkflowsDeniedClaimApproveRoute
+  '/api/workflows/denied-claim/draft': typeof ApiWorkflowsDeniedClaimDraftRoute
+  '/api/workflows/dental-insurance-appeal/approve': typeof ApiWorkflowsDentalInsuranceAppealApproveRoute
+  '/api/workflows/dental-insurance-appeal/draft': typeof ApiWorkflowsDentalInsuranceAppealDraftRoute
+  '/api/workflows/drivers-license-suspension/approve': typeof ApiWorkflowsDriversLicenseSuspensionApproveRoute
+  '/api/workflows/drivers-license-suspension/draft': typeof ApiWorkflowsDriversLicenseSuspensionDraftRoute
+  '/api/workflows/edd-denial/approve': typeof ApiWorkflowsEddDenialApproveRoute
+  '/api/workflows/edd-denial/draft': typeof ApiWorkflowsEddDenialDraftRoute
+  '/api/workflows/fafsa-appeal/approve': typeof ApiWorkflowsFafsaAppealApproveRoute
+  '/api/workflows/fafsa-appeal/draft': typeof ApiWorkflowsFafsaAppealDraftRoute
+  '/api/workflows/financial-aid-appeal/approve': typeof ApiWorkflowsFinancialAidAppealApproveRoute
+  '/api/workflows/financial-aid-appeal/draft': typeof ApiWorkflowsFinancialAidAppealDraftRoute
+  '/api/workflows/financial-aid-reinstatement/approve': typeof ApiWorkflowsFinancialAidReinstatementApproveRoute
+  '/api/workflows/financial-aid-reinstatement/draft': typeof ApiWorkflowsFinancialAidReinstatementDraftRoute
+  '/api/workflows/financial-aid-special-circumstances/approve': typeof ApiWorkflowsFinancialAidSpecialCircumstancesApproveRoute
+  '/api/workflows/financial-aid-special-circumstances/draft': typeof ApiWorkflowsFinancialAidSpecialCircumstancesDraftRoute
+  '/api/workflows/financial-aid-suspension-appeal/approve': typeof ApiWorkflowsFinancialAidSuspensionAppealApproveRoute
+  '/api/workflows/financial-aid-suspension-appeal/draft': typeof ApiWorkflowsFinancialAidSuspensionAppealDraftRoute
+  '/api/workflows/government-decision/approve': typeof ApiWorkflowsGovernmentDecisionApproveRoute
+  '/api/workflows/government-decision/draft': typeof ApiWorkflowsGovernmentDecisionDraftRoute
+  '/api/workflows/insurance-claim-denial/approve': typeof ApiWorkflowsInsuranceClaimDenialApproveRoute
+  '/api/workflows/insurance-claim-denial/draft': typeof ApiWorkflowsInsuranceClaimDenialDraftRoute
+  '/api/workflows/insurance-coverage-denial/approve': typeof ApiWorkflowsInsuranceCoverageDenialApproveRoute
+  '/api/workflows/insurance-coverage-denial/draft': typeof ApiWorkflowsInsuranceCoverageDenialDraftRoute
+  '/api/workflows/insurance-denial-letter/approve': typeof ApiWorkflowsInsuranceDenialLetterApproveRoute
+  '/api/workflows/insurance-denial-letter/draft': typeof ApiWorkflowsInsuranceDenialLetterDraftRoute
+  '/api/workflows/license-revocation-appeal/approve': typeof ApiWorkflowsLicenseRevocationAppealApproveRoute
+  '/api/workflows/license-revocation-appeal/draft': typeof ApiWorkflowsLicenseRevocationAppealDraftRoute
+  '/api/workflows/license-suspension-appeal/approve': typeof ApiWorkflowsLicenseSuspensionAppealApproveRoute
+  '/api/workflows/license-suspension-appeal/draft': typeof ApiWorkflowsLicenseSuspensionAppealDraftRoute
+  '/api/workflows/life-insurance-denial/approve': typeof ApiWorkflowsLifeInsuranceDenialApproveRoute
+  '/api/workflows/life-insurance-denial/draft': typeof ApiWorkflowsLifeInsuranceDenialDraftRoute
+  '/api/workflows/medicaid-denial/approve': typeof ApiWorkflowsMedicaidDenialApproveRoute
+  '/api/workflows/medicaid-denial/draft': typeof ApiWorkflowsMedicaidDenialDraftRoute
+  '/api/workflows/medical-insurance-denial/approve': typeof ApiWorkflowsMedicalInsuranceDenialApproveRoute
+  '/api/workflows/medical-insurance-denial/draft': typeof ApiWorkflowsMedicalInsuranceDenialDraftRoute
+  '/api/workflows/medical-necessity-appeal/approve': typeof ApiWorkflowsMedicalNecessityAppealApproveRoute
+  '/api/workflows/medical-necessity-appeal/draft': typeof ApiWorkflowsMedicalNecessityAppealDraftRoute
+  '/api/workflows/out-of-network-denial/approve': typeof ApiWorkflowsOutOfNetworkDenialApproveRoute
+  '/api/workflows/out-of-network-denial/draft': typeof ApiWorkflowsOutOfNetworkDenialDraftRoute
+  '/api/workflows/prior-authorization-denial/approve': typeof ApiWorkflowsPriorAuthorizationDenialApproveRoute
+  '/api/workflows/prior-authorization-denial/draft': typeof ApiWorkflowsPriorAuthorizationDenialDraftRoute
+  '/api/workflows/reconsideration/approve': typeof ApiWorkflowsReconsiderationApproveRoute
+  '/api/workflows/reconsideration/draft': typeof ApiWorkflowsReconsiderationDraftRoute
+  '/api/workflows/sap-appeal/approve': typeof ApiWorkflowsSapAppealApproveRoute
+  '/api/workflows/sap-appeal/draft': typeof ApiWorkflowsSapAppealDraftRoute
+  '/api/workflows/scholarship-appeal/approve': typeof ApiWorkflowsScholarshipAppealApproveRoute
+  '/api/workflows/scholarship-appeal/draft': typeof ApiWorkflowsScholarshipAppealDraftRoute
+  '/api/workflows/social-security-denial/approve': typeof ApiWorkflowsSocialSecurityDenialApproveRoute
+  '/api/workflows/social-security-denial/draft': typeof ApiWorkflowsSocialSecurityDenialDraftRoute
+  '/api/workflows/ssdi-denial/approve': typeof ApiWorkflowsSsdiDenialApproveRoute
+  '/api/workflows/ssdi-denial/draft': typeof ApiWorkflowsSsdiDenialDraftRoute
+  '/api/workflows/ssi-denial/approve': typeof ApiWorkflowsSsiDenialApproveRoute
+  '/api/workflows/ssi-denial/draft': typeof ApiWorkflowsSsiDenialDraftRoute
+  '/api/workflows/unemployment-denial/approve': typeof ApiWorkflowsUnemploymentDenialApproveRoute
+  '/api/workflows/unemployment-denial/draft': typeof ApiWorkflowsUnemploymentDenialDraftRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -502,6 +1159,72 @@ export interface FileRouteTypes {
     | '/workflows/unemployment-denial'
     | '/resources/'
     | '/workflows/'
+    | '/api/admin/appeals'
+    | '/api/admin/health'
+    | '/api/auth/status'
+    | '/api/workflows/car-insurance-appeal/approve'
+    | '/api/workflows/car-insurance-appeal/draft'
+    | '/api/workflows/claim-denial-letter/approve'
+    | '/api/workflows/claim-denial-letter/draft'
+    | '/api/workflows/court-ruling/approve'
+    | '/api/workflows/court-ruling/draft'
+    | '/api/workflows/denied-claim/analyze'
+    | '/api/workflows/denied-claim/approve'
+    | '/api/workflows/denied-claim/draft'
+    | '/api/workflows/dental-insurance-appeal/approve'
+    | '/api/workflows/dental-insurance-appeal/draft'
+    | '/api/workflows/drivers-license-suspension/approve'
+    | '/api/workflows/drivers-license-suspension/draft'
+    | '/api/workflows/edd-denial/approve'
+    | '/api/workflows/edd-denial/draft'
+    | '/api/workflows/fafsa-appeal/approve'
+    | '/api/workflows/fafsa-appeal/draft'
+    | '/api/workflows/financial-aid-appeal/approve'
+    | '/api/workflows/financial-aid-appeal/draft'
+    | '/api/workflows/financial-aid-reinstatement/approve'
+    | '/api/workflows/financial-aid-reinstatement/draft'
+    | '/api/workflows/financial-aid-special-circumstances/approve'
+    | '/api/workflows/financial-aid-special-circumstances/draft'
+    | '/api/workflows/financial-aid-suspension-appeal/approve'
+    | '/api/workflows/financial-aid-suspension-appeal/draft'
+    | '/api/workflows/government-decision/approve'
+    | '/api/workflows/government-decision/draft'
+    | '/api/workflows/insurance-claim-denial/approve'
+    | '/api/workflows/insurance-claim-denial/draft'
+    | '/api/workflows/insurance-coverage-denial/approve'
+    | '/api/workflows/insurance-coverage-denial/draft'
+    | '/api/workflows/insurance-denial-letter/approve'
+    | '/api/workflows/insurance-denial-letter/draft'
+    | '/api/workflows/license-revocation-appeal/approve'
+    | '/api/workflows/license-revocation-appeal/draft'
+    | '/api/workflows/license-suspension-appeal/approve'
+    | '/api/workflows/license-suspension-appeal/draft'
+    | '/api/workflows/life-insurance-denial/approve'
+    | '/api/workflows/life-insurance-denial/draft'
+    | '/api/workflows/medicaid-denial/approve'
+    | '/api/workflows/medicaid-denial/draft'
+    | '/api/workflows/medical-insurance-denial/approve'
+    | '/api/workflows/medical-insurance-denial/draft'
+    | '/api/workflows/medical-necessity-appeal/approve'
+    | '/api/workflows/medical-necessity-appeal/draft'
+    | '/api/workflows/out-of-network-denial/approve'
+    | '/api/workflows/out-of-network-denial/draft'
+    | '/api/workflows/prior-authorization-denial/approve'
+    | '/api/workflows/prior-authorization-denial/draft'
+    | '/api/workflows/reconsideration/approve'
+    | '/api/workflows/reconsideration/draft'
+    | '/api/workflows/sap-appeal/approve'
+    | '/api/workflows/sap-appeal/draft'
+    | '/api/workflows/scholarship-appeal/approve'
+    | '/api/workflows/scholarship-appeal/draft'
+    | '/api/workflows/social-security-denial/approve'
+    | '/api/workflows/social-security-denial/draft'
+    | '/api/workflows/ssdi-denial/approve'
+    | '/api/workflows/ssdi-denial/draft'
+    | '/api/workflows/ssi-denial/approve'
+    | '/api/workflows/ssi-denial/draft'
+    | '/api/workflows/unemployment-denial/approve'
+    | '/api/workflows/unemployment-denial/draft'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -549,6 +1272,72 @@ export interface FileRouteTypes {
     | '/workflows/unemployment-denial'
     | '/resources'
     | '/workflows'
+    | '/api/admin/appeals'
+    | '/api/admin/health'
+    | '/api/auth/status'
+    | '/api/workflows/car-insurance-appeal/approve'
+    | '/api/workflows/car-insurance-appeal/draft'
+    | '/api/workflows/claim-denial-letter/approve'
+    | '/api/workflows/claim-denial-letter/draft'
+    | '/api/workflows/court-ruling/approve'
+    | '/api/workflows/court-ruling/draft'
+    | '/api/workflows/denied-claim/analyze'
+    | '/api/workflows/denied-claim/approve'
+    | '/api/workflows/denied-claim/draft'
+    | '/api/workflows/dental-insurance-appeal/approve'
+    | '/api/workflows/dental-insurance-appeal/draft'
+    | '/api/workflows/drivers-license-suspension/approve'
+    | '/api/workflows/drivers-license-suspension/draft'
+    | '/api/workflows/edd-denial/approve'
+    | '/api/workflows/edd-denial/draft'
+    | '/api/workflows/fafsa-appeal/approve'
+    | '/api/workflows/fafsa-appeal/draft'
+    | '/api/workflows/financial-aid-appeal/approve'
+    | '/api/workflows/financial-aid-appeal/draft'
+    | '/api/workflows/financial-aid-reinstatement/approve'
+    | '/api/workflows/financial-aid-reinstatement/draft'
+    | '/api/workflows/financial-aid-special-circumstances/approve'
+    | '/api/workflows/financial-aid-special-circumstances/draft'
+    | '/api/workflows/financial-aid-suspension-appeal/approve'
+    | '/api/workflows/financial-aid-suspension-appeal/draft'
+    | '/api/workflows/government-decision/approve'
+    | '/api/workflows/government-decision/draft'
+    | '/api/workflows/insurance-claim-denial/approve'
+    | '/api/workflows/insurance-claim-denial/draft'
+    | '/api/workflows/insurance-coverage-denial/approve'
+    | '/api/workflows/insurance-coverage-denial/draft'
+    | '/api/workflows/insurance-denial-letter/approve'
+    | '/api/workflows/insurance-denial-letter/draft'
+    | '/api/workflows/license-revocation-appeal/approve'
+    | '/api/workflows/license-revocation-appeal/draft'
+    | '/api/workflows/license-suspension-appeal/approve'
+    | '/api/workflows/license-suspension-appeal/draft'
+    | '/api/workflows/life-insurance-denial/approve'
+    | '/api/workflows/life-insurance-denial/draft'
+    | '/api/workflows/medicaid-denial/approve'
+    | '/api/workflows/medicaid-denial/draft'
+    | '/api/workflows/medical-insurance-denial/approve'
+    | '/api/workflows/medical-insurance-denial/draft'
+    | '/api/workflows/medical-necessity-appeal/approve'
+    | '/api/workflows/medical-necessity-appeal/draft'
+    | '/api/workflows/out-of-network-denial/approve'
+    | '/api/workflows/out-of-network-denial/draft'
+    | '/api/workflows/prior-authorization-denial/approve'
+    | '/api/workflows/prior-authorization-denial/draft'
+    | '/api/workflows/reconsideration/approve'
+    | '/api/workflows/reconsideration/draft'
+    | '/api/workflows/sap-appeal/approve'
+    | '/api/workflows/sap-appeal/draft'
+    | '/api/workflows/scholarship-appeal/approve'
+    | '/api/workflows/scholarship-appeal/draft'
+    | '/api/workflows/social-security-denial/approve'
+    | '/api/workflows/social-security-denial/draft'
+    | '/api/workflows/ssdi-denial/approve'
+    | '/api/workflows/ssdi-denial/draft'
+    | '/api/workflows/ssi-denial/approve'
+    | '/api/workflows/ssi-denial/draft'
+    | '/api/workflows/unemployment-denial/approve'
+    | '/api/workflows/unemployment-denial/draft'
   id:
     | '__root__'
     | '/'
@@ -597,6 +1386,72 @@ export interface FileRouteTypes {
     | '/workflows/unemployment-denial'
     | '/resources/'
     | '/workflows/'
+    | '/api/admin/appeals'
+    | '/api/admin/health'
+    | '/api/auth/status'
+    | '/api/workflows/car-insurance-appeal/approve'
+    | '/api/workflows/car-insurance-appeal/draft'
+    | '/api/workflows/claim-denial-letter/approve'
+    | '/api/workflows/claim-denial-letter/draft'
+    | '/api/workflows/court-ruling/approve'
+    | '/api/workflows/court-ruling/draft'
+    | '/api/workflows/denied-claim/analyze'
+    | '/api/workflows/denied-claim/approve'
+    | '/api/workflows/denied-claim/draft'
+    | '/api/workflows/dental-insurance-appeal/approve'
+    | '/api/workflows/dental-insurance-appeal/draft'
+    | '/api/workflows/drivers-license-suspension/approve'
+    | '/api/workflows/drivers-license-suspension/draft'
+    | '/api/workflows/edd-denial/approve'
+    | '/api/workflows/edd-denial/draft'
+    | '/api/workflows/fafsa-appeal/approve'
+    | '/api/workflows/fafsa-appeal/draft'
+    | '/api/workflows/financial-aid-appeal/approve'
+    | '/api/workflows/financial-aid-appeal/draft'
+    | '/api/workflows/financial-aid-reinstatement/approve'
+    | '/api/workflows/financial-aid-reinstatement/draft'
+    | '/api/workflows/financial-aid-special-circumstances/approve'
+    | '/api/workflows/financial-aid-special-circumstances/draft'
+    | '/api/workflows/financial-aid-suspension-appeal/approve'
+    | '/api/workflows/financial-aid-suspension-appeal/draft'
+    | '/api/workflows/government-decision/approve'
+    | '/api/workflows/government-decision/draft'
+    | '/api/workflows/insurance-claim-denial/approve'
+    | '/api/workflows/insurance-claim-denial/draft'
+    | '/api/workflows/insurance-coverage-denial/approve'
+    | '/api/workflows/insurance-coverage-denial/draft'
+    | '/api/workflows/insurance-denial-letter/approve'
+    | '/api/workflows/insurance-denial-letter/draft'
+    | '/api/workflows/license-revocation-appeal/approve'
+    | '/api/workflows/license-revocation-appeal/draft'
+    | '/api/workflows/license-suspension-appeal/approve'
+    | '/api/workflows/license-suspension-appeal/draft'
+    | '/api/workflows/life-insurance-denial/approve'
+    | '/api/workflows/life-insurance-denial/draft'
+    | '/api/workflows/medicaid-denial/approve'
+    | '/api/workflows/medicaid-denial/draft'
+    | '/api/workflows/medical-insurance-denial/approve'
+    | '/api/workflows/medical-insurance-denial/draft'
+    | '/api/workflows/medical-necessity-appeal/approve'
+    | '/api/workflows/medical-necessity-appeal/draft'
+    | '/api/workflows/out-of-network-denial/approve'
+    | '/api/workflows/out-of-network-denial/draft'
+    | '/api/workflows/prior-authorization-denial/approve'
+    | '/api/workflows/prior-authorization-denial/draft'
+    | '/api/workflows/reconsideration/approve'
+    | '/api/workflows/reconsideration/draft'
+    | '/api/workflows/sap-appeal/approve'
+    | '/api/workflows/sap-appeal/draft'
+    | '/api/workflows/scholarship-appeal/approve'
+    | '/api/workflows/scholarship-appeal/draft'
+    | '/api/workflows/social-security-denial/approve'
+    | '/api/workflows/social-security-denial/draft'
+    | '/api/workflows/ssdi-denial/approve'
+    | '/api/workflows/ssdi-denial/draft'
+    | '/api/workflows/ssi-denial/approve'
+    | '/api/workflows/ssi-denial/draft'
+    | '/api/workflows/unemployment-denial/approve'
+    | '/api/workflows/unemployment-denial/draft'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -615,6 +1470,72 @@ export interface RootRouteChildren {
   AppealSlugRoute: typeof AppealSlugRoute
   ResourcesSlugRoute: typeof ResourcesSlugRoute
   ResourcesIndexRoute: typeof ResourcesIndexRoute
+  ApiAdminAppealsRoute: typeof ApiAdminAppealsRoute
+  ApiAdminHealthRoute: typeof ApiAdminHealthRoute
+  ApiAuthStatusRoute: typeof ApiAuthStatusRoute
+  ApiWorkflowsCarInsuranceAppealApproveRoute: typeof ApiWorkflowsCarInsuranceAppealApproveRoute
+  ApiWorkflowsCarInsuranceAppealDraftRoute: typeof ApiWorkflowsCarInsuranceAppealDraftRoute
+  ApiWorkflowsClaimDenialLetterApproveRoute: typeof ApiWorkflowsClaimDenialLetterApproveRoute
+  ApiWorkflowsClaimDenialLetterDraftRoute: typeof ApiWorkflowsClaimDenialLetterDraftRoute
+  ApiWorkflowsCourtRulingApproveRoute: typeof ApiWorkflowsCourtRulingApproveRoute
+  ApiWorkflowsCourtRulingDraftRoute: typeof ApiWorkflowsCourtRulingDraftRoute
+  ApiWorkflowsDeniedClaimAnalyzeRoute: typeof ApiWorkflowsDeniedClaimAnalyzeRoute
+  ApiWorkflowsDeniedClaimApproveRoute: typeof ApiWorkflowsDeniedClaimApproveRoute
+  ApiWorkflowsDeniedClaimDraftRoute: typeof ApiWorkflowsDeniedClaimDraftRoute
+  ApiWorkflowsDentalInsuranceAppealApproveRoute: typeof ApiWorkflowsDentalInsuranceAppealApproveRoute
+  ApiWorkflowsDentalInsuranceAppealDraftRoute: typeof ApiWorkflowsDentalInsuranceAppealDraftRoute
+  ApiWorkflowsDriversLicenseSuspensionApproveRoute: typeof ApiWorkflowsDriversLicenseSuspensionApproveRoute
+  ApiWorkflowsDriversLicenseSuspensionDraftRoute: typeof ApiWorkflowsDriversLicenseSuspensionDraftRoute
+  ApiWorkflowsEddDenialApproveRoute: typeof ApiWorkflowsEddDenialApproveRoute
+  ApiWorkflowsEddDenialDraftRoute: typeof ApiWorkflowsEddDenialDraftRoute
+  ApiWorkflowsFafsaAppealApproveRoute: typeof ApiWorkflowsFafsaAppealApproveRoute
+  ApiWorkflowsFafsaAppealDraftRoute: typeof ApiWorkflowsFafsaAppealDraftRoute
+  ApiWorkflowsFinancialAidAppealApproveRoute: typeof ApiWorkflowsFinancialAidAppealApproveRoute
+  ApiWorkflowsFinancialAidAppealDraftRoute: typeof ApiWorkflowsFinancialAidAppealDraftRoute
+  ApiWorkflowsFinancialAidReinstatementApproveRoute: typeof ApiWorkflowsFinancialAidReinstatementApproveRoute
+  ApiWorkflowsFinancialAidReinstatementDraftRoute: typeof ApiWorkflowsFinancialAidReinstatementDraftRoute
+  ApiWorkflowsFinancialAidSpecialCircumstancesApproveRoute: typeof ApiWorkflowsFinancialAidSpecialCircumstancesApproveRoute
+  ApiWorkflowsFinancialAidSpecialCircumstancesDraftRoute: typeof ApiWorkflowsFinancialAidSpecialCircumstancesDraftRoute
+  ApiWorkflowsFinancialAidSuspensionAppealApproveRoute: typeof ApiWorkflowsFinancialAidSuspensionAppealApproveRoute
+  ApiWorkflowsFinancialAidSuspensionAppealDraftRoute: typeof ApiWorkflowsFinancialAidSuspensionAppealDraftRoute
+  ApiWorkflowsGovernmentDecisionApproveRoute: typeof ApiWorkflowsGovernmentDecisionApproveRoute
+  ApiWorkflowsGovernmentDecisionDraftRoute: typeof ApiWorkflowsGovernmentDecisionDraftRoute
+  ApiWorkflowsInsuranceClaimDenialApproveRoute: typeof ApiWorkflowsInsuranceClaimDenialApproveRoute
+  ApiWorkflowsInsuranceClaimDenialDraftRoute: typeof ApiWorkflowsInsuranceClaimDenialDraftRoute
+  ApiWorkflowsInsuranceCoverageDenialApproveRoute: typeof ApiWorkflowsInsuranceCoverageDenialApproveRoute
+  ApiWorkflowsInsuranceCoverageDenialDraftRoute: typeof ApiWorkflowsInsuranceCoverageDenialDraftRoute
+  ApiWorkflowsInsuranceDenialLetterApproveRoute: typeof ApiWorkflowsInsuranceDenialLetterApproveRoute
+  ApiWorkflowsInsuranceDenialLetterDraftRoute: typeof ApiWorkflowsInsuranceDenialLetterDraftRoute
+  ApiWorkflowsLicenseRevocationAppealApproveRoute: typeof ApiWorkflowsLicenseRevocationAppealApproveRoute
+  ApiWorkflowsLicenseRevocationAppealDraftRoute: typeof ApiWorkflowsLicenseRevocationAppealDraftRoute
+  ApiWorkflowsLicenseSuspensionAppealApproveRoute: typeof ApiWorkflowsLicenseSuspensionAppealApproveRoute
+  ApiWorkflowsLicenseSuspensionAppealDraftRoute: typeof ApiWorkflowsLicenseSuspensionAppealDraftRoute
+  ApiWorkflowsLifeInsuranceDenialApproveRoute: typeof ApiWorkflowsLifeInsuranceDenialApproveRoute
+  ApiWorkflowsLifeInsuranceDenialDraftRoute: typeof ApiWorkflowsLifeInsuranceDenialDraftRoute
+  ApiWorkflowsMedicaidDenialApproveRoute: typeof ApiWorkflowsMedicaidDenialApproveRoute
+  ApiWorkflowsMedicaidDenialDraftRoute: typeof ApiWorkflowsMedicaidDenialDraftRoute
+  ApiWorkflowsMedicalInsuranceDenialApproveRoute: typeof ApiWorkflowsMedicalInsuranceDenialApproveRoute
+  ApiWorkflowsMedicalInsuranceDenialDraftRoute: typeof ApiWorkflowsMedicalInsuranceDenialDraftRoute
+  ApiWorkflowsMedicalNecessityAppealApproveRoute: typeof ApiWorkflowsMedicalNecessityAppealApproveRoute
+  ApiWorkflowsMedicalNecessityAppealDraftRoute: typeof ApiWorkflowsMedicalNecessityAppealDraftRoute
+  ApiWorkflowsOutOfNetworkDenialApproveRoute: typeof ApiWorkflowsOutOfNetworkDenialApproveRoute
+  ApiWorkflowsOutOfNetworkDenialDraftRoute: typeof ApiWorkflowsOutOfNetworkDenialDraftRoute
+  ApiWorkflowsPriorAuthorizationDenialApproveRoute: typeof ApiWorkflowsPriorAuthorizationDenialApproveRoute
+  ApiWorkflowsPriorAuthorizationDenialDraftRoute: typeof ApiWorkflowsPriorAuthorizationDenialDraftRoute
+  ApiWorkflowsReconsiderationApproveRoute: typeof ApiWorkflowsReconsiderationApproveRoute
+  ApiWorkflowsReconsiderationDraftRoute: typeof ApiWorkflowsReconsiderationDraftRoute
+  ApiWorkflowsSapAppealApproveRoute: typeof ApiWorkflowsSapAppealApproveRoute
+  ApiWorkflowsSapAppealDraftRoute: typeof ApiWorkflowsSapAppealDraftRoute
+  ApiWorkflowsScholarshipAppealApproveRoute: typeof ApiWorkflowsScholarshipAppealApproveRoute
+  ApiWorkflowsScholarshipAppealDraftRoute: typeof ApiWorkflowsScholarshipAppealDraftRoute
+  ApiWorkflowsSocialSecurityDenialApproveRoute: typeof ApiWorkflowsSocialSecurityDenialApproveRoute
+  ApiWorkflowsSocialSecurityDenialDraftRoute: typeof ApiWorkflowsSocialSecurityDenialDraftRoute
+  ApiWorkflowsSsdiDenialApproveRoute: typeof ApiWorkflowsSsdiDenialApproveRoute
+  ApiWorkflowsSsdiDenialDraftRoute: typeof ApiWorkflowsSsdiDenialDraftRoute
+  ApiWorkflowsSsiDenialApproveRoute: typeof ApiWorkflowsSsiDenialApproveRoute
+  ApiWorkflowsSsiDenialDraftRoute: typeof ApiWorkflowsSsiDenialDraftRoute
+  ApiWorkflowsUnemploymentDenialApproveRoute: typeof ApiWorkflowsUnemploymentDenialApproveRoute
+  ApiWorkflowsUnemploymentDenialDraftRoute: typeof ApiWorkflowsUnemploymentDenialDraftRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -941,6 +1862,468 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsUnemploymentDenialRouteImport
       parentRoute: typeof WorkflowsRoute
     }
+    '/api/admin/appeals': {
+      id: '/api/admin/appeals'
+      path: '/api/admin/appeals'
+      fullPath: '/api/admin/appeals'
+      preLoaderRoute: typeof ApiAdminAppealsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/health': {
+      id: '/api/admin/health'
+      path: '/api/admin/health'
+      fullPath: '/api/admin/health'
+      preLoaderRoute: typeof ApiAdminHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/status': {
+      id: '/api/auth/status'
+      path: '/api/auth/status'
+      fullPath: '/api/auth/status'
+      preLoaderRoute: typeof ApiAuthStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/car-insurance-appeal/approve': {
+      id: '/api/workflows/car-insurance-appeal/approve'
+      path: '/api/workflows/car-insurance-appeal/approve'
+      fullPath: '/api/workflows/car-insurance-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsCarInsuranceAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/car-insurance-appeal/draft': {
+      id: '/api/workflows/car-insurance-appeal/draft'
+      path: '/api/workflows/car-insurance-appeal/draft'
+      fullPath: '/api/workflows/car-insurance-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsCarInsuranceAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/claim-denial-letter/approve': {
+      id: '/api/workflows/claim-denial-letter/approve'
+      path: '/api/workflows/claim-denial-letter/approve'
+      fullPath: '/api/workflows/claim-denial-letter/approve'
+      preLoaderRoute: typeof ApiWorkflowsClaimDenialLetterApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/claim-denial-letter/draft': {
+      id: '/api/workflows/claim-denial-letter/draft'
+      path: '/api/workflows/claim-denial-letter/draft'
+      fullPath: '/api/workflows/claim-denial-letter/draft'
+      preLoaderRoute: typeof ApiWorkflowsClaimDenialLetterDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/court-ruling/approve': {
+      id: '/api/workflows/court-ruling/approve'
+      path: '/api/workflows/court-ruling/approve'
+      fullPath: '/api/workflows/court-ruling/approve'
+      preLoaderRoute: typeof ApiWorkflowsCourtRulingApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/court-ruling/draft': {
+      id: '/api/workflows/court-ruling/draft'
+      path: '/api/workflows/court-ruling/draft'
+      fullPath: '/api/workflows/court-ruling/draft'
+      preLoaderRoute: typeof ApiWorkflowsCourtRulingDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/denied-claim/analyze': {
+      id: '/api/workflows/denied-claim/analyze'
+      path: '/api/workflows/denied-claim/analyze'
+      fullPath: '/api/workflows/denied-claim/analyze'
+      preLoaderRoute: typeof ApiWorkflowsDeniedClaimAnalyzeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/denied-claim/approve': {
+      id: '/api/workflows/denied-claim/approve'
+      path: '/api/workflows/denied-claim/approve'
+      fullPath: '/api/workflows/denied-claim/approve'
+      preLoaderRoute: typeof ApiWorkflowsDeniedClaimApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/denied-claim/draft': {
+      id: '/api/workflows/denied-claim/draft'
+      path: '/api/workflows/denied-claim/draft'
+      fullPath: '/api/workflows/denied-claim/draft'
+      preLoaderRoute: typeof ApiWorkflowsDeniedClaimDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/dental-insurance-appeal/approve': {
+      id: '/api/workflows/dental-insurance-appeal/approve'
+      path: '/api/workflows/dental-insurance-appeal/approve'
+      fullPath: '/api/workflows/dental-insurance-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsDentalInsuranceAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/dental-insurance-appeal/draft': {
+      id: '/api/workflows/dental-insurance-appeal/draft'
+      path: '/api/workflows/dental-insurance-appeal/draft'
+      fullPath: '/api/workflows/dental-insurance-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsDentalInsuranceAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/drivers-license-suspension/approve': {
+      id: '/api/workflows/drivers-license-suspension/approve'
+      path: '/api/workflows/drivers-license-suspension/approve'
+      fullPath: '/api/workflows/drivers-license-suspension/approve'
+      preLoaderRoute: typeof ApiWorkflowsDriversLicenseSuspensionApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/drivers-license-suspension/draft': {
+      id: '/api/workflows/drivers-license-suspension/draft'
+      path: '/api/workflows/drivers-license-suspension/draft'
+      fullPath: '/api/workflows/drivers-license-suspension/draft'
+      preLoaderRoute: typeof ApiWorkflowsDriversLicenseSuspensionDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/edd-denial/approve': {
+      id: '/api/workflows/edd-denial/approve'
+      path: '/api/workflows/edd-denial/approve'
+      fullPath: '/api/workflows/edd-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsEddDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/edd-denial/draft': {
+      id: '/api/workflows/edd-denial/draft'
+      path: '/api/workflows/edd-denial/draft'
+      fullPath: '/api/workflows/edd-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsEddDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/fafsa-appeal/approve': {
+      id: '/api/workflows/fafsa-appeal/approve'
+      path: '/api/workflows/fafsa-appeal/approve'
+      fullPath: '/api/workflows/fafsa-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsFafsaAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/fafsa-appeal/draft': {
+      id: '/api/workflows/fafsa-appeal/draft'
+      path: '/api/workflows/fafsa-appeal/draft'
+      fullPath: '/api/workflows/fafsa-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsFafsaAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/financial-aid-appeal/approve': {
+      id: '/api/workflows/financial-aid-appeal/approve'
+      path: '/api/workflows/financial-aid-appeal/approve'
+      fullPath: '/api/workflows/financial-aid-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsFinancialAidAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/financial-aid-appeal/draft': {
+      id: '/api/workflows/financial-aid-appeal/draft'
+      path: '/api/workflows/financial-aid-appeal/draft'
+      fullPath: '/api/workflows/financial-aid-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsFinancialAidAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/financial-aid-reinstatement/approve': {
+      id: '/api/workflows/financial-aid-reinstatement/approve'
+      path: '/api/workflows/financial-aid-reinstatement/approve'
+      fullPath: '/api/workflows/financial-aid-reinstatement/approve'
+      preLoaderRoute: typeof ApiWorkflowsFinancialAidReinstatementApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/financial-aid-reinstatement/draft': {
+      id: '/api/workflows/financial-aid-reinstatement/draft'
+      path: '/api/workflows/financial-aid-reinstatement/draft'
+      fullPath: '/api/workflows/financial-aid-reinstatement/draft'
+      preLoaderRoute: typeof ApiWorkflowsFinancialAidReinstatementDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/financial-aid-special-circumstances/approve': {
+      id: '/api/workflows/financial-aid-special-circumstances/approve'
+      path: '/api/workflows/financial-aid-special-circumstances/approve'
+      fullPath: '/api/workflows/financial-aid-special-circumstances/approve'
+      preLoaderRoute: typeof ApiWorkflowsFinancialAidSpecialCircumstancesApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/financial-aid-special-circumstances/draft': {
+      id: '/api/workflows/financial-aid-special-circumstances/draft'
+      path: '/api/workflows/financial-aid-special-circumstances/draft'
+      fullPath: '/api/workflows/financial-aid-special-circumstances/draft'
+      preLoaderRoute: typeof ApiWorkflowsFinancialAidSpecialCircumstancesDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/financial-aid-suspension-appeal/approve': {
+      id: '/api/workflows/financial-aid-suspension-appeal/approve'
+      path: '/api/workflows/financial-aid-suspension-appeal/approve'
+      fullPath: '/api/workflows/financial-aid-suspension-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsFinancialAidSuspensionAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/financial-aid-suspension-appeal/draft': {
+      id: '/api/workflows/financial-aid-suspension-appeal/draft'
+      path: '/api/workflows/financial-aid-suspension-appeal/draft'
+      fullPath: '/api/workflows/financial-aid-suspension-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsFinancialAidSuspensionAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/government-decision/approve': {
+      id: '/api/workflows/government-decision/approve'
+      path: '/api/workflows/government-decision/approve'
+      fullPath: '/api/workflows/government-decision/approve'
+      preLoaderRoute: typeof ApiWorkflowsGovernmentDecisionApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/government-decision/draft': {
+      id: '/api/workflows/government-decision/draft'
+      path: '/api/workflows/government-decision/draft'
+      fullPath: '/api/workflows/government-decision/draft'
+      preLoaderRoute: typeof ApiWorkflowsGovernmentDecisionDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/insurance-claim-denial/approve': {
+      id: '/api/workflows/insurance-claim-denial/approve'
+      path: '/api/workflows/insurance-claim-denial/approve'
+      fullPath: '/api/workflows/insurance-claim-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsInsuranceClaimDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/insurance-claim-denial/draft': {
+      id: '/api/workflows/insurance-claim-denial/draft'
+      path: '/api/workflows/insurance-claim-denial/draft'
+      fullPath: '/api/workflows/insurance-claim-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsInsuranceClaimDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/insurance-coverage-denial/approve': {
+      id: '/api/workflows/insurance-coverage-denial/approve'
+      path: '/api/workflows/insurance-coverage-denial/approve'
+      fullPath: '/api/workflows/insurance-coverage-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsInsuranceCoverageDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/insurance-coverage-denial/draft': {
+      id: '/api/workflows/insurance-coverage-denial/draft'
+      path: '/api/workflows/insurance-coverage-denial/draft'
+      fullPath: '/api/workflows/insurance-coverage-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsInsuranceCoverageDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/insurance-denial-letter/approve': {
+      id: '/api/workflows/insurance-denial-letter/approve'
+      path: '/api/workflows/insurance-denial-letter/approve'
+      fullPath: '/api/workflows/insurance-denial-letter/approve'
+      preLoaderRoute: typeof ApiWorkflowsInsuranceDenialLetterApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/insurance-denial-letter/draft': {
+      id: '/api/workflows/insurance-denial-letter/draft'
+      path: '/api/workflows/insurance-denial-letter/draft'
+      fullPath: '/api/workflows/insurance-denial-letter/draft'
+      preLoaderRoute: typeof ApiWorkflowsInsuranceDenialLetterDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/license-revocation-appeal/approve': {
+      id: '/api/workflows/license-revocation-appeal/approve'
+      path: '/api/workflows/license-revocation-appeal/approve'
+      fullPath: '/api/workflows/license-revocation-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsLicenseRevocationAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/license-revocation-appeal/draft': {
+      id: '/api/workflows/license-revocation-appeal/draft'
+      path: '/api/workflows/license-revocation-appeal/draft'
+      fullPath: '/api/workflows/license-revocation-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsLicenseRevocationAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/license-suspension-appeal/approve': {
+      id: '/api/workflows/license-suspension-appeal/approve'
+      path: '/api/workflows/license-suspension-appeal/approve'
+      fullPath: '/api/workflows/license-suspension-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsLicenseSuspensionAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/license-suspension-appeal/draft': {
+      id: '/api/workflows/license-suspension-appeal/draft'
+      path: '/api/workflows/license-suspension-appeal/draft'
+      fullPath: '/api/workflows/license-suspension-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsLicenseSuspensionAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/life-insurance-denial/approve': {
+      id: '/api/workflows/life-insurance-denial/approve'
+      path: '/api/workflows/life-insurance-denial/approve'
+      fullPath: '/api/workflows/life-insurance-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsLifeInsuranceDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/life-insurance-denial/draft': {
+      id: '/api/workflows/life-insurance-denial/draft'
+      path: '/api/workflows/life-insurance-denial/draft'
+      fullPath: '/api/workflows/life-insurance-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsLifeInsuranceDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/medicaid-denial/approve': {
+      id: '/api/workflows/medicaid-denial/approve'
+      path: '/api/workflows/medicaid-denial/approve'
+      fullPath: '/api/workflows/medicaid-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsMedicaidDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/medicaid-denial/draft': {
+      id: '/api/workflows/medicaid-denial/draft'
+      path: '/api/workflows/medicaid-denial/draft'
+      fullPath: '/api/workflows/medicaid-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsMedicaidDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/medical-insurance-denial/approve': {
+      id: '/api/workflows/medical-insurance-denial/approve'
+      path: '/api/workflows/medical-insurance-denial/approve'
+      fullPath: '/api/workflows/medical-insurance-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsMedicalInsuranceDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/medical-insurance-denial/draft': {
+      id: '/api/workflows/medical-insurance-denial/draft'
+      path: '/api/workflows/medical-insurance-denial/draft'
+      fullPath: '/api/workflows/medical-insurance-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsMedicalInsuranceDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/medical-necessity-appeal/approve': {
+      id: '/api/workflows/medical-necessity-appeal/approve'
+      path: '/api/workflows/medical-necessity-appeal/approve'
+      fullPath: '/api/workflows/medical-necessity-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsMedicalNecessityAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/medical-necessity-appeal/draft': {
+      id: '/api/workflows/medical-necessity-appeal/draft'
+      path: '/api/workflows/medical-necessity-appeal/draft'
+      fullPath: '/api/workflows/medical-necessity-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsMedicalNecessityAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/out-of-network-denial/approve': {
+      id: '/api/workflows/out-of-network-denial/approve'
+      path: '/api/workflows/out-of-network-denial/approve'
+      fullPath: '/api/workflows/out-of-network-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsOutOfNetworkDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/out-of-network-denial/draft': {
+      id: '/api/workflows/out-of-network-denial/draft'
+      path: '/api/workflows/out-of-network-denial/draft'
+      fullPath: '/api/workflows/out-of-network-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsOutOfNetworkDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/prior-authorization-denial/approve': {
+      id: '/api/workflows/prior-authorization-denial/approve'
+      path: '/api/workflows/prior-authorization-denial/approve'
+      fullPath: '/api/workflows/prior-authorization-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsPriorAuthorizationDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/prior-authorization-denial/draft': {
+      id: '/api/workflows/prior-authorization-denial/draft'
+      path: '/api/workflows/prior-authorization-denial/draft'
+      fullPath: '/api/workflows/prior-authorization-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsPriorAuthorizationDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/reconsideration/approve': {
+      id: '/api/workflows/reconsideration/approve'
+      path: '/api/workflows/reconsideration/approve'
+      fullPath: '/api/workflows/reconsideration/approve'
+      preLoaderRoute: typeof ApiWorkflowsReconsiderationApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/reconsideration/draft': {
+      id: '/api/workflows/reconsideration/draft'
+      path: '/api/workflows/reconsideration/draft'
+      fullPath: '/api/workflows/reconsideration/draft'
+      preLoaderRoute: typeof ApiWorkflowsReconsiderationDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/sap-appeal/approve': {
+      id: '/api/workflows/sap-appeal/approve'
+      path: '/api/workflows/sap-appeal/approve'
+      fullPath: '/api/workflows/sap-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsSapAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/sap-appeal/draft': {
+      id: '/api/workflows/sap-appeal/draft'
+      path: '/api/workflows/sap-appeal/draft'
+      fullPath: '/api/workflows/sap-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsSapAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/scholarship-appeal/approve': {
+      id: '/api/workflows/scholarship-appeal/approve'
+      path: '/api/workflows/scholarship-appeal/approve'
+      fullPath: '/api/workflows/scholarship-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsScholarshipAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/scholarship-appeal/draft': {
+      id: '/api/workflows/scholarship-appeal/draft'
+      path: '/api/workflows/scholarship-appeal/draft'
+      fullPath: '/api/workflows/scholarship-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsScholarshipAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/social-security-denial/approve': {
+      id: '/api/workflows/social-security-denial/approve'
+      path: '/api/workflows/social-security-denial/approve'
+      fullPath: '/api/workflows/social-security-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsSocialSecurityDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/social-security-denial/draft': {
+      id: '/api/workflows/social-security-denial/draft'
+      path: '/api/workflows/social-security-denial/draft'
+      fullPath: '/api/workflows/social-security-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsSocialSecurityDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/ssdi-denial/approve': {
+      id: '/api/workflows/ssdi-denial/approve'
+      path: '/api/workflows/ssdi-denial/approve'
+      fullPath: '/api/workflows/ssdi-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsSsdiDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/ssdi-denial/draft': {
+      id: '/api/workflows/ssdi-denial/draft'
+      path: '/api/workflows/ssdi-denial/draft'
+      fullPath: '/api/workflows/ssdi-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsSsdiDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/ssi-denial/approve': {
+      id: '/api/workflows/ssi-denial/approve'
+      path: '/api/workflows/ssi-denial/approve'
+      fullPath: '/api/workflows/ssi-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsSsiDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/ssi-denial/draft': {
+      id: '/api/workflows/ssi-denial/draft'
+      path: '/api/workflows/ssi-denial/draft'
+      fullPath: '/api/workflows/ssi-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsSsiDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/unemployment-denial/approve': {
+      id: '/api/workflows/unemployment-denial/approve'
+      path: '/api/workflows/unemployment-denial/approve'
+      fullPath: '/api/workflows/unemployment-denial/approve'
+      preLoaderRoute: typeof ApiWorkflowsUnemploymentDenialApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/unemployment-denial/draft': {
+      id: '/api/workflows/unemployment-denial/draft'
+      path: '/api/workflows/unemployment-denial/draft'
+      fullPath: '/api/workflows/unemployment-denial/draft'
+      preLoaderRoute: typeof ApiWorkflowsUnemploymentDenialDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1037,6 +2420,118 @@ const rootRouteChildren: RootRouteChildren = {
   AppealSlugRoute: AppealSlugRoute,
   ResourcesSlugRoute: ResourcesSlugRoute,
   ResourcesIndexRoute: ResourcesIndexRoute,
+  ApiAdminAppealsRoute: ApiAdminAppealsRoute,
+  ApiAdminHealthRoute: ApiAdminHealthRoute,
+  ApiAuthStatusRoute: ApiAuthStatusRoute,
+  ApiWorkflowsCarInsuranceAppealApproveRoute:
+    ApiWorkflowsCarInsuranceAppealApproveRoute,
+  ApiWorkflowsCarInsuranceAppealDraftRoute:
+    ApiWorkflowsCarInsuranceAppealDraftRoute,
+  ApiWorkflowsClaimDenialLetterApproveRoute:
+    ApiWorkflowsClaimDenialLetterApproveRoute,
+  ApiWorkflowsClaimDenialLetterDraftRoute:
+    ApiWorkflowsClaimDenialLetterDraftRoute,
+  ApiWorkflowsCourtRulingApproveRoute: ApiWorkflowsCourtRulingApproveRoute,
+  ApiWorkflowsCourtRulingDraftRoute: ApiWorkflowsCourtRulingDraftRoute,
+  ApiWorkflowsDeniedClaimAnalyzeRoute: ApiWorkflowsDeniedClaimAnalyzeRoute,
+  ApiWorkflowsDeniedClaimApproveRoute: ApiWorkflowsDeniedClaimApproveRoute,
+  ApiWorkflowsDeniedClaimDraftRoute: ApiWorkflowsDeniedClaimDraftRoute,
+  ApiWorkflowsDentalInsuranceAppealApproveRoute:
+    ApiWorkflowsDentalInsuranceAppealApproveRoute,
+  ApiWorkflowsDentalInsuranceAppealDraftRoute:
+    ApiWorkflowsDentalInsuranceAppealDraftRoute,
+  ApiWorkflowsDriversLicenseSuspensionApproveRoute:
+    ApiWorkflowsDriversLicenseSuspensionApproveRoute,
+  ApiWorkflowsDriversLicenseSuspensionDraftRoute:
+    ApiWorkflowsDriversLicenseSuspensionDraftRoute,
+  ApiWorkflowsEddDenialApproveRoute: ApiWorkflowsEddDenialApproveRoute,
+  ApiWorkflowsEddDenialDraftRoute: ApiWorkflowsEddDenialDraftRoute,
+  ApiWorkflowsFafsaAppealApproveRoute: ApiWorkflowsFafsaAppealApproveRoute,
+  ApiWorkflowsFafsaAppealDraftRoute: ApiWorkflowsFafsaAppealDraftRoute,
+  ApiWorkflowsFinancialAidAppealApproveRoute:
+    ApiWorkflowsFinancialAidAppealApproveRoute,
+  ApiWorkflowsFinancialAidAppealDraftRoute:
+    ApiWorkflowsFinancialAidAppealDraftRoute,
+  ApiWorkflowsFinancialAidReinstatementApproveRoute:
+    ApiWorkflowsFinancialAidReinstatementApproveRoute,
+  ApiWorkflowsFinancialAidReinstatementDraftRoute:
+    ApiWorkflowsFinancialAidReinstatementDraftRoute,
+  ApiWorkflowsFinancialAidSpecialCircumstancesApproveRoute:
+    ApiWorkflowsFinancialAidSpecialCircumstancesApproveRoute,
+  ApiWorkflowsFinancialAidSpecialCircumstancesDraftRoute:
+    ApiWorkflowsFinancialAidSpecialCircumstancesDraftRoute,
+  ApiWorkflowsFinancialAidSuspensionAppealApproveRoute:
+    ApiWorkflowsFinancialAidSuspensionAppealApproveRoute,
+  ApiWorkflowsFinancialAidSuspensionAppealDraftRoute:
+    ApiWorkflowsFinancialAidSuspensionAppealDraftRoute,
+  ApiWorkflowsGovernmentDecisionApproveRoute:
+    ApiWorkflowsGovernmentDecisionApproveRoute,
+  ApiWorkflowsGovernmentDecisionDraftRoute:
+    ApiWorkflowsGovernmentDecisionDraftRoute,
+  ApiWorkflowsInsuranceClaimDenialApproveRoute:
+    ApiWorkflowsInsuranceClaimDenialApproveRoute,
+  ApiWorkflowsInsuranceClaimDenialDraftRoute:
+    ApiWorkflowsInsuranceClaimDenialDraftRoute,
+  ApiWorkflowsInsuranceCoverageDenialApproveRoute:
+    ApiWorkflowsInsuranceCoverageDenialApproveRoute,
+  ApiWorkflowsInsuranceCoverageDenialDraftRoute:
+    ApiWorkflowsInsuranceCoverageDenialDraftRoute,
+  ApiWorkflowsInsuranceDenialLetterApproveRoute:
+    ApiWorkflowsInsuranceDenialLetterApproveRoute,
+  ApiWorkflowsInsuranceDenialLetterDraftRoute:
+    ApiWorkflowsInsuranceDenialLetterDraftRoute,
+  ApiWorkflowsLicenseRevocationAppealApproveRoute:
+    ApiWorkflowsLicenseRevocationAppealApproveRoute,
+  ApiWorkflowsLicenseRevocationAppealDraftRoute:
+    ApiWorkflowsLicenseRevocationAppealDraftRoute,
+  ApiWorkflowsLicenseSuspensionAppealApproveRoute:
+    ApiWorkflowsLicenseSuspensionAppealApproveRoute,
+  ApiWorkflowsLicenseSuspensionAppealDraftRoute:
+    ApiWorkflowsLicenseSuspensionAppealDraftRoute,
+  ApiWorkflowsLifeInsuranceDenialApproveRoute:
+    ApiWorkflowsLifeInsuranceDenialApproveRoute,
+  ApiWorkflowsLifeInsuranceDenialDraftRoute:
+    ApiWorkflowsLifeInsuranceDenialDraftRoute,
+  ApiWorkflowsMedicaidDenialApproveRoute:
+    ApiWorkflowsMedicaidDenialApproveRoute,
+  ApiWorkflowsMedicaidDenialDraftRoute: ApiWorkflowsMedicaidDenialDraftRoute,
+  ApiWorkflowsMedicalInsuranceDenialApproveRoute:
+    ApiWorkflowsMedicalInsuranceDenialApproveRoute,
+  ApiWorkflowsMedicalInsuranceDenialDraftRoute:
+    ApiWorkflowsMedicalInsuranceDenialDraftRoute,
+  ApiWorkflowsMedicalNecessityAppealApproveRoute:
+    ApiWorkflowsMedicalNecessityAppealApproveRoute,
+  ApiWorkflowsMedicalNecessityAppealDraftRoute:
+    ApiWorkflowsMedicalNecessityAppealDraftRoute,
+  ApiWorkflowsOutOfNetworkDenialApproveRoute:
+    ApiWorkflowsOutOfNetworkDenialApproveRoute,
+  ApiWorkflowsOutOfNetworkDenialDraftRoute:
+    ApiWorkflowsOutOfNetworkDenialDraftRoute,
+  ApiWorkflowsPriorAuthorizationDenialApproveRoute:
+    ApiWorkflowsPriorAuthorizationDenialApproveRoute,
+  ApiWorkflowsPriorAuthorizationDenialDraftRoute:
+    ApiWorkflowsPriorAuthorizationDenialDraftRoute,
+  ApiWorkflowsReconsiderationApproveRoute:
+    ApiWorkflowsReconsiderationApproveRoute,
+  ApiWorkflowsReconsiderationDraftRoute: ApiWorkflowsReconsiderationDraftRoute,
+  ApiWorkflowsSapAppealApproveRoute: ApiWorkflowsSapAppealApproveRoute,
+  ApiWorkflowsSapAppealDraftRoute: ApiWorkflowsSapAppealDraftRoute,
+  ApiWorkflowsScholarshipAppealApproveRoute:
+    ApiWorkflowsScholarshipAppealApproveRoute,
+  ApiWorkflowsScholarshipAppealDraftRoute:
+    ApiWorkflowsScholarshipAppealDraftRoute,
+  ApiWorkflowsSocialSecurityDenialApproveRoute:
+    ApiWorkflowsSocialSecurityDenialApproveRoute,
+  ApiWorkflowsSocialSecurityDenialDraftRoute:
+    ApiWorkflowsSocialSecurityDenialDraftRoute,
+  ApiWorkflowsSsdiDenialApproveRoute: ApiWorkflowsSsdiDenialApproveRoute,
+  ApiWorkflowsSsdiDenialDraftRoute: ApiWorkflowsSsdiDenialDraftRoute,
+  ApiWorkflowsSsiDenialApproveRoute: ApiWorkflowsSsiDenialApproveRoute,
+  ApiWorkflowsSsiDenialDraftRoute: ApiWorkflowsSsiDenialDraftRoute,
+  ApiWorkflowsUnemploymentDenialApproveRoute:
+    ApiWorkflowsUnemploymentDenialApproveRoute,
+  ApiWorkflowsUnemploymentDenialDraftRoute:
+    ApiWorkflowsUnemploymentDenialDraftRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

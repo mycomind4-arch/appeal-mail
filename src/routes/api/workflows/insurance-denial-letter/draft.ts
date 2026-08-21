@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { getWorkflow } from "@/domain/workflows";
 
@@ -21,8 +21,10 @@ async function callGemini(config: { apiKey: string; model: string; promptOverrid
   return text;
 }
 
-export const APIRoute = createAPIFileRoute("/api/workflows/insurance-denial-letter/draft")({
-  POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/insurance-denial-letter/draft")({
+  server: {
+    handlers: {
+        POST: async ({ request }) => {
     try {
       const user = await requireAuthenticatedUser(request);
       const input = await request.json() as { appealId?: string; analysis?: unknown; draftOverride?: string };
@@ -57,5 +59,7 @@ export const APIRoute = createAPIFileRoute("/api/workflows/insurance-denial-lett
       const message = error instanceof Error ? error.message : "Unable to create denial-letter response.";
       return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 });
     }
+      },
+    },
   },
 });

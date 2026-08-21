@@ -1,9 +1,9 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { runReadinessReview } from "@/domain/review";
 import { assemblePacket } from "@/domain/packet";
 
-export const APIRoute = createAPIFileRoute("/api/workflows/ssi-denial/approve")({ POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/ssi-denial/approve")({server:{handlers:{ POST: async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request); const input = await request.json() as { appealId?: string; recipient?: { name?: string; address1?: string; address2?: string; city?: string; state?: string; zip?: string }; mailingMethod?: "standard" | "certified" | "registered" };
     if (!input.appealId?.trim()) return Response.json({ error: "Appeal id is required." }, { status: 400 });
@@ -17,4 +17,4 @@ export const APIRoute = createAPIFileRoute("/api/workflows/ssi-denial/approve")(
     const currentVersion = appeal.version ?? 1; const { error: updateError } = await supabase.from("appeals").update({ status: "ready", review, packet, version: currentVersion + 1, updated_at: new Date().toISOString() }).eq("id", appeal.id).eq("user_id", user.id).eq("version", currentVersion); if (updateError) throw new Error(`Unable to approve appeal: ${updateError.message}`);
     return Response.json({ ok: true, appealId: appeal.id, status: "ready", review, packet });
   } catch (error) { const message = error instanceof Error ? error.message : "Unable to approve appeal."; return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 }); }
-} });
+} }}});

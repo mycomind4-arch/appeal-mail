@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 
 type ProviderConfig = { provider: "anthropic" | "openai" | "gemini"; apiKey: string; apiBaseUrl?: string | null; model: string; promptOverride?: string | null };
@@ -27,8 +27,10 @@ async function callGemini(config: ProviderConfig, system: string, user: string) 
   return text;
 }
 
-export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/draft")({
-  POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/denied-claim/draft")({
+  server: {
+    handlers: {
+        POST: async ({ request }) => {
     try {
       const user = await requireAuthenticatedUser(request);
       const payload = await request.json() as { appealId?: string; extracted?: any; analysis?: unknown };
@@ -88,5 +90,7 @@ export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/draft")(
       const status = /authentication|required|token/i.test(message) ? 401 : 502;
       return Response.json({ error: message }, { status });
     }
+      },
+    },
   },
 });

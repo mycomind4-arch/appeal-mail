@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAdmin } from "@/lib/auth-guard";
 import { getSupabaseServer } from "@/platform/supabase";
 
@@ -6,8 +6,10 @@ import { getSupabaseServer } from "@/platform/supabase";
    Admin API — list appeals (admin can view all, not just own)
    ═══════════════════════════════════════════════════════════ */
 
-export const APIRoute = createAPIFileRoute("/api/admin/appeals")({
-  GET: async ({ request }) => {
+export const Route = createFileRoute("/api/admin/appeals")({
+  server: {
+    handlers: {
+        GET: async ({ request }) => {
     try {
       await requireAdmin(request);
 
@@ -33,5 +35,7 @@ export const APIRoute = createAPIFileRoute("/api/admin/appeals")({
       const status = (error as { status?: number }).status || 500;
       return Response.json({ error: message }, { status });
     }
+      },
+    },
   },
 });

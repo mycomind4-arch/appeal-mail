@@ -1,10 +1,12 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { runReadinessReview } from "@/domain/review";
 import { assemblePacket } from "@/domain/packet";
 
-export const APIRoute = createAPIFileRoute("/api/workflows/financial-aid-appeal/approve")({
-  POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/financial-aid-appeal/approve")({
+  server: {
+    handlers: {
+        POST: async ({ request }) => {
     try {
       const user = await requireAuthenticatedUser(request);
       const input = await request.json() as { appealId?: string; recipient?: { name?: string; address1?: string; address2?: string; city?: string; state?: string; zip?: string }; mailingMethod?: "standard" | "certified" | "registered" };
@@ -32,5 +34,7 @@ export const APIRoute = createAPIFileRoute("/api/workflows/financial-aid-appeal/
       const message = error instanceof Error ? error.message : "Unable to approve appeal.";
       return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 });
     }
+      },
+    },
   },
 });

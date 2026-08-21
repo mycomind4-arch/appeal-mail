@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { getWorkflow } from "@/domain/workflows";
 
@@ -16,7 +16,7 @@ async function callGemini(config: {apiKey:string;model:string;promptOverride?:st
   const body=await response.json().catch(()=>null) as any; if(!response.ok) throw new Error(body?.error?.message||`Gemini request failed (${response.status}).`);
   const text=body?.candidates?.[0]?.content?.parts?.map((p:{text?:string})=>p.text||"").join("").trim(); if(!text) throw new Error("Gemini returned no response."); return text;
 }
-export const APIRoute=createAPIFileRoute("/api/workflows/medical-insurance-denial/draft")({POST:async({request})=>{try{
+export const Route=createFileRoute("/api/workflows/medical-insurance-denial/draft")({server:{handlers:{POST:async({request})=>{try{
   const user=await requireAuthenticatedUser(request); const input=await request.json() as {appealId?:string;analysis?:unknown;draftOverride?:string};
   if(!input.appealId?.trim()) return Response.json({error:"Appeal id is required."},{status:400});
   const supabase=await getSupabaseServer(); const {data:appeal,error}=await supabase.from("appeals").select("*").eq("id",input.appealId).single();
@@ -27,4 +27,4 @@ export const APIRoute=createAPIFileRoute("/api/workflows/medical-insurance-denia
   const persistedDraft=`${draft}\n\nSincerely,\n[Your Name]`; const currentVersion=appeal.version??1;
   const {error:updateError}=await supabase.from("appeals").update({draft:persistedDraft,status:"in_progress",version:currentVersion+1,updated_at:new Date().toISOString()}).eq("id",appeal.id).eq("user_id",user.id).eq("version",currentVersion); if(updateError) throw new Error(`Unable to persist draft: ${updateError.message}`);
   return Response.json({ok:true,appealId:appeal.id,draft:persistedDraft,validation,provider:"gemini",draftModel:draftConfig.model,validationModel:validationConfig.model});
-}catch(error){const message=error instanceof Error?error.message:"Unable to create medical insurance appeal response.";return Response.json({error:message},{status:/authentication|required|token/i.test(message)?401:502});}}});
+}catch(error){const message=error instanceof Error?error.message:"Unable to create medical insurance appeal response.";return Response.json({error:message},{status:/authentication|required|token/i.test(message)?401:502});}}}}});
