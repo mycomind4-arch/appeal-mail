@@ -6,7 +6,15 @@ type AnalysisPayload = {
   extracted?: { summary?: string; decision?: string; deadline?: string; denialReasons?: string[]; facts?: Record<string, unknown>; evidenceMentions?: string[]; uncertainties?: string[] };
   analysis?: { analysisText?: string };
 };
-type DraftPayload = { draft?: string; validation?: unknown; draftProvider?: string; validationProvider?: string };
+
+async function getAccessToken(): Promise<string> {
+  const { getSupabaseClient } = await import("@/platform/supabase");
+  const supabase = await getSupabaseClient();
+  if (!supabase) throw new Error("Authentication is not configured. Please sign in again after Supabase is configured.");
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data.session?.access_token) throw new Error("Please sign in to use this workflow.");
+  return data.session.access_token;
+}
 
 export function DeniedClaimWorkspace() {
   const [stage, setStage] = useState<Stage>("understand");
@@ -14,7 +22,8 @@ export function DeniedClaimWorkspace() {
   const [analyzing, setAnalyzing] = useState(false);
   const [building, setBuilding] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisPayload | null>(null);
-  const [draftResult, setDraftResult] = useState<DraftPayload | null>(null);
+  const [draft, setDraft] = useState("");
+  const [validation, setValidation] = useState("");
   const [approved, setApproved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,10 +34,11 @@ export function DeniedClaimWorkspace() {
     setAnalyzing(true);
     setError(null);
     try {
+      const token = await getAccessToken();
       const body = new FormData();
       body.append("document", file);
       body.append("workflowId", "denied-claim");
-      const response = await fetch("/api/workflows/denied-claim/analyze", { method: "POST", body, credentials: "include" });
+      const response = await fetch("/api/workflows/denied-claim/analyze", { method: "POST", body, credentials: "include", headers: { authorization: `Bearer ${token}` } });
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw new Error(payload?.error || "Analysis failed.");
       setAnalysis(payload);
@@ -45,15 +55,17 @@ export function DeniedClaimWorkspace() {
     setBuilding(true);
     setError(null);
     try {
+      const token = await getAccessToken();
       const response = await fetch("/api/workflows/denied-claim/draft", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
         credentials: "include",
         body: JSON.stringify({ extracted: analysis.extracted, analysis: analysis.analysis }),
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw new Error(payload?.error || "Drafting failed.");
-      setDraftResult(payload);
+      setDraft(payload.draft || "");
+      setValidation(payload.validation || "");
       setStage("send");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Drafting failed.");
@@ -62,15 +74,13 @@ export function DeniedClaimWorkspace() {
     }
   }
 
-  const draftValidation = draftResult?.validation as { valid?: boolean; issues?: string[]; suggestions?: string[] } | string | undefined;
-
   return (
     <main className="min-h-screen bg-paper px-6 py-10">
       <div className="mx-auto max-w-5xl">
         <header className="mb-10">
           <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Denied claim</div>
           <h1 className="mt-3 font-serif text-4xl md:text-5xl">Understand your denial. Build your response. Send it.</h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Upload the denial and supporting documents. The system analyzes the real document, builds a response, checks it, and keeps you in control before anything is mailed.</p>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Upload the denial and supporting documents. The system handles the hard work in the background and keeps you in control before anything is mailed.</p>
           <div className="mt-6 h-1 overflow-hidden rounded-full bg-muted"><div className="h-full bg-foreground transition-all" style={{ width: `${progress}%` }} /></div>
           <div className="mt-2 flex justify-between text-[11px] uppercase tracking-widest text-muted-foreground"><span className={stage === "understand" ? "text-foreground" : ""}>Understand</span><span className={stage === "build" ? "text-foreground" : ""}>Build</span><span className={stage === "send" ? "text-foreground" : ""}>Send</span></div>
         </header>
@@ -82,29 +92,36 @@ export function DeniedClaimWorkspace() {
             <div className="mx-auto max-w-2xl text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-rule bg-paper"><Upload size={24} /></div>
               <h2 className="mt-5 font-serif text-3xl">Start with your denial</h2>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">Upload a PDF, PNG, or JPG. Your document stays on the server-side workflow and is analyzed by the configured Gemini model.</p>
-              <label className="mt-6 inline-flex cursor-pointer items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm text-background hover:opacity-90"><Upload size={16} /> Choose document<input type="file" accept="application/pdf,image/png,image/jpeg" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">Upload a PDF, PNG, or JPG. The document goes directly to the server-side AI workflow—no retyping required.</p>
+              <label className="mt-6 inline-flex cursor-pointer items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm text-background hover:opacity-90">
+                <Upload size={16} /> Choose document
+                <input type="file" accept="application/pdf,image/png,image/jpeg" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+              </label>
               {file && <div className="mt-5 flex items-center justify-center gap-2 text-sm"><FileText size={16} /><span>{file.name}</span></div>}
-              <button disabled={!file || analyzing} onClick={analyze} className="mt-6 inline-flex items-center gap-2 rounded-full border border-foreground px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-40"><Sparkles size={16} />{analyzing ? "Analyzing your denial…" : "Analyze my denial"}</button>
+              <button disabled={!file || analyzing} onClick={analyze} className="mt-6 inline-flex items-center gap-2 rounded-full border border-foreground px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-40"><Sparkles size={16} />{analyzing ? "Analyzing your documents…" : "Analyze my denial"}</button>
             </div>
           </section>
         )}
 
         {stage === "build" && analysis && (
           <section className="rounded-2xl border border-rule bg-paper-deep p-8">
-            <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full border border-rule bg-paper"><Sparkles size={18} /></div><div><h2 className="font-serif text-2xl">Here's what Gemini found</h2><p className="text-sm text-muted-foreground">The document analysis is complete. Review the important facts before we build the response.</p></div></div>
-            <div className="mt-8 grid gap-4 md:grid-cols-3"><div className="rounded-xl border border-rule bg-paper p-5"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Decision</div><div className="mt-2 font-medium">{analysis.extracted?.decision || "Needs review"}</div></div><div className="rounded-xl border border-rule bg-paper p-5"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Deadline</div><div className="mt-2 font-medium">{analysis.extracted?.deadline || "Needs confirmation"}</div></div><div className="rounded-xl border border-rule bg-paper p-5"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Evidence mentions</div><div className="mt-2 font-medium">{analysis.extracted?.evidenceMentions?.length ?? 0}</div></div></div>
+            <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full border border-rule bg-paper"><Sparkles size={18} /></div><div><h2 className="font-serif text-2xl">Here's what we found</h2><p className="text-sm text-muted-foreground">The document extraction and case analysis are complete.</p></div></div>
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              <div className="rounded-xl border border-rule bg-paper p-5"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Decision</div><div className="mt-2 font-medium">{analysis.extracted?.decision || "Needs review"}</div></div>
+              <div className="rounded-xl border border-rule bg-paper p-5"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Deadline</div><div className="mt-2 font-medium">{analysis.extracted?.deadline || "Needs confirmation"}</div></div>
+              <div className="rounded-xl border border-rule bg-paper p-5"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Evidence mentions</div><div className="mt-2 font-medium">{analysis.extracted?.evidenceMentions?.length ?? 0}</div></div>
+            </div>
+            <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><h3 className="font-serif text-xl">What the analysis says</h3><p className="mt-3 whitespace-pre-wrap text-sm leading-7">{analysis.analysis?.analysisText || analysis.extracted?.summary || "No summary returned."}</p></div>
             {analysis.extracted?.denialReasons?.length ? <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><h3 className="font-serif text-xl">Reasons for denial</h3><ul className="mt-3 list-disc space-y-2 pl-5 text-sm">{analysis.extracted.denialReasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></div> : null}
-            <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><h3 className="font-serif text-xl">Summary</h3><p className="mt-3 whitespace-pre-wrap text-sm leading-7">{analysis.extracted?.summary || "No summary returned."}</p></div>
             <button disabled={building} onClick={build} className="mt-8 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm text-background disabled:opacity-40"><Sparkles size={16} />{building ? "Building your appeal…" : "Build my appeal"}<ArrowRight size={16} /></button>
           </section>
         )}
 
-        {stage === "send" && draftResult && (
+        {stage === "send" && (
           <section className="rounded-2xl border border-rule bg-paper-deep p-8">
-            <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full border border-rule bg-paper"><CheckCircle2 size={18} /></div><div><h2 className="font-serif text-2xl">Your appeal is ready for review</h2><p className="text-sm text-muted-foreground">The response was drafted and independently checked by the configured Gemini workflow.</p></div></div>
-            <div className="mt-8 rounded-xl border border-rule bg-paper p-6"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Draft response</div><p className="mt-4 whitespace-pre-wrap text-sm leading-7">{draftResult.draft || "No draft returned."}</p></div>
-            <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Validation</div>{typeof draftValidation === "string" ? <p className="mt-3 whitespace-pre-wrap text-sm leading-6">{draftValidation}</p> : <><div className="mt-3 text-sm font-medium">{draftValidation?.valid ? "Validation passed" : "Validation requires review"}</div>{draftValidation?.issues?.length ? <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">{draftValidation.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul> : null}{draftValidation?.suggestions?.length ? <div className="mt-4 text-sm text-muted-foreground">{draftValidation.suggestions.join(" ")}</div> : null}</>}</div>
+            <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full border border-rule bg-paper"><CheckCircle2 size={18} /></div><div><h2 className="font-serif text-2xl">Your appeal is ready for review</h2><p className="text-sm text-muted-foreground">The response was drafted by the configured AI provider and independently checked before mailing.</p></div></div>
+            <div className="mt-8 rounded-xl border border-rule bg-paper p-6"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Draft response</div><p className="mt-4 whitespace-pre-wrap text-sm leading-7">{draft || "No draft returned."}</p></div>
+            <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Validation</div><p className="mt-3 whitespace-pre-wrap text-sm leading-6">{validation || "No validation result returned."}</p></div>
             <div className="mt-6 flex flex-wrap gap-3"><button onClick={() => setApproved((v) => !v)} className={`rounded-full border px-5 py-3 text-sm ${approved ? "bg-foreground text-background" : "border-foreground"}`}>{approved ? "Approved" : "Approve this response"}</button><button disabled={!approved} className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm text-background disabled:opacity-40"><Send size={16} /> Send with MailMyPDF</button></div>
           </section>
         )}
