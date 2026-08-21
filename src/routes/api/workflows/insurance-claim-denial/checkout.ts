@@ -1,11 +1,13 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 
 const PRICES = { standard: 499, certified: 1494, registered: 3249 } as const;
 const LABELS = { standard: "Standard Mailing", certified: "Certified Mailing", registered: "Registered Mailing" } as const;
 
-export const APIRoute = createAPIFileRoute("/api/workflows/insurance-claim-denial/checkout")({
-  POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/insurance-claim-denial/checkout")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
     try {
       const user = await requireAuthenticatedUser(request);
       const input = await request.json() as { appealId?: string };
@@ -36,5 +38,7 @@ export const APIRoute = createAPIFileRoute("/api/workflows/insurance-claim-denia
       const message = error instanceof Error ? error.message : "Unable to create checkout session.";
       return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 });
     }
+  },
+    },
   },
 });
