@@ -1,176 +1,76 @@
 import { z } from "zod";
 
-/* ─────────────────────────────────────────────
-   Workflow definitions — now with specialized
-   steps, fields, and intelligence focus per
-   workflow type.
-   ───────────────────────────────────────────── */
-
-export type WorkflowId = "denied-claim" | "government-decision" | "court-ruling" | "reconsideration";
-
-/* Extended step types — the old wizard is now an intelligence pipeline */
 export type WorkflowStep =
-  | "intro"
-  | "document"       // upload + extract
-  | "xray"           // Appeal X-Ray cross-document analysis
-  | "decision"        // review extracted decision facts
-  | "timeline"        // chronology of events
-  | "grounds"         // define appeal grounds
-  | "evidence"        // manage evidence + link to grounds
-  | "arguments"       // construct arguments
-  | "stress-test"    // adversarial review of grounds
-  | "draft"           // AI-assisted draft generation
-  | "final-stress-test" // draft vulnerability check
-  | "readiness"       // automated readiness review
-  | "packet"           // assemble final packet
-  | "recipient"       // who to mail to
-  | "mailing"         // choose mailing method
-  | "checkout"        // payment
-  | "proof"           // permanent proof record
-  | "submitted";
-
-export interface WorkflowFieldDef {
-  key: string;
-  label: string;
-  placeholder?: string;
-  type: "text" | "date" | "textarea" | "select";
-  options?: string[];
-  required?: boolean;
-}
-
+  | "intro" | "document" | "xray" | "decision" | "timeline" | "grounds"
+  | "evidence" | "arguments" | "stress-test" | "draft" | "final-stress-test"
+  | "readiness" | "packet" | "recipient" | "mailing" | "checkout" | "proof" | "submitted";
+export type ExperienceStage = "understand" | "build" | "send";
+export interface WorkflowFieldDef { key: string; label: string; placeholder?: string; type: "text" | "date" | "textarea" | "select"; options?: string[]; required?: boolean; }
 export interface WorkflowDefinition {
-  id: WorkflowId;
-  title: string;
-  description: string;
-  disclaimer: string;
-  steps: WorkflowStep[];
-  stepLabels: string[];
-  /* Specialized fields for the decision identification step */
-  decisionFields: WorkflowFieldDef[];
-  /* What this workflow focuses on */
-  focusAreas: string[];
-  /* Deadline urgency message */
-  deadlineWarning: string;
+  id: string; title: string; description: string; disclaimer: string; steps: WorkflowStep[]; stepLabels: string[];
+  decisionFields: WorkflowFieldDef[]; focusAreas: string[]; deadlineWarning: string;
+  experienceStages: readonly ExperienceStage[]; primaryKeyword?: string; primaryMsv?: number; primaryCpc?: number;
+  keywordIntent?: "transactional" | "commercial" | "informational"; workflowPrompt: string; acceptsDocuments: boolean;
+}
+export type WorkflowId = string;
+
+const COMMON_STEPS: WorkflowStep[] = ["intro","document","xray","decision","timeline","grounds","evidence","arguments","stress-test","draft","final-stress-test","readiness","packet","recipient","mailing","checkout","proof","submitted"];
+const COMMON_LABELS = ["Start","Document","X-Ray","Decision","Timeline","Grounds","Evidence","Arguments","Stress Test","Draft","Final Test","Readiness","Packet","Recipient","Mailing","Checkout","Proof","Done"];
+const BASE = {
+  disclaimer: "Appeal Mail provides document preparation and mailing assistance. It is not a law firm and does not provide legal advice.",
+  steps: COMMON_STEPS, stepLabels: COMMON_LABELS,
+  decisionFields: [
+    { key: "referenceNumber", label: "Reference / Case Number", type: "text" as const },
+    { key: "agency", label: "Decision-maker / Company", type: "text" as const },
+    { key: "decisionDate", label: "Decision Date", type: "date" as const },
+    { key: "deadline", label: "Response / Appeal Deadline", type: "date" as const },
+  ],
+  focusAreas: [] as string[], deadlineWarning: "Check the source document carefully for the response or appeal deadline.",
+  experienceStages: ["understand","build","send"] as const, acceptsDocuments: true,
+};
+function makeWorkflow(id: string,title: string,description: string,primaryKeyword: string|undefined,primaryMsv: number|undefined,primaryCpc: number|undefined,focusAreas: string[],workflowPrompt: string): WorkflowDefinition {
+  return {...BASE,id,title,description,primaryKeyword,primaryMsv,primaryCpc,focusAreas,keywordIntent:"transactional",workflowPrompt};
 }
 
-const COMMON_STEPS: WorkflowStep[] = [
-  "intro", "document", "xray", "decision", "timeline", "grounds", "evidence",
-  "arguments", "stress-test", "draft", "final-stress-test", "readiness", "packet", "recipient", "mailing",
-  "checkout", "proof", "submitted",
-];
-
-const COMMON_LABELS = [
-  "Start", "Document", "X-Ray", "Decision", "Timeline", "Grounds", "Evidence",
-  "Arguments", "Stress Test", "Draft", "Final Test", "Readiness", "Packet", "Recipient", "Mailing",
-  "Checkout", "Proof", "Done",
-];
-
-export const workflows: Record<WorkflowId, WorkflowDefinition> = {
-  "government-decision": {
-    id: "government-decision",
-    title: "Appeal a Government Decision",
-    description: "Prepare an appeal for a denied government benefit, licensing decision, or agency ruling.",
-    disclaimer:
-      "Government appeal processes have strict deadlines and specific requirements. Review the appeal instructions carefully. Appeal Mail is not a law firm.",
-    steps: COMMON_STEPS,
-    stepLabels: COMMON_LABELS,
-    focusAreas: [
-      "Agency identification and jurisdiction",
-      "Administrative deadline compliance",
-      "Appeal instructions extraction",
-      "Regulatory basis for the decision",
-      "Hearing or review rights",
-    ],
-    deadlineWarning:
-      "Government appeal deadlines can be very short — sometimes 10–30 days. Note your deadline immediately.",
-    decisionFields: [
-      { key: "agency", label: "Agency / Body", placeholder: "e.g., SSA, VA, DMV, Licensing Board", type: "text", required: true },
-      { key: "referenceNumber", label: "Reference / Case Number", type: "text" },
-      { key: "decisionTypeLabel", label: "Decision Type", placeholder: "Benefit denial, license revocation, etc.", type: "text" },
-      { key: "decisionDate", label: "Decision Date", type: "date" },
-      { key: "deadline", label: "Appeal Deadline", type: "date" },
-    ],
-  },
-  "denied-claim": {
-    id: "denied-claim",
-    title: "Appeal a Denied Claim",
-    description:
-      "Prepare an appeal letter for a denied insurance claim, benefit denial, or workers' compensation decision.",
-    disclaimer:
-      "Appeal Mail provides document preparation and mailing assistance. It is not a law firm and does not provide legal advice. Appeal deadlines can be very short — note yours immediately.",
-    steps: COMMON_STEPS,
-    stepLabels: COMMON_LABELS,
-    focusAreas: [
-      "Denial reason extraction",
-      "Policy or claim reference identification",
-      "Supporting records and documentation",
-      "Disputed facts and discrepancies",
-      "Requested reconsideration outcome",
-    ],
-    deadlineWarning:
-      "Claim appeal deadlines vary by insurer and jurisdiction. Some are as short as 30–60 days. Check your denial letter.",
-    decisionFields: [
-      { key: "referenceNumber", label: "Claim / Case Number", type: "text", required: true },
-      { key: "agency", label: "Insurer / Provider", placeholder: "e.g., Blue Cross, State Farm", type: "text" },
-      { key: "decisionTypeLabel", label: "Claim Type", placeholder: "Medical, auto, workers' comp, etc.", type: "text" },
-      { key: "decisionDate", label: "Denial Date", type: "date" },
-      { key: "deadline", label: "Appeal Deadline", type: "date" },
-    ],
-  },
-  "court-ruling": {
-    id: "court-ruling",
-    title: "Appeal a Court Ruling",
-    description: "Prepare an appeal for a small claims, traffic, or municipal court decision.",
-    disclaimer:
-      "Court appeals have strict procedural requirements and short deadlines. Consult an attorney if you are unsure. Appeal Mail is not a law firm.",
-    steps: COMMON_STEPS,
-    stepLabels: COMMON_LABELS,
-    focusAreas: [
-      "Jurisdiction and court identification",
-      "Order or judgment date",
-      "Procedural filing requirements",
-      "Filing deadline computation",
-      "Court destination and format",
-    ],
-    deadlineWarning:
-      "Court appeal deadlines are extremely strict — often 10–30 days from the ruling. Missing the deadline usually means losing the right to appeal.",
-    decisionFields: [
-      { key: "agency", label: "Court Name", placeholder: "e.g., Superior Court of California", type: "text", required: true },
-      { key: "referenceNumber", label: "Case Number", type: "text", required: true },
-      { key: "decisionTypeLabel", label: "Ruling Type", placeholder: "Judgment, order, conviction, etc.", type: "text" },
-      { key: "decisionDate", label: "Ruling Date", type: "date" },
-      { key: "deadline", label: "Filing Deadline", type: "date" },
-    ],
-  },
-  "reconsideration": {
-    id: "reconsideration",
-    title: "Submit a Reconsideration Request",
-    description: "Request an internal review or reconsideration before filing a formal appeal.",
-    disclaimer:
-      "Reconsideration requests may have different deadlines than formal appeals. Check the instructions from the decision-maker. Appeal Mail is not a law firm.",
-    steps: COMMON_STEPS,
-    stepLabels: COMMON_LABELS,
-    focusAreas: [
-      "New information identification",
-      "Factual error documentation",
-      "Omitted evidence presentation",
-      "Internal review process navigation",
-      "Outcome specification",
-    ],
-    deadlineWarning:
-      "Reconsideration deadlines can be shorter than formal appeal deadlines. Check the instructions from the decision-maker.",
-    decisionFields: [
-      { key: "agency", label: "Decision-Maker / Agency", placeholder: "e.g., SSA, Insurance Company", type: "text", required: true },
-      { key: "referenceNumber", label: "Reference / Claim Number", type: "text" },
-      { key: "decisionTypeLabel", label: "Original Decision", placeholder: "Denial, termination, overpayment, etc.", type: "text" },
-      { key: "decisionDate", label: "Decision Date", type: "date" },
-      { key: "deadline", label: "Reconsideration Deadline", type: "date" },
-    ],
-  },
+export const workflows: Record<string, WorkflowDefinition> = {
+  "denied-claim": makeWorkflow("denied-claim","Appeal a Denied Claim","Upload a denied claim and build a documented response from the decision and supporting evidence.","denial of insurance claim",1300,47.028575,["Denial reason","Policy or claim reference","Supporting records","Disputed facts","Requested outcome"],"Analyze a denied claim and identify the decision, stated reasons, deadlines, factual vulnerabilities, missing evidence, contradictions, and strongest defensible response grounds."),
+  "government-decision": makeWorkflow("government-decision","Appeal a Government Decision","Upload a government decision and prepare a documented administrative response.",undefined,undefined,undefined,["Agency identification","Deadline","Appeal instructions","Procedural requirements","Evidence"],"Analyze the government decision, agency instructions, deadlines, findings, procedural requirements, and evidence needed for an administrative appeal."),
+  "court-ruling": makeWorkflow("court-ruling","Respond to a Court Ruling","Upload the ruling and prepare a review-ready response package.",undefined,undefined,undefined,["Court","Case number","Order or judgment date","Filing requirements","Deadline"],"Analyze the court ruling for dates, filing instructions, factual findings, procedural requirements, and source-supported response issues."),
+  "reconsideration": makeWorkflow("reconsideration","Request Reconsideration","Upload the decision and build a focused reconsideration request before formal appeal.",undefined,undefined,undefined,["New information","Factual errors","Omitted evidence","Internal review process","Outcome"],"Analyze the original decision for new information, factual errors, omitted evidence, and the correct reconsideration path."),
+  "insurance-claim-denial": makeWorkflow("insurance-claim-denial","Appeal an Insurance Claim Denial","Upload an insurance denial and build a documented appeal.","denial of insurance claim",1300,47.028575,["Claim denial","Policy","Coverage","Evidence","Deadline"],"Analyze the insurance denial, policy/coverage references, factual disputes, evidence gaps, and appeal requirements."),
+  "insurance-denial-letter": makeWorkflow("insurance-denial-letter","Respond to an Insurance Denial Letter","Upload the denial letter and turn it into a documented response.","insurance denial letter",210,38.850324,["Denial reasons","Instructions","Deadline","Supporting evidence"],"Analyze the insurance denial letter and identify exactly what the issuer says is missing or disqualifying."),
+  "insurance-coverage-denial": makeWorkflow("insurance-coverage-denial","Appeal an Insurance Coverage Denial","Challenge a stated denial of insurance coverage with source-linked evidence.","denial of insurance coverage letter",210,38.850324,["Coverage rule","Reason for denial","Policy language","Evidence"],"Analyze the coverage denial and identify the stated coverage rule, supporting policy language, disputed facts, and evidence needed."),
+  "medical-insurance-denial": makeWorkflow("medical-insurance-denial","Appeal a Medical Insurance Denial","Upload a medical insurance denial and prepare the response.","medical appeal letter",90,1.03374,["Medical reason","Coverage","Records","Medical documentation","Deadline"],"Analyze the medical insurance denial, stated medical/coverage reason, records referenced, and missing support."),
+  "medical-necessity-appeal": makeWorkflow("medical-necessity-appeal","Appeal a Medical Necessity Denial","Build a source-supported appeal around a medical necessity denial.","medical necessity appeal letter",50,1.803314,["Medical necessity","Clinical support","Treatment","Documentation"],"Analyze the denial for medical-necessity criteria, supporting clinical evidence, stated deficiencies, and response needs."),
+  "prior-authorization-denial": makeWorkflow("prior-authorization-denial","Appeal a Prior Authorization Denial","Upload the denial and prepare a focused prior-authorization appeal.","appeal prior authorization denial",40,0,["Authorization","Requested service","Denial reason","Clinical support"],"Analyze the prior-authorization denial and identify the requested service, denial rationale, criteria cited, and supporting evidence needed."),
+  "out-of-network-denial": makeWorkflow("out-of-network-denial","Appeal an Out-of-Network Denial","Build a response to an out-of-network coverage or claim denial.","appeal letter to insurance company for out of network",10,0,["Network status","Plan terms","Service","Exception basis"],"Analyze the out-of-network denial and identify plan language, network facts, exceptions, and supporting records."),
+  "dental-insurance-appeal": makeWorkflow("dental-insurance-appeal","Appeal a Dental Insurance Denial","Upload a dental denial and build the response.","dental insurance appeal letter",70,0,["Dental claim","Coverage","Procedure","Evidence"],"Analyze the dental insurance denial, procedure, coverage reason, and documentation gaps."),
+  "car-insurance-appeal": makeWorkflow("car-insurance-appeal","Appeal a Car Insurance Claim","Upload the claim decision and prepare the response.","car insurance appeal letter",50,0,["Claim facts","Damage","Liability","Coverage","Records"],"Analyze the auto claim decision for disputed facts, damage, liability, coverage, and evidence."),
+  "life-insurance-denial": makeWorkflow("life-insurance-denial","Appeal a Life Insurance Denial","Upload the denial and build a source-supported response.","life insurance denial appeal letter",10,0,["Policy","Denial reason","Coverage","Records"],"Analyze the life insurance denial and identify policy provisions, stated exclusions, dates, and supporting records."),
+  "claim-denial-letter": makeWorkflow("claim-denial-letter","Respond to a Claim Denial Letter","Upload any claim denial letter and turn it into a documented response.","claim denial letter",70,132.34316,["Denial reason","Claim facts","Evidence","Response deadline"],"Analyze the claim denial letter and identify what is being denied, why, and what evidence or correction could respond to it."),
+  "ssdi-denial": makeWorkflow("ssdi-denial","Appeal an SSDI Denial","Upload an SSDI denial and prepare the next response.","denied ssdi",390,18.462614,["SSA decision","Disability findings","Deadline","Medical evidence"],"Analyze the SSDI denial, stated findings, deadlines, evidence considered, and missing support. Do not invent medical facts."),
+  "ssi-denial": makeWorkflow("ssi-denial","Appeal an SSI Denial","Upload an SSI denial and prepare a documented response.","ssi denial",210,11.614532,["SSA decision","Eligibility","Deadline","Evidence"],"Analyze the SSI denial for stated eligibility findings, deadlines, evidence, and response issues."),
+  "social-security-denial": makeWorkflow("social-security-denial","Appeal a Social Security Denial","Upload a Social Security denial and build a response.","social security denial appeal",110,16.500946,["SSA decision","Findings","Deadline","Evidence"],"Analyze the Social Security denial and identify the decision basis, deadlines, findings, and relevant evidence."),
+  "medicaid-denial": makeWorkflow("medicaid-denial","Appeal a Medicaid Denial","Upload the Medicaid denial and prepare the response.","appeal medicaid denial",210,12.434629,["Eligibility","Coverage","Agency","Deadline","Evidence"],"Analyze the Medicaid denial for eligibility/coverage findings, instructions, deadlines, and evidence gaps."),
+  "unemployment-denial": makeWorkflow("unemployment-denial","Appeal an Unemployment Denial","Upload an unemployment decision and build the response.","unemployment insurance appeal",260,1.391115,["Eligibility","Employer facts","Decision reason","Deadline"],"Analyze the unemployment denial for stated reasons, facts, deadlines, and supporting records."),
+  "edd-denial": makeWorkflow("edd-denial","Appeal an EDD Denial","Upload the EDD decision and prepare a documented response.","appeal edd denial",10,36.123306,["EDD decision","Claim facts","Deadline","Evidence"],"Analyze the EDD decision and identify stated grounds, deadlines, disputed facts, and supporting evidence."),
+  "financial-aid-appeal": makeWorkflow("financial-aid-appeal","Appeal a Financial Aid Decision","Upload your financial aid decision and build a stronger appeal.","financial aid appeal letter",1000,10.869586,["Aid decision","Special circumstances","School policy","Evidence"],"Analyze the financial aid decision and identify the specific appeal basis, supporting facts, policy requirements, and evidence."),
+  "sap-appeal": makeWorkflow("sap-appeal","Build a SAP Appeal","Upload your SAP decision and prepare a structured appeal.","sap appeal letter",210,0,["SAP decision","Academic progress","Extenuating circumstances","Plan"],"Analyze the SAP decision and identify the institution's stated requirements, factual circumstances, and evidence needed for an appeal."),
+  "financial-aid-suspension-appeal": makeWorkflow("financial-aid-suspension-appeal","Appeal a Financial Aid Suspension","Upload the suspension notice and build the response.","financial aid suspension appeal letter sample",40,0,["Suspension reason","Academic record","Circumstances","Recovery plan"],"Analyze the financial aid suspension and identify the stated basis, supporting circumstances, and documentation needed."),
+  "financial-aid-reinstatement": makeWorkflow("financial-aid-reinstatement","Request Financial Aid Reinstatement","Build a documented request to restore financial aid eligibility.","financial aid reinstatement letter example",10,0,["Eligibility","Prior decision","Recovery plan","Documentation"],"Analyze the prior financial-aid decision and construct a source-supported reinstatement case."),
+  "financial-aid-special-circumstances": makeWorkflow("financial-aid-special-circumstances","Appeal for Financial Aid Special Circumstances","Document changed circumstances and build the appeal.","financial aid special circumstances letter sample",50,0,["Changed circumstances","Income","Family situation","Evidence"],"Analyze the financial-aid situation for documented special circumstances and required evidence."),
+  "scholarship-appeal": makeWorkflow("scholarship-appeal","Appeal a Scholarship Decision","Upload the decision and prepare a focused scholarship appeal.","scholarship appeal letter",70,0,["Award decision","Eligibility","Accomplishments","Supporting evidence"],"Analyze the scholarship decision and identify factual, eligibility, or evidentiary grounds for appeal."),
+  "fafsa-appeal": makeWorkflow("fafsa-appeal","Appeal a FAFSA/Financial Aid Decision","Upload the decision and prepare the appropriate appeal response.","fafsa appeal letter",110,0,["FAFSA decision","Dependency","Special circumstances","Evidence"],"Analyze the FAFSA/financial-aid decision and identify the specific appeal basis and evidence."),
+  "license-suspension-appeal": makeWorkflow("license-suspension-appeal","Appeal a License Suspension","Upload the suspension notice and prepare the response.","license suspension appeal",140,27.394478,["License status","Suspension reason","Agency","Deadline"],"Analyze the license suspension notice, stated reasons, agency instructions, deadlines, and relevant records."),
+  "drivers-license-suspension": makeWorkflow("drivers-license-suspension","Appeal a Driver's License Suspension","Upload your DMV suspension and prepare the response.","appeal driver's license suspension",20,32.52366,["DMV notice","Suspension reason","Hearing/appeal instructions","Deadline"],"Analyze the driver's license suspension notice for grounds, deadlines, hearing instructions, and supporting records."),
+  "license-revocation-appeal": makeWorkflow("license-revocation-appeal","Appeal a License Revocation","Upload the revocation decision and build the response.","license revoked appeal",10,0,["Revocation reason","Agency","Deadline","Evidence"],"Analyze the license revocation decision and identify response grounds and procedural requirements."),
+  "dmv-suspension-appeal": makeWorkflow("dmv-suspension-appeal","Appeal a DMV Suspension","Upload the DMV notice and prepare the response.","dmv license suspension appeal",20,0.94125,["DMV decision","Suspension basis","Deadline","Records"],"Analyze the DMV suspension and identify the stated basis, response path, deadlines, and records."),
+  "registration-suspension-appeal": makeWorkflow("registration-suspension-appeal","Appeal a Registration Suspension","Upload the registration suspension notice and build the response.","penndot registration suspension appeal",10,0,["Registration","Agency notice","Reason","Deadline"],"Analyze the registration suspension notice and identify the agency decision, reason, and response requirements."),
 };
 
 export const workflowIds = Object.keys(workflows) as WorkflowId[];
-
-export function getWorkflow(id: WorkflowId): WorkflowDefinition {
-  return workflows[id];
-}
+export function getWorkflow(id: WorkflowId): WorkflowDefinition { const workflow = workflows[id]; if (!workflow) throw new Error(`Unknown workflow: ${id}`); return workflow; }
+export function isWorkflowId(value: string): value is WorkflowId { return Boolean(workflows[value]); }
+export const workflowCatalogVersion = "2026-08-20-appeal-mail-v2";
+export const appealWorkflowCount = workflowIds.length;
+export const workflowExperienceStandard = { stages: ["understand","build","send"] as const, upload: ["application/pdf","image/png","image/jpeg"], ai: "Gemini", review: "human", fulfillment: "MailMyPDF" };
