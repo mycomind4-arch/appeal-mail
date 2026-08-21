@@ -1,4 +1,5 @@
 import { createAPIFileRoute } from "@tanstack/react-start";
+import { requireAuthenticatedUser } from "@/platform/supabase";
 
 type ProviderConfig = {
   provider: "anthropic" | "openai" | "gemini";
@@ -32,6 +33,7 @@ function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
 export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/analyze")({
   POST: async ({ request }) => {
     try {
+      await requireAuthenticatedUser(request);
       const form = await request.formData();
       const file = form.get("document");
       if (!(file instanceof File)) return Response.json({ error: "A source document is required." }, { status: 400 });
@@ -75,7 +77,9 @@ export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/analyze"
 
       return Response.json({ ok: true, workflowId: "denied-claim", fileName: file.name, analysis, provider: "gemini", model: provider.model });
     } catch (error) {
-      return Response.json({ error: error instanceof Error ? error.message : "Unable to analyze document." }, { status: 502 });
+      const message = error instanceof Error ? error.message : "Unable to analyze document.";
+      const status = /authentication|required|token/i.test(message) ? 401 : 502;
+      return Response.json({ error: message }, { status });
     }
   },
 });
