@@ -31,3 +31,20 @@ export async function getSupabaseClient() {
 
   return createClient(url, anonKey);
 }
+
+/**
+ * Resolve the authenticated Supabase user from a bearer token supplied by the
+ * browser. The token is verified server-side; callers never submit a trusted
+ * userId field.
+ */
+export async function requireAuthenticatedUser(request: Request) {
+  const authorization = request.headers.get("authorization");
+  const match = authorization?.match(/^Bearer\s+(.+)$/i);
+  if (!match) throw new Error("Authentication required");
+
+  const supabase = await getSupabaseServer();
+  const { data, error } = await supabase.auth.getUser(match[1]);
+  if (error || !data.user) throw new Error("Invalid or expired authentication token");
+
+  return data.user;
+}
