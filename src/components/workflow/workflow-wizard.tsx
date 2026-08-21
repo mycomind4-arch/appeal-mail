@@ -1,4 +1,5 @@
 import { AppShell, StatusBadge, DeadlineCard, ReadinessScore, EmptyState, SourceReference, ConfidenceBadge, IssueCard, AIActionBar, ActivityFeed, NAV_ICONS, NAV_LABELS, type WorkspaceNav } from "@/components/workspace/app-shell";
+import { AIDraftHelper } from "@/components/ai-draft-helper";
 import { Link } from "@tanstack/react-router";
 import { FileUp, ShieldAlert, CheckCircle2, Mail, PackageCheck, Stamp, CreditCard, Check, AlertTriangle, Clock, FileText, Link2, Scale, Gavel, Calendar, Paperclip, Send, Award, Download, Copy, FileSearch, LayoutDashboard, CalendarClock, TrendingUp, ArrowRight } from "lucide-react";
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
@@ -1196,6 +1197,25 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
                     <Copy size={14} className="inline mr-1" /> Regenerate from grounds
                   </button>
                 </div>
+
+                <AIDraftHelper
+                  workflowId={workflowId}
+                  workflowTitle={definition.title || workflowId}
+                  documentText={decision.agency || ""}
+                  analysis={{
+                    agency: decision.agency || null,
+                    noticeType: decision.decisionTypeLabel || null,
+                    referenceNumber: decision.referenceNumber || null,
+                    noticeDate: decision.decisionDate || null,
+                    responseDeadline: decision.deadline?.date || null,
+                    amountOwed: null,
+                    keyFacts: grounds.map(g => g.claim || g.type),
+                    summary: "",
+                  }}
+                  userFacts={grounds.map(g => g.claim || "").join("\n")}
+                  userObjective={grounds.map(g => GROUND_TYPE_LABELS[g.type] + (g.claim ? ": " + g.claim : "")).join("; ")}
+                  onDraft={setDraft}
+                />
 
                 <textarea
                   className="input-field mt-6 min-h-96 font-mono text-sm leading-6"
