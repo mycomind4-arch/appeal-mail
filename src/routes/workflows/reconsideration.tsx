@@ -1,23 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { WorkflowWizard } from "@/components/workflow/workflow-wizard";
+import { AppealWorkflowWorkspace } from "@/components/workflow/appeal-workflow-workspace";
+import { getWorkflow } from "@/domain/workflows";
 
 export const Route = createFileRoute("/workflows/reconsideration")({
-  head: () => ({
-    meta: [
-      { title: "Submit a Reconsideration Request — Appeal Mail" },
-      { name: "description", content: "Request an internal review or reconsideration before filing a formal appeal." },
-    ],
-  }),
-  component: Reconsideration,
+  head: () => ({ meta: [{ title: `${getWorkflow("reconsideration").title} — Appeal Mail` }, { name: "description", content: getWorkflow("reconsideration").description }] }),
+  component: () => <AppealWorkflowWorkspace workflowId="reconsideration" />,
 });
-
-function Reconsideration() {
-  return (
-    <WorkflowWizard
-      workflowId="reconsideration"
-      metaTitle="Submit a Reconsideration Request — Appeal Mail"
-      metaDescription="Request an internal review or reconsideration before filing a formal appeal."
-      componentName="Reconsideration"
-    />
-  );
-}
