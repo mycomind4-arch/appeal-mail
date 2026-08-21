@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
+    "prebuild": "node -e \"const fs=require('fs');fs.rmSync('node_modules/.nitro',{recursive:true,force:true})\"",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
