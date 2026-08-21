@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { getWorkflow } from "@/domain/workflows";
 import { requireAuthenticatedUser } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
@@ -24,43 +24,47 @@ async function resolveGemini() {
   return payload;
 }
 
-export const APIRoute = createAPIFileRoute("/api/workflows/$workflowId/analyze")({
-  POST: async ({ request, params }) => {
-    try {
-      const user = await requireAuthenticatedUser(request);
-      const workflow = getWorkflow(params.workflowId);
-      const form = await request.formData();
-      const file = form.get("document");
-      if (!(file instanceof File)) return Response.json({ error: "A source document is required." }, { status: 400 });
-      if (file.size === 0) return Response.json({ error: "The source document is empty." }, { status: 400 });
-      if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
+export const Route = createFileRoute("/api/workflows/$workflowId/analyze")({
+  server: {
+    handlers: {
+      POST: async ({ request, params }) => {
+        try {
+          const user = await requireAuthenticatedUser(request);
+          const workflow = getWorkflow(params.workflowId);
+          const form = await request.formData();
+          const file = form.get("document");
+          if (!(file instanceof File)) return Response.json({ error: "A source document is required." }, { status: 400 });
+          if (file.size === 0) return Response.json({ error: "The source document is empty." }, { status: 400 });
+          if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
 
-      const document = await uploadDocument(file);
-      const gemini = await resolveGemini();
-      const bytes = Buffer.from(await file.arrayBuffer()).toString("base64");
-      const prompt = [
-        `Workflow: ${workflow.title}`,
-        `Customer problem: ${workflow.description}`,
-        `Primary search intent: ${workflow.primaryKeyword || "specialized appeal/response"}`,
-        `Domain focus: ${workflow.focusAreas.join(", ")}`,
-        workflow.workflowPrompt,
-        "Return strict JSON only.",
-        "Never invent facts, dates, policy language, amounts, medical facts, deadlines, or outcomes.",
-        '{"summary":"","decision":"","decisionType":"","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","reasons":[],"keyFacts":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"evidenceMentioned":[],"uncertainties":[],"confidence":"high|medium|low"}',
-      ].join("\n");
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gemini.model)}:generateContent?key=${encodeURIComponent(gemini.apiKey)}`, {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ contents: [{ role: "user", parts: [{ inlineData: { mimeType: mediaType(file), data: bytes } }, { text: gemini.promptOverride || prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }),
-      });
-      const body = await response.json().catch(() => null) as any;
-      if (!response.ok) throw new Error(body?.error?.message || `Gemini analysis failed (${response.status}).`);
-      const text = body?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("").trim();
-      if (!text) throw new Error("Gemini returned no analysis.");
-      let analysis: unknown; try { analysis = JSON.parse(text); } catch { throw new Error("Gemini returned invalid structured analysis."); }
-      return Response.json({ ok: true, userId: user.id, workflowId: workflow.id, workflow: { title: workflow.title, primaryKeyword: workflow.primaryKeyword }, document, analysis, provider: "gemini", model: gemini.model });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to analyze document.";
-      return Response.json({ error: message }, { status: /authentication|required/i.test(message) ? 401 : 502 });
-    }
+          const document = await uploadDocument(file);
+          const gemini = await resolveGemini();
+          const bytes = Buffer.from(await file.arrayBuffer()).toString("base64");
+          const prompt = [
+            `Workflow: ${workflow.title}`,
+            `Customer problem: ${workflow.description}`,
+            `Primary search intent: ${workflow.primaryKeyword || "specialized appeal/response"}`,
+            `Domain focus: ${workflow.focusAreas.join(", ")}`,
+            workflow.workflowPrompt,
+            "Return strict JSON only.",
+            "Never invent facts, dates, policy language, amounts, medical facts, deadlines, or outcomes.",
+            '{"summary":"","decision":"","decisionType":"","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","reasons":[],"keyFacts":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"evidenceMentioned":[],"uncertainties":[],"confidence":"high|medium|low"}',
+          ].join("\n");
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gemini.model)}:generateContent?key=${encodeURIComponent(gemini.apiKey)}`, {
+            method: "POST", headers: { "content-type": "application/json" },
+            body: JSON.stringify({ contents: [{ role: "user", parts: [{ inlineData: { mimeType: mediaType(file), data: bytes } }, { text: gemini.promptOverride || prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }),
+          });
+          const body = await response.json().catch(() => null) as any;
+          if (!response.ok) throw new Error(body?.error?.message || `Gemini analysis failed (${response.status}).`);
+          const text = body?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("").trim();
+          if (!text) throw new Error("Gemini returned no analysis.");
+          let analysis: unknown; try { analysis = JSON.parse(text); } catch { throw new Error("Gemini returned invalid structured analysis."); }
+          return Response.json({ ok: true, userId: user.id, workflowId: workflow.id, workflow: { title: workflow.title, primaryKeyword: workflow.primaryKeyword }, document, analysis, provider: "gemini", model: gemini.model });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Unable to analyze document.";
+          return Response.json({ error: message }, { status: /authentication|required/i.test(message) ? 401 : 502 });
+        }
+      },
+    },
   },
 });

@@ -58,6 +58,8 @@ import { Route as WorkflowsUnemploymentDenialRouteImport } from './routes/workfl
 import { Route as ApiAdminAppealsRouteImport } from './routes/api/admin/appeals'
 import { Route as ApiAdminHealthRouteImport } from './routes/api/admin/health'
 import { Route as ApiAuthStatusRouteImport } from './routes/api/auth/status'
+import { Route as ApiWorkflowsWorkflowIdAnalyzeRouteImport } from './routes/api/workflows/$workflowId/analyze'
+import { Route as ApiWorkflowsWorkflowIdDraftRouteImport } from './routes/api/workflows/$workflowId/draft'
 import { Route as ApiWorkflowsCarInsuranceAppealApproveRouteImport } from './routes/api/workflows/car-insurance-appeal/approve'
 import { Route as ApiWorkflowsCarInsuranceAppealDraftRouteImport } from './routes/api/workflows/car-insurance-appeal/draft'
 import { Route as ApiWorkflowsClaimDenialLetterApproveRouteImport } from './routes/api/workflows/claim-denial-letter/approve'
@@ -389,6 +391,18 @@ const ApiAuthStatusRoute = ApiAuthStatusRouteImport.update({
   path: '/api/auth/status',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWorkflowsWorkflowIdAnalyzeRoute =
+  ApiWorkflowsWorkflowIdAnalyzeRouteImport.update({
+    id: '/api/workflows/$workflowId/analyze',
+    path: '/api/workflows/$workflowId/analyze',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsWorkflowIdDraftRoute =
+  ApiWorkflowsWorkflowIdDraftRouteImport.update({
+    id: '/api/workflows/$workflowId/draft',
+    path: '/api/workflows/$workflowId/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiWorkflowsCarInsuranceAppealApproveRoute =
   ApiWorkflowsCarInsuranceAppealApproveRouteImport.update({
     id: '/api/workflows/car-insurance-appeal/approve',
@@ -818,6 +832,8 @@ export interface FileRoutesByFullPath {
   '/api/admin/appeals': typeof ApiAdminAppealsRoute
   '/api/admin/health': typeof ApiAdminHealthRoute
   '/api/auth/status': typeof ApiAuthStatusRoute
+  '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
+  '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
   '/api/workflows/car-insurance-appeal/approve': typeof ApiWorkflowsCarInsuranceAppealApproveRoute
   '/api/workflows/car-insurance-appeal/draft': typeof ApiWorkflowsCarInsuranceAppealDraftRoute
   '/api/workflows/claim-denial-letter/approve': typeof ApiWorkflowsClaimDenialLetterApproveRoute
@@ -931,6 +947,8 @@ export interface FileRoutesByTo {
   '/api/admin/appeals': typeof ApiAdminAppealsRoute
   '/api/admin/health': typeof ApiAdminHealthRoute
   '/api/auth/status': typeof ApiAuthStatusRoute
+  '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
+  '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
   '/api/workflows/car-insurance-appeal/approve': typeof ApiWorkflowsCarInsuranceAppealApproveRoute
   '/api/workflows/car-insurance-appeal/draft': typeof ApiWorkflowsCarInsuranceAppealDraftRoute
   '/api/workflows/claim-denial-letter/approve': typeof ApiWorkflowsClaimDenialLetterApproveRoute
@@ -1046,6 +1064,8 @@ export interface FileRoutesById {
   '/api/admin/appeals': typeof ApiAdminAppealsRoute
   '/api/admin/health': typeof ApiAdminHealthRoute
   '/api/auth/status': typeof ApiAuthStatusRoute
+  '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
+  '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
   '/api/workflows/car-insurance-appeal/approve': typeof ApiWorkflowsCarInsuranceAppealApproveRoute
   '/api/workflows/car-insurance-appeal/draft': typeof ApiWorkflowsCarInsuranceAppealDraftRoute
   '/api/workflows/claim-denial-letter/approve': typeof ApiWorkflowsClaimDenialLetterApproveRoute
@@ -1162,6 +1182,8 @@ export interface FileRouteTypes {
     | '/api/admin/appeals'
     | '/api/admin/health'
     | '/api/auth/status'
+    | '/api/workflows/$workflowId/analyze'
+    | '/api/workflows/$workflowId/draft'
     | '/api/workflows/car-insurance-appeal/approve'
     | '/api/workflows/car-insurance-appeal/draft'
     | '/api/workflows/claim-denial-letter/approve'
@@ -1275,6 +1297,8 @@ export interface FileRouteTypes {
     | '/api/admin/appeals'
     | '/api/admin/health'
     | '/api/auth/status'
+    | '/api/workflows/$workflowId/analyze'
+    | '/api/workflows/$workflowId/draft'
     | '/api/workflows/car-insurance-appeal/approve'
     | '/api/workflows/car-insurance-appeal/draft'
     | '/api/workflows/claim-denial-letter/approve'
@@ -1389,6 +1413,8 @@ export interface FileRouteTypes {
     | '/api/admin/appeals'
     | '/api/admin/health'
     | '/api/auth/status'
+    | '/api/workflows/$workflowId/analyze'
+    | '/api/workflows/$workflowId/draft'
     | '/api/workflows/car-insurance-appeal/approve'
     | '/api/workflows/car-insurance-appeal/draft'
     | '/api/workflows/claim-denial-letter/approve'
@@ -1473,6 +1499,8 @@ export interface RootRouteChildren {
   ApiAdminAppealsRoute: typeof ApiAdminAppealsRoute
   ApiAdminHealthRoute: typeof ApiAdminHealthRoute
   ApiAuthStatusRoute: typeof ApiAuthStatusRoute
+  ApiWorkflowsWorkflowIdAnalyzeRoute: typeof ApiWorkflowsWorkflowIdAnalyzeRoute
+  ApiWorkflowsWorkflowIdDraftRoute: typeof ApiWorkflowsWorkflowIdDraftRoute
   ApiWorkflowsCarInsuranceAppealApproveRoute: typeof ApiWorkflowsCarInsuranceAppealApproveRoute
   ApiWorkflowsCarInsuranceAppealDraftRoute: typeof ApiWorkflowsCarInsuranceAppealDraftRoute
   ApiWorkflowsClaimDenialLetterApproveRoute: typeof ApiWorkflowsClaimDenialLetterApproveRoute
@@ -1881,6 +1909,20 @@ declare module '@tanstack/react-router' {
       path: '/api/auth/status'
       fullPath: '/api/auth/status'
       preLoaderRoute: typeof ApiAuthStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/$workflowId/analyze': {
+      id: '/api/workflows/$workflowId/analyze'
+      path: '/api/workflows/$workflowId/analyze'
+      fullPath: '/api/workflows/$workflowId/analyze'
+      preLoaderRoute: typeof ApiWorkflowsWorkflowIdAnalyzeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/$workflowId/draft': {
+      id: '/api/workflows/$workflowId/draft'
+      path: '/api/workflows/$workflowId/draft'
+      fullPath: '/api/workflows/$workflowId/draft'
+      preLoaderRoute: typeof ApiWorkflowsWorkflowIdDraftRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/workflows/car-insurance-appeal/approve': {
@@ -2423,6 +2465,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminAppealsRoute: ApiAdminAppealsRoute,
   ApiAdminHealthRoute: ApiAdminHealthRoute,
   ApiAuthStatusRoute: ApiAuthStatusRoute,
+  ApiWorkflowsWorkflowIdAnalyzeRoute: ApiWorkflowsWorkflowIdAnalyzeRoute,
+  ApiWorkflowsWorkflowIdDraftRoute: ApiWorkflowsWorkflowIdDraftRoute,
   ApiWorkflowsCarInsuranceAppealApproveRoute:
     ApiWorkflowsCarInsuranceAppealApproveRoute,
   ApiWorkflowsCarInsuranceAppealDraftRoute:
