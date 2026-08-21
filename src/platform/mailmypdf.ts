@@ -59,7 +59,11 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Authorization", `Bearer ${apiKey}`);
   headers.set("Accept", "application/json");
-  if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  // Only set Content-Type for non-FormData bodies.
+  // FormData bodies need the browser/worker to set multipart/form-data with boundary.
+  if (init.body && !(init.body instanceof FormData) && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
 
   const response = await fetch(`${baseUrl}${path}`, { ...init, headers });
   const text = await response.text();
