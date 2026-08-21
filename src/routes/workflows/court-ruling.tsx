@@ -1,23 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { WorkflowWizard } from "@/components/workflow/workflow-wizard";
+import { AppealWorkflowWorkspace } from "@/components/workflow/appeal-workflow-workspace";
+import { getWorkflow } from "@/domain/workflows";
 
 export const Route = createFileRoute("/workflows/court-ruling")({
-  head: () => ({
-    meta: [
-      { title: "Appeal a Court Ruling — Appeal Mail" },
-      { name: "description", content: "Prepare an appeal for a small claims, traffic, or municipal court decision." },
-    ],
-  }),
-  component: CourtRuling,
+  head: () => ({ meta: [{ title: `${getWorkflow("court-ruling").title} — Appeal Mail` }, { name: "description", content: getWorkflow("court-ruling").description }] }),
+  component: () => <AppealWorkflowWorkspace workflowId="court-ruling" />,
 });
-
-function CourtRuling() {
-  return (
-    <WorkflowWizard
-      workflowId="court-ruling"
-      metaTitle="Appeal a Court Ruling — Appeal Mail"
-      metaDescription="Prepare an appeal for a small claims, traffic, or municipal court decision."
-      componentName="CourtRuling"
-    />
-  );
-}
