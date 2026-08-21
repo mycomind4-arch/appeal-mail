@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
 import { createDecision } from "@/domain/decision";
@@ -24,7 +24,7 @@ async function resolveGemini() {
   return payload;
 }
 
-export const APIRoute = createAPIFileRoute("/api/workflows/ssi-denial/analyze")({ POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/ssi-denial/analyze")({server:{handlers:{POST:async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request);
     const workflow = getWorkflow("ssi-denial");
@@ -55,4 +55,4 @@ export const APIRoute = createAPIFileRoute("/api/workflows/ssi-denial/analyze")(
     if (error) throw new Error(`Unable to persist appeal case: ${error.message}`);
     return Response.json({ ok: true, appealId: appeal.id, workflowId: appeal.workflowId, workflow: { title: workflow.title, primaryKeyword: workflow.primaryKeyword }, document, analysis, provider: "gemini", model: gemini.model });
   } catch (error) { const message = error instanceof Error ? error.message : "Unable to analyze document."; return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 }); }
-} });
+} }}});

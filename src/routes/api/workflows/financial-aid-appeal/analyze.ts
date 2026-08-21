@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
 import { createDecision } from "@/domain/decision";
@@ -28,8 +28,10 @@ async function resolveGemini(task: "analysis") {
   return payload;
 }
 
-export const APIRoute = createAPIFileRoute("/api/workflows/financial-aid-appeal/analyze")({
-  POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/financial-aid-appeal/analyze")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
     try {
       const user = await requireAuthenticatedUser(request);
       const workflow = getWorkflow("financial-aid-appeal");
@@ -110,4 +112,6 @@ export const APIRoute = createAPIFileRoute("/api/workflows/financial-aid-appeal/
       return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 });
     }
   },
-});
+  },
+    },
+  });

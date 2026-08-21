@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
 import { createDecision } from "@/domain/decision";
@@ -20,7 +20,7 @@ async function resolveGemini() {
   if (!r.ok || !p?.apiKey || !p.model || p.provider !== "gemini") throw new Error("Gemini configuration is unavailable for this workflow.");
   return p;
 }
-export const APIRoute = createAPIFileRoute("/api/workflows/government-decision/analyze")({ POST: async ({request}) => {
+export const Route = createFileRoute("/api/workflows/government-decision/analyze")({server:{handlers:{POST:async ({request}) => {
   try {
     const user = await requireAuthenticatedUser(request);
     const workflow = getWorkflow("government-decision");
@@ -54,4 +54,4 @@ export const APIRoute = createAPIFileRoute("/api/workflows/government-decision/a
     if (error) throw new Error(`Unable to persist appeal case: ${error.message}`);
     return Response.json({ok:true,appealId:appeal.id,workflowId:appeal.workflowId,workflow:{title:workflow.title,primaryKeyword:workflow.primaryKeyword},document,analysis,provider:"gemini",model:gemini.model});
   } catch(error) { const message=error instanceof Error?error.message:"Unable to analyze government decision."; return Response.json({error:message},{status:/authentication|required|token/i.test(message)?401:502}); }
-} });
+} }}});

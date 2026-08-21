@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
 import { createDecision } from "@/domain/decision";
@@ -18,7 +18,7 @@ async function resolveGemini() {
   const p=await r.json().catch(()=>null) as {provider?:string;apiKey?:string;model?:string;promptOverride?:string}|null;
   if(!r.ok||!p?.apiKey||!p.model||p.provider!=="gemini") throw new Error("Gemini configuration is unavailable for this workflow."); return p;
 }
-export const APIRoute=createAPIFileRoute("/api/workflows/prior-authorization-denial/analyze")({POST:async({request})=>{try{
+export const Route=createFileRoute("/api/workflows/prior-authorization-denial/analyze")({server:{handlers:{POST:async({request})=>{try{
   const user=await requireAuthenticatedUser(request); const workflow=getWorkflow("prior-authorization-denial"); const form=await request.formData(); const file=form.get("document");
   if(!(file instanceof File)) return Response.json({error:"A prior-authorization denial is required."},{status:400}); if(!file.size)return Response.json({error:"The source document is empty."},{status:400}); if(file.size>20*1024*1024)return Response.json({error:"Source documents must be 20 MB or smaller."},{status:413});
   const document=await uploadDocument(file); const gemini=await resolveGemini(); const bytes=Buffer.from(await file.arrayBuffer()).toString("base64");
@@ -30,4 +30,4 @@ export const APIRoute=createAPIFileRoute("/api/workflows/prior-authorization-den
   const evidence=(analysis.evidenceMentioned||[]).map((label:string)=>createEvidence("document",label,{documentId:document.id,documentFilename:document.filename,uploadedAt:new Date().toISOString()})); evidence.unshift(createEvidence("document","Original prior-authorization denial",{documentId:document.id,documentFilename:document.filename,uploadedAt:new Date().toISOString()})); if(evidence.length&&grounds.length)grounds[0].supportingEvidenceIds=evidence.map(x=>x.id);
   const appeal=createAppeal("prior-authorization-denial",decision); appeal.grounds=grounds; appeal.evidence=evidence; appeal.updatedAt=new Date().toISOString(); const supabase=await getSupabaseServer(); const {error}=await supabase.from("appeals").insert({id:appeal.id,user_id:user.id,workflow_id:appeal.workflowId,status:appeal.status,decision:appeal.decision,grounds:appeal.grounds,evidence:appeal.evidence,arguments:appeal.arguments,draft:appeal.draft,review:null,packet:null,proof:null,timeline:appeal.timeline,version:1,created_at:appeal.createdAt,updated_at:appeal.updatedAt}); if(error)throw new Error(`Unable to persist appeal case: ${error.message}`);
   return Response.json({ok:true,appealId:appeal.id,workflowId:appeal.workflowId,workflow:{title:workflow.title,primaryKeyword:workflow.primaryKeyword},document,analysis,provider:"gemini",model:gemini.model});
-}catch(error){const message=error instanceof Error?error.message:"Unable to analyze prior-authorization denial.";return Response.json({error:message},{status:/authentication|required|token/i.test(message)?401:502});}}});
+}catch(error){const message=error instanceof Error?error.message:"Unable to analyze prior-authorization denial.";return Response.json({error:message},{status:/authentication|required|token/i.test(message)?401:502});}}}}});

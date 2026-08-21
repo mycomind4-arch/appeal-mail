@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
 import { createDecision } from "@/domain/decision";
@@ -26,7 +26,7 @@ async function resolveGemini() {
   return p;
 }
 
-export const APIRoute = createAPIFileRoute("/api/workflows/sap-appeal/analyze")({ POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/sap-appeal/analyze")({server:{handlers:{POST:async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request);
     const workflow = getWorkflow("sap-appeal");
@@ -104,4 +104,4 @@ export const APIRoute = createAPIFileRoute("/api/workflows/sap-appeal/analyze")(
     const message = error instanceof Error ? error.message : "Unable to analyze SAP decision.";
     return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 });
   }
-} });
+} }}});

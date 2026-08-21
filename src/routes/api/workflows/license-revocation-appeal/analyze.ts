@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
 import { createDecision } from "@/domain/decision";
@@ -20,7 +20,7 @@ async function resolveGemini() {
   if (!response.ok || !payload?.apiKey || !payload.model || payload.provider !== "gemini") throw new Error("Gemini configuration is unavailable for this workflow.");
   return payload;
 }
-export const APIRoute = createAPIFileRoute("/api/workflows/license-revocation-appeal/analyze")({ POST: async ({ request }) => {
+export const Route = createFileRoute("/api/workflows/license-revocation-appeal/analyze")({server:{handlers:{POST:async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request);
     const workflow = getWorkflow("license-revocation-appeal");
@@ -54,4 +54,4 @@ export const APIRoute = createAPIFileRoute("/api/workflows/license-revocation-ap
     const message = error instanceof Error ? error.message : "Unable to analyze license revocation.";
     return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 });
   }
-} });
+} }}});
