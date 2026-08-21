@@ -28,5 +28,5 @@ test("license-revocation-appeal is Gold-standard configured", async () => {
   const checkout = await fs.readFile(required[3], "utf8");
   assert.match(checkout, /STRIPE_SECRET_KEY/); assert.match(checkout, /a\.status !== "ready"/); assert.match(checkout, /workflow_id: "license-revocation-appeal"/);
   const workspace = await fs.readFile(required[4], "utf8");
-  assert.match(workspace, /Understand it\. Build it\. Send it\./); assert.match(workspace, /\/api\/workflows\/license-revocation-appeal\/analyze/); assert.match(workspace, /\/api\/workflows\/license-revocation-appeal\/draft/); assert.match(workspace, /\/api\/workflows\/license-revocation-appeal\/approve/); assert.match(workspace, /\/api\/workflows\/license-revocation-appeal\/checkout/); assert.match(workspace, /Approve & prepare to send/);
+  assert.match(workspace, /Build and send your appeal/); assert.match(workspace, /\/api\/workflows\/license-revocation-appeal\/analyze/); assert.match(workspace, /\/api\/workflows\/license-revocation-appeal\/draft/); assert.match(workspace, /\/api\/workflows\/license-revocation-appeal\/approve/); assert.match(workspace, /\/api\/workflows\/license-revocation-appeal\/checkout/); assert.match(workspace, /Approve & prepare to send/);
 });

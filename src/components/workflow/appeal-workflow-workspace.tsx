@@ -28,7 +28,7 @@ async function getAccessToken(): Promise<string> {
   return data.session.access_token;
 }
 
-export function AppealWorkflowWorkspace({ workflowId }: { workflowId: WorkflowId }) {
+export function AppealWorkflowWorkspace({ workflowId, suppressH1 = false }: { workflowId: WorkflowId; suppressH1?: boolean }) {
   const workflow = workflows[workflowId];
   const insuranceMode = workflowId === "insurance-claim-denial";
   const [stage, setStage] = useState<Stage>("understand");
@@ -123,7 +123,7 @@ export function AppealWorkflowWorkspace({ workflowId }: { workflowId: WorkflowId
       <div className="mx-auto max-w-5xl">
         <header className="mb-10">
           <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{workflow.title}</div>
-          <h1 className="mt-3 font-serif text-4xl md:text-5xl">Understand it. Build it. Send it.</h1>
+          {suppressH1 ? <h2 className="mt-3 font-serif text-2xl md:text-3xl">Build and send your appeal</h2> : <h1 className="mt-3 font-serif text-4xl md:text-5xl">Understand it. Build it. Send it.</h1>}
           <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">{workflow.description} Upload the source document and let the system do the hard work while you stay in control.</p>
           <div className="mt-6 h-1 overflow-hidden rounded-full bg-muted"><div className="h-full bg-foreground transition-all" style={{ width: `${progress}%` }} /></div>
           <div className="mt-2 flex justify-between text-[11px] uppercase tracking-widest text-muted-foreground"><span className={stage === "understand" ? "text-foreground" : ""}>Understand</span><span className={stage === "build" ? "text-foreground" : ""}>Build</span><span className={stage === "send" ? "text-foreground" : ""}>Send</span></div>
@@ -131,7 +131,7 @@ export function AppealWorkflowWorkspace({ workflowId }: { workflowId: WorkflowId
 
         {error && <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"><AlertTriangle size={16} className="mt-0.5 shrink-0" />{error}</div>}
 
-        {stage === "understand" && <section className="rounded-2xl border border-rule bg-paper-deep p-8"><div className="mx-auto max-w-2xl text-center">
+        {stage === "understand" && <section id={suppressH1 ? "workflow-start" : undefined} className="rounded-2xl border border-rule bg-paper-deep p-8"><div className="mx-auto max-w-2xl text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-rule bg-paper"><Upload size={24} /></div>
           <h2 className="mt-5 font-serif text-3xl">Start with your document</h2>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">PDF, PNG, or JPG. We analyze the actual document—no retyping required.</p>

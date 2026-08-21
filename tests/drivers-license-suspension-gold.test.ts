@@ -50,7 +50,7 @@ test("drivers-license-suspension is Gold-standard configured", async () => {
   assert.match(checkout, /workflow_id:"drivers-license-suspension"/);
 
   const workspace = await fs.readFile(required[4], "utf8");
-  assert.match(workspace, /Understand it\. Build it\. Send it\./);
+  assert.match(workspace, /Build and send your appeal/);
   assert.match(workspace, /\/api\/workflows\/drivers-license-suspension\/analyze/);
   assert.match(workspace, /\/api\/workflows\/drivers-license-suspension\/draft/);
   assert.match(workspace, /\/api\/workflows\/drivers-license-suspension\/approve/);
