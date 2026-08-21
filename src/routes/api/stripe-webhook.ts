@@ -14,21 +14,30 @@ export const Route = createFileRoute("/api/stripe-webhook")({
     handlers: {
       POST: async ({ request }) => {
         const { default: Stripe } = await import("stripe");
-        const { createClient } = await import("@supabase/supabase-js");
 
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-          apiVersion: "2024-06-20" as Stripe.LatestApiVersion,
-        });
-
+        const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
         const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
         const signature = request.headers.get("stripe-signature");
 
-        if (!signature || !webhookSecret) {
-          return new Response(JSON.stringify({ error: "Missing signature or webhook secret" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-          });
+        // Configuration check — return 503 if Stripe is not configured
+        if (!stripeSecretKey || !webhookSecret) {
+          return new Response(
+            JSON.stringify({ error: "Stripe webhook is not configured. Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET." }),
+            { status: 503, headers: { "Content-Type": "application/json" } }
+          );
         }
+
+        // Signature check — return 400 if signature header is missing
+        if (!signature) {
+          return new Response(
+            JSON.stringify({ error: "Missing Stripe signature header." }),
+            { status: 400, headers: { "Content-Type": "application/json" } }
+          );
+        }
+
+        const stripe = new Stripe(stripeSecretKey, {
+          apiVersion: "2024-06-20" as Stripe.LatestApiVersion,
+        });
 
         const body = await request.text();
 
@@ -36,11 +45,13 @@ export const Route = createFileRoute("/api/stripe-webhook")({
         try {
           event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
         } catch (err) {
-          return new Response(JSON.stringify({ error: `Webhook signature verification failed: ${(err as Error).message}` }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-          });
+          return new Response(
+            JSON.stringify({ error: `Webhook signature verification failed: ${(err as Error).message}` }),
+            { status: 400, headers: { "Content-Type": "application/json" } }
+          );
         }
+
+        const { createClient } = await import("@supabase/supabase-js");
 
         switch (event.type) {
           case "checkout.session.completed": {
