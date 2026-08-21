@@ -51,6 +51,7 @@ export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/draft")(
         id: evidenceId,
         type: "document",
         label: payload.extracted?.issuer ? `${payload.extracted.issuer} denial` : "Denial document",
+        documentId: existing.decision?.documentId,
         documentFilename: existing.decision?.documentFilename,
         groundIds: [] as string[],
         uploadedAt: new Date().toISOString(),
