@@ -24,6 +24,7 @@ export function DeniedClaimWorkspace() {
   const [analyzing, setAnalyzing] = useState(false);
   const [building, setBuilding] = useState(false);
   const [approving, setApproving] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisPayload | null>(null);
   const [draft, setDraft] = useState("");
   const [validation, setValidation] = useState("");
@@ -106,6 +107,28 @@ export function DeniedClaimWorkspace() {
     }
   }
 
+  async function checkout() {
+    if (!analysis?.appealId || !approved) return;
+    setCheckingOut(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      const response = await fetch("/api/workflows/denied-claim/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+        credentials: "include",
+        body: JSON.stringify({ appealId: analysis.appealId }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || !payload?.url) throw new Error(payload?.error || "Checkout could not be created.");
+      window.location.assign(payload.url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Checkout failed.");
+    } finally {
+      setCheckingOut(false);
+    }
+  }
+
   const recipientComplete = recipient.name && recipient.address1 && recipient.city && recipient.state && recipient.zip;
 
   return (
@@ -176,7 +199,7 @@ export function DeniedClaimWorkspace() {
 
             {review && <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Readiness review</div><div className="mt-2 text-2xl font-semibold">{review.score}/100</div><p className="mt-2 text-sm text-muted-foreground">{review.issuesRequiringAttention} item(s) require attention.</p></div>}
 
-            <div className="mt-6 flex flex-wrap gap-3"><button disabled={!recipientComplete || approving || approved} onClick={approveAndPrepareSend} className={`rounded-full border px-5 py-3 text-sm disabled:opacity-40 ${approved ? "bg-foreground text-background" : "border-foreground"}`}>{approved ? "Approved and ready" : approving ? "Checking readiness…" : "Approve & prepare to send"}</button><button disabled={!approved} className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm text-background disabled:opacity-40"><Send size={16} /> Continue to payment</button></div>
+            <div className="mt-6 flex flex-wrap gap-3"><button disabled={!recipientComplete || approving || approved} onClick={approveAndPrepareSend} className={`rounded-full border px-5 py-3 text-sm disabled:opacity-40 ${approved ? "bg-foreground text-background" : "border-foreground"}`}>{approved ? "Approved and ready" : approving ? "Checking readiness…" : "Approve & prepare to send"}</button><button disabled={!approved || checkingOut} onClick={checkout} className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm text-background disabled:opacity-40"><Send size={16} />{checkingOut ? "Opening payment…" : "Continue to payment"}</button></div>
           </section>
         )}
       </div>
