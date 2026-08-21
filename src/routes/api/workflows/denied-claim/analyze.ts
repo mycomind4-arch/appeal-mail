@@ -30,9 +30,7 @@ function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   throw new Error("Denied Claim currently accepts PDF, PNG, and JPEG source documents.");
 }
 
-function asString(value: unknown): string {
-  return typeof value === "string" ? value : "";
-}
+function asString(value: unknown): string { return typeof value === "string" ? value : ""; }
 
 export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/analyze")({
   POST: async ({ request }) => {
@@ -56,16 +54,14 @@ export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/analyze"
             role: "user",
             parts: [
               { inlineData: { mimeType: mediaType(file), data: bytes } },
-              {
-                text: provider.promptOverride || [
-                  "You are the document-intelligence analyst for a denied-claim appeal workflow.",
-                  "Analyze the supplied denial document and return strict JSON only.",
-                  "Extract only information supported by the document. Never invent facts, dates, policy language, diagnoses, amounts, deadlines, or outcomes.",
-                  "Return this shape:",
-                  '{"summary":"","decision":"","decisionType":"","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","denialReasons":[],"keyFacts":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"evidenceMentioned":[],"sourceCitations":[{"page":0,"claim":""}],"uncertainties":[],"confidence":"high|medium|low"}',
-                  "Use empty strings or arrays when the document does not provide a value.",
-                ].join("\\n"),
-              },
+              { text: provider.promptOverride || [
+                "You are the document-intelligence analyst for a denied-claim appeal workflow.",
+                "Analyze the supplied denial document and return strict JSON only.",
+                "Extract only information supported by the document. Never invent facts, dates, policy language, diagnoses, amounts, deadlines, or outcomes.",
+                "Return this shape:",
+                '{"summary":"","decision":"","decisionType":"","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","denialReasons":[],"keyFacts":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"evidenceMentioned":[],"sourceCitations":[{"page":0,"claim":""}],"uncertainties":[],"confidence":"high|medium|low"}',
+                "Use empty strings or arrays when the document does not provide a value.",
+              ].join("\\n") },
             ],
           }],
           generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
@@ -78,12 +74,11 @@ export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/analyze"
 
       const analysis = JSON.parse(text) as Record<string, unknown>;
       const now = new Date().toISOString();
-      const decisionId = crypto.randomUUID();
       const appealId = crypto.randomUUID();
+      const decisionId = crypto.randomUUID();
       const keyFacts = Array.isArray(analysis.keyFacts) ? analysis.keyFacts : [];
       const denialReasons = Array.isArray(analysis.denialReasons) ? analysis.denialReasons : [];
       const issues = Array.isArray(analysis.issues) ? analysis.issues : [];
-
       const facts = keyFacts.map((fact, index) => ({
         id: crypto.randomUUID(),
         label: typeof fact === "string" ? `Extracted fact ${index + 1}` : asString((fact as any)?.label) || `Extracted fact ${index + 1}`,
@@ -91,32 +86,13 @@ export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/analyze"
         source: "extracted",
         confidence: 0.9,
       }));
-
-      const reasons = denialReasons.map((reason) => ({
-        id: crypto.randomUUID(),
-        text: asString(reason),
-        confidence: 0.9,
-      })).filter((reason) => reason.text.length > 0);
-
+      const reasons = denialReasons.map((reason) => ({ id: crypto.randomUUID(), text: asString(reason), confidence: 0.9 })).filter((reason) => reason.text.length > 0);
       const decisionIssues = issues.map((issue) => {
         const item = typeof issue === "string" ? { issue } : issue as any;
-        return {
-          id: crypto.randomUUID(),
-          description: asString(item.issue) || asString(item.description),
-          type: "factual_dispute",
-          severity: "medium",
-          sourceExcerpt: asString(item.whyItMatters),
-        };
+        return { id: crypto.randomUUID(), description: asString(item.issue) || asString(item.description), type: "factual_dispute", severity: "medium", sourceExcerpt: asString(item.whyItMatters) };
       }).filter((issue) => issue.description.length > 0);
-
       const deadlineValue = asString(analysis.deadline);
-      const deadline = deadlineValue ? {
-        date: deadlineValue,
-        type: "appeal",
-        source: "extracted",
-        appealInstructions: asString(analysis.appealInstructions),
-      } : undefined;
-
+      const deadline = deadlineValue ? { date: deadlineValue, type: "appeal", source: "extracted", appealInstructions: asString(analysis.appealInstructions) } : undefined;
       const decision = {
         id: decisionId,
         type: "claim_denial",
@@ -157,7 +133,16 @@ export const APIRoute = createAPIFileRoute("/api/workflows/denied-claim/analyze"
       });
       if (insertError) throw new Error(`Unable to save appeal: ${insertError.message}`);
 
-      return Response.json({ ok: true, workflowId: "denied-claim", appealId, fileName: file.name, analysis, provider: "gemini", model: provider.model });
+      return Response.json({
+        ok: true,
+        workflowId: "denied-claim",
+        appealId,
+        fileName: file.name,
+        extracted: analysis,
+        analysis: { analysisText: asString(analysis.summary), structured: analysis },
+        provider: "gemini",
+        model: provider.model,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to analyze document.";
       const status = /authentication|required|token/i.test(message) ? 401 : 502;
