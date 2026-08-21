@@ -3,6 +3,7 @@ import { Upload, Sparkles, CheckCircle2, Send, FileText, AlertTriangle, ArrowRig
 
 type Stage = "understand" | "build" | "send";
 type AnalysisPayload = {
+  appealId?: string;
   extracted?: { summary?: string; decision?: string; deadline?: string; denialReasons?: string[]; facts?: Record<string, unknown>; evidenceMentions?: string[]; uncertainties?: string[] };
   analysis?: { analysisText?: string };
 };
@@ -51,7 +52,7 @@ export function DeniedClaimWorkspace() {
   }
 
   async function build() {
-    if (!analysis) return;
+    if (!analysis?.appealId) return;
     setBuilding(true);
     setError(null);
     try {
@@ -60,7 +61,7 @@ export function DeniedClaimWorkspace() {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
         credentials: "include",
-        body: JSON.stringify({ extracted: analysis.extracted, analysis: analysis.analysis }),
+        body: JSON.stringify({ appealId: analysis.appealId, extracted: analysis.extracted, analysis: analysis.analysis }),
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw new Error(payload?.error || "Drafting failed.");
@@ -113,7 +114,7 @@ export function DeniedClaimWorkspace() {
             </div>
             <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><h3 className="font-serif text-xl">What the analysis says</h3><p className="mt-3 whitespace-pre-wrap text-sm leading-7">{analysis.analysis?.analysisText || analysis.extracted?.summary || "No summary returned."}</p></div>
             {analysis.extracted?.denialReasons?.length ? <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><h3 className="font-serif text-xl">Reasons for denial</h3><ul className="mt-3 list-disc space-y-2 pl-5 text-sm">{analysis.extracted.denialReasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></div> : null}
-            <button disabled={building} onClick={build} className="mt-8 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm text-background disabled:opacity-40"><Sparkles size={16} />{building ? "Building your appeal…" : "Build my appeal"}<ArrowRight size={16} /></button>
+            <button disabled={building || !analysis.appealId} onClick={build} className="mt-8 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm text-background disabled:opacity-40"><Sparkles size={16} />{building ? "Building your appeal…" : "Build my appeal"}<ArrowRight size={16} /></button>
           </section>
         )}
 
