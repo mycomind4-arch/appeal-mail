@@ -48,6 +48,7 @@ export const APIRoute = createAPIFileRoute("/api/workflows/insurance-claim-denia
         `Focus on: ${workflow.focusAreas.join(", ")}.`,
         "Use only the supplied facts. Do not invent policy language, law, facts, dates, amounts, deadlines, medical facts, or outcomes.",
         "Write a professional insurance claim appeal that a human can review and edit.",
+        "End with the exact placeholder [Your Name] on its own line so the customer can complete the signature.",
         `CASE ANALYSIS:\n${JSON.stringify(analysis)}`,
       ].join("\n\n"));
       const validation = await callGemini(validationConfig, [
