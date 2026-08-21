@@ -187,6 +187,7 @@ export function loadCapabilities(def: WorkflowDefinition, packs?: DomainPackSet)
   }
   if (packs?.draft) caps.add("drafting");
   if (packs?.validation) caps.add("draft-validation");
+  if (packs?.validation) caps.add("readiness-review");
   if (packs?.submission) {
     caps.add("submission");
     if (packs.submission.supportsMailing) caps.add("mailing");

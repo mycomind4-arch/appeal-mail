@@ -33,11 +33,11 @@ test("license suspension Gold endpoints are present and wired to Gemini/server g
   assert.match(analyze, /control-plane\/ai/);
   assert.match(analyze, /generateContent/);
   assert.match(analyze, /from\("appeals"\)\.insert/);
-  assert.match(draft, /task\)/);
+  assert.match(draft, /task\}\)/);
   assert.match(draft, /draft|validation/);
   assert.match(approve, /runReadinessReview/);
   assert.match(approve, /assemblePacket/);
-  assert.match(approve, /status===\"ready\"/);
+  assert.match(approve, /status: ?\"ready\"/);
   assert.match(checkout, /checkout\.sessions\.create/);
   assert.match(checkout, /status!==\"ready\"/);
   assert.match(workspace, /Understand it\. Build it\. Send it\./);

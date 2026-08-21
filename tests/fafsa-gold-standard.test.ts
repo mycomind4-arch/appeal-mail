@@ -46,7 +46,7 @@ test("FAFSA analysis uses centralized Gemini configuration and persists the case
 
 test("FAFSA draft path has independent Gemini validation and optimistic concurrency", () => {
   const source = read("src/routes/api/workflows/fafsa-appeal/draft.ts");
-  assert.match(source, /task\)/);
+  assert.match(source, /task\}\)/);
   assert.match(source, /resolveGemini\("draft"\)/);
   assert.match(source, /resolveGemini\("validation"\)/);
   assert.match(source, /DRAFT:/);

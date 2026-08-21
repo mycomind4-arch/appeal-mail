@@ -25,7 +25,15 @@ function baseWorkflow() {
       "response-strategy", "drafting", "draft-validation", "readiness-review", "submission",
       "mailing", "proof",
     ],
-    packs: {},
+    packs: {
+      document: { name: "test", acceptedTypes: [], classifierHints: [], extractionSchema: [], minConfidence: 0.5 },
+      deadline: { name: "test", triggeringEvents: [], sourcePriority: [], jurisdictionDependent: false, computationRules: [] },
+      evidence: { name: "test", evidenceTypes: [], sufficiencyRules: [], contradictionRules: [], missingEvidenceBehavior: "" },
+      analysis: { name: "test", capabilities: ["contradiction-analysis", "xray-analysis", "timeline-analysis", "stress-testing", "response-strategy"], orderedChecks: [], riskFactors: [], outputSections: [] },
+      draft: { name: "test", draftType: "", requiredSections: [], prohibitedUnsupportedClaims: [], toneRules: [] },
+      validation: { name: "test", factualChecks: [], requirementChecks: [], unsupportedAssertionChecks: [], adversarialChecks: [] },
+      submission: { name: "test", methods: [], recipientRules: [], supportsMailing: true, supportsTracking: true, proofRequirements: ["tracking number"] },
+    } as never,
     qualityGate: {
       documentRecognition: true,
       factGrounding: true,
@@ -48,7 +56,9 @@ test("complete workflow passes strict gold-standard gate", () => {
 
 test("missing capability blocks gold-standard certification", () => {
   const workflow = baseWorkflow();
-  workflow.capabilities = workflow.capabilities.filter((capability) => capability !== "response-strategy");
+  (workflow.packs as any).analysis.capabilities = (workflow.packs as any).analysis.capabilities.filter(
+    (c: string) => c !== "response-strategy",
+  );
   const result = evaluateGoldStandardGate(workflow);
   assert.equal(result.passed, false);
   assert.ok(result.missingCapabilities.includes("response-strategy"));
