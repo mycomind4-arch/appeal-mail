@@ -1,27 +1,28 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext, Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Home, ArrowRight, Scale } from "lucide-react";
+import { Home, ArrowRight, Scale, Mail } from "lucide-react";
 import appCss from "../styles.css?url";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { AuthProvider } from "@/lib/auth";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Appeal Mail — Appeal denied claims and decisions with confidence" },
-      { name: "description", content: "Guided workflows to prepare, review, send, and track appeals for denied claims, government decisions, court rulings, and reconsideration requests. Physical mail with proof of delivery. Not a law firm — you control the facts." },
+      { title: "Appeal Mail — Understand the Decision. Build the Appeal. Mail It." },
+      { name: "description", content: "Understand adverse decisions, organize evidence, build supported appeals, and mail them with proof of delivery. A MailMyPDF product." },
       { name: "robots", content: "index,follow" },
-      { name: "theme-color", content: "#312e81" },
-      { property: "og:title", content: "Appeal Mail — Appeal denied claims and decisions with confidence" },
-      { property: "og:description", content: "Prepare, review, send, track, and keep a record of your appeals." },
+      { name: "theme-color", content: "#1a1f2e" },
+      { property: "og:title", content: "Appeal Mail — Understand the Decision. Build the Appeal. Mail It." },
+      { property: "og:description", content: "Analyze decisions, organize evidence, build supported appeals, and send with proof of delivery. A MailMyPDF product." },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Appeal Mail" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Appeal Mail — Prepare and send appeals for denied claims and decisions" },
-      { name: "twitter:description", content: "Guided workflows, physical mail with tracking, and proof of delivery." },
+      { name: "twitter:title", content: "Appeal Mail — Understand the Decision. Build the Appeal. Mail It." },
+      { name: "twitter:description", content: "Guided workflows, physical mail with tracking, and proof of delivery. A MailMyPDF product." },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -48,7 +49,9 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

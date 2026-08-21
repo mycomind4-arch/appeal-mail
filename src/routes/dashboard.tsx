@@ -1,282 +1,209 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useMemo } from "react";
-import { PackageCheck, Clock, CheckCircle2, FileText, TrendingUp, Mail, ArrowRight, Search, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { FolderOpen, Mail, Settings, Plus, ChevronRight, Scale, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { listMailings } from "@/platform/appeal-repository";
+import { useAuth } from "@/lib/auth";
+import { workflows } from "@/domain/workflows";
+import { isAuthConfigured } from "@/lib/auth-guard";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [
-    { title: "My Mailings — Appeal Mail" },
-    { name: "description", content: "View your mailing history, tracking status, and delivery records." },
-    { name: "robots", content: "noindex,nofollow" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "My Cases — Appeal Mail" },
+      { name: "description", content: "View your active cases, documents, mailing history, and account." },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: DashboardPage,
 });
 
-const statusConfig: Record<string, { label: string; badge: string }> = {
-  paid:          { label: "Paid",        badge: "badge badge-indigo" },
-  submitted:     { label: "Submitted",   badge: "badge badge-indigo" },
-  in_transit:    { label: "In transit",   badge: "badge badge-amber" },
-  mailed:        { label: "Mailed",       badge: "badge badge-amber" },
-  delivered:     { label: "Delivered",    badge: "badge badge-green" },
-  failed:        { label: "Failed",       badge: "badge badge-amber" },
-  cancelled:     { label: "Cancelled",    badge: "badge badge-indigo" },
-  refunded:      { label: "Refunded",     badge: "badge badge-indigo" },
-  draft:         { label: "Draft",        badge: "badge badge-indigo" },
-  ready:         { label: "Ready",        badge: "badge badge-indigo" },
-};
+type Tab = "cases" | "mailings" | "account";
 
 function DashboardPage() {
-  const [mailings, setMailings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const { user, loading: authLoading, isConfigured } = useAuth();
+  const [tab, setTab] = useState<Tab>("cases");
 
-  // Get the current user from Supabase auth session
-  useEffect(() => {
-    async function getUser() {
-      try {
-        const { getSupabaseClient } = await import("@/platform/supabase");
-        const supabase = await getSupabaseClient();
-        if (!supabase) return;
-
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          setUser({ id: session.user.id, email: session.user.email || "" });
-        }
-      } catch {
-        // Not logged in or Supabase not configured — that's fine
-      }
-    }
-    getUser();
-  }, []);
-
-  // Load mailings from the server function
-  useEffect(() => {
-    async function loadMailings() {
-      try {
-        setLoading(true);
-        setError(null);
-        const result = await listMailings({ data: { userId: user?.id || "anonymous", limit: 100 } });
-        setMailings(result.mailings);
-      } catch (err) {
-        setError("Could not load mailings. Database may not be configured yet.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadMailings();
-  }, [user]);
-
-  // Filter mailings by search query (client-side)
-  const filteredMailings = useMemo(() => {
-    if (!search.trim()) return mailings;
-    const q = search.toLowerCase();
-    return mailings.filter((m) =>
-      m.id?.toLowerCase().includes(q) ||
-      m.recipient?.name?.toLowerCase().includes(q) ||
-      m.workflowId?.toLowerCase().includes(q) ||
-      m.mailingMethod?.toLowerCase().includes(q) ||
-      m.trackingNumber?.toLowerCase().includes(q)
+  if (!authLoading && !user) {
+    return (
+      <main className="min-h-screen bg-cream">
+        <SiteHeader />
+        <section className="py-20 md:py-32">
+          <div className="container max-w-md text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full" style={{ background: "color-mix(in oklab, var(--stamp) 10%, transparent)" }}>
+              <Scale size={28} className="text-stamp" />
+            </div>
+            <h1 className="mt-6 text-2xl font-bold text-ink" style={{ fontFamily: "var(--font-serif)" }}>
+              Sign in to your MailMyPDF Account
+            </h1>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Create an account or sign in to save your appeals, track mailings, and keep proof of delivery.
+            </p>
+            {!isConfigured && (
+              <p className="mt-3 rounded-lg border border-info/30 bg-info-bg px-4 py-2 text-xs text-info">
+                MailMyPDF Account authentication is being configured. Check back soon.
+              </p>
+            )}
+            <Link to="/auth" className="btn-amber mt-6">Sign in <ArrowRight size={16} /></Link>
+          </div>
+        </section>
+        <SiteFooter />
+      </main>
     );
-  }, [mailings, search]);
+  }
 
-  // Compute stats from real data
-  const total = mailings.length;
-  const inTransit = mailings.filter((m) => ["in_transit", "mailed", "submitted"].includes(m.status)).length;
-  const deliveredCount = mailings.filter((m) => m.status === "delivered").length;
-  const drafts = mailings.filter((m) => m.status === "draft").length;
-
-  const stats = [
-    { label: "Total mailings", value: total, icon: Mail, color: "text-indigo-700" },
-    { label: "In transit",     value: inTransit, icon: PackageCheck, color: "text-amber-500" },
-    { label: "Delivered",      value: deliveredCount, icon: CheckCircle2, color: "text-amber-600" },
-    { label: "Draft appeals",  value: drafts, icon: FileText, color: "text-slate-400" },
-  ];
-
-  // Latest tracking — find the most recent mailing with a tracking number
-  const latestTracked = mailings.find((m) => m.trackingNumber && ["in_transit", "mailed", "delivered"].includes(m.status));
+  if (authLoading) {
+    return (
+      <main className="min-h-screen bg-cream">
+        <SiteHeader />
+        <div className="flex items-center justify-center py-32"><Loader2 size={20} className="animate-spin text-muted-foreground" /></div>
+        <SiteFooter />
+      </main>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-cream"><SiteHeader />
-      <section className="bg-white py-10 border-b border-warm-border"><div className="container">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>My Mailings</h1>
-            <p className="mt-1 text-sm text-slate-400">Track your appeals and delivery records.</p>
+    <main className="min-h-screen bg-cream">
+      <SiteHeader />
+      <section className="border-b border-rule/60 bg-card">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">MailMyPDF Account</div>
+              <h1 className="mt-1 text-3xl font-bold text-ink" style={{ fontFamily: "var(--font-serif)" }}>
+                {user!.fullName || user!.email?.split("@")[0] || "My Dashboard"}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">{user!.email}</p>
+            </div>
+            <Link to="/workflows" className="btn-amber"><Plus size={16} /> Start a new appeal</Link>
           </div>
-          <Link to="/workflows/denied-claim" className="btn-amber">New mailing <ArrowRight size={16} /></Link>
+          <div className="mt-6 flex gap-1 border-b border-rule">
+            {[
+              { key: "cases" as const, label: "Cases", icon: FolderOpen },
+              { key: "mailings" as const, label: "Mailings", icon: Mail },
+              { key: "account" as const, label: "Account", icon: Settings },
+            ].map((t) => (
+              <button key={t.key} onClick={() => setTab(t.key)}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === t.key ? "border-stamp text-ink" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+                <t.icon size={15} /> {t.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div></section>
-
-      <section className="py-8"><div className="container">
-        {/* Stats — computed from real data */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="card p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-400">{label}</p>
-                  <p className="mt-1 text-2xl font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>{value}</p>
-                </div>
-                <Icon size={24} className={color} />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Error state */}
-        {error && (
-          <div className="mt-8 alert alert-warning">
-            <AlertCircle size={18} className="inline mr-2" /> {error}
-            <div className="mt-2 text-xs text-slate-500">
-              To enable persistence, run <code className="font-mono">supabase/schema.sql</code> in your Supabase SQL editor and add the environment variables from <code className="font-mono">.env.example</code>.
-            </div>
-          </div>
-        )}
-
-        {/* Loading state */}
-        {loading && (
-          <div className="mt-8 card p-12 text-center">
-            <div className="animate-pulse text-slate-400">Loading your mailings…</div>
-          </div>
-        )}
-
-        {/* Empty state */}
-        {!loading && !error && mailings.length === 0 && (
-          <div className="mt-8 card p-12 text-center">
-            <Mail size={32} className="mx-auto text-slate-300" />
-            <h2 className="mt-4 text-lg font-semibold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>No mailings yet</h2>
-            <p className="mt-2 text-sm text-slate-400">Start your first appeal to see it here.</p>
-            <Link to="/workflows/denied-claim" className="btn-amber mt-4">Start an appeal <ArrowRight size={16} /></Link>
-          </div>
-        )}
-
-        {/* Mailings table */}
-        {!loading && !error && filteredMailings.length > 0 && (
-          <div className="mt-8 card overflow-hidden">
-            <div className="flex items-center justify-between border-b border-warm-border px-5 py-4">
-              <h2 className="font-semibold text-indigo-700">Recent mailings</h2>
-              <div className="relative">
-                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
-                <input
-                  className="input-field pl-9 py-2 text-sm"
-                  placeholder="Search mailings..."
-                  style={{ width: 200 }}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Desktop table */}
-            <div className="hidden md:block">
-              <table className="w-full text-sm">
-                <thead className="bg-indigo-50 text-left text-xs font-semibold text-indigo-500">
-                  <tr>
-                    <th className="px-5 py-3">Reference</th>
-                    <th className="px-5 py-3">Type</th>
-                    <th className="px-5 py-3">Recipient</th>
-                    <th className="px-5 py-3">Date</th>
-                    <th className="px-5 py-3">Mail type</th>
-                    <th className="px-5 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-warm-border">
-                  {filteredMailings.map((m) => (
-                    <tr key={m.id} className="hover:bg-cream transition-colors cursor-pointer">
-                      <td className="px-5 py-3.5 font-mono text-xs font-semibold text-indigo-700">{m.id.slice(0, 12)}</td>
-                      <td className="px-5 py-3.5 text-slate-500">{m.workflowId?.replace(/-/g, " ") || "—"}</td>
-                      <td className="px-5 py-3.5 text-slate-500">{m.recipient?.name || "—"}</td>
-                      <td className="px-5 py-3.5 text-slate-400">{m.createdAt ? new Date(m.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</td>
-                      <td className="px-5 py-3.5 text-slate-400 capitalize">{m.mailingMethod || "—"}</td>
-                      <td className="px-5 py-3.5">
-                        <span className={(statusConfig[m.status] || statusConfig.draft).badge}>
-                          {(statusConfig[m.status] || statusConfig.draft).label}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile cards */}
-            <div className="divide-y divide-warm-border md:hidden">
-              {filteredMailings.map((m) => (
-                <div key={m.id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-semibold text-indigo-700">{m.id.slice(0, 12)}</span>
-                    <span className={(statusConfig[m.status] || statusConfig.draft).badge}>
-                      {(statusConfig[m.status] || statusConfig.draft).label}
-                    </span>
-                  </div>
-                  <p className="mt-2 font-semibold text-indigo-700 capitalize">{m.workflowId?.replace(/-/g, " ") || "Appeal"}</p>
-                  <p className="mt-1 text-sm text-slate-400">{m.recipient?.name}</p>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-slate-300">
-                    <span>{m.createdAt ? new Date(m.createdAt).toLocaleDateString() : "—"}</span>
-                    <span>·</span>
-                    <span className="capitalize">{m.mailingMethod}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* No search results */}
-        {!loading && !error && mailings.length > 0 && filteredMailings.length === 0 && (
-          <div className="mt-8 card p-12 text-center">
-            <Search size={24} className="mx-auto text-slate-300" />
-            <p className="mt-3 text-sm text-slate-400">No mailings match "{search}"</p>
-          </div>
-        )}
-
-        {/* Latest tracking — real tracking number from most recent mailing */}
-        {!loading && !error && latestTracked && (
-          <div className="mt-6 card p-5">
-            <div className="flex items-center gap-2">
-              <PackageCheck size={18} className="text-amber-500" />
-              <h2 className="font-semibold text-indigo-700">Latest tracking</h2>
-            </div>
-            <p className="mt-1 text-sm text-slate-400">
-              {latestTracked.id.slice(0, 12)} · {latestTracked.mailingMethod?.charAt(0).toUpperCase() + latestTracked.mailingMethod?.slice(1) || "Standard"}
-              {latestTracked.trackingNumber && (
-                <> · <span className="font-mono text-indigo-700">{latestTracked.trackingNumber}</span></>
-              )}
-            </p>
-            <div className="mt-4">
-              <div className="flex items-center gap-3 rounded-lg bg-indigo-50 px-4 py-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50">
-                  {(statusConfig[latestTracked.status] || statusConfig.draft).label === "Delivered"
-                    ? <CheckCircle2 size={16} className="text-amber-600" />
-                    : <PackageCheck size={16} className="text-amber-500" />}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-indigo-700">
-                    {(statusConfig[latestTracked.status] || statusConfig.draft).label}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    {latestTracked.updatedAt ? new Date(latestTracked.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Awaiting status update"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Auth prompt for guests */}
-        {!user && !loading && (
-          <div className="mt-6 flex items-center gap-3 rounded-xl border border-dashed border-warm-border bg-white p-5 text-sm text-slate-400">
-            <TrendingUp size={18} className="text-amber-500" />
-            <span><Link to="/auth" className="text-amber-600 hover:underline font-medium">Sign in</Link> to save drafts, track mailings, and keep a permanent record of your appeals.</span>
-          </div>
-        )}
-      </div></section>
+      </section>
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        {tab === "cases" && <CasesTab />}
+        {tab === "mailings" && <MailingsTab />}
+        {tab === "account" && <AccountTab />}
+      </div>
       <SiteFooter />
     </main>
+  );
+}
+
+function CasesTab() {
+  return (
+    <div>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-ink">Active Cases</h2>
+        <span className="font-mono text-xs text-muted-foreground">0 active</span>
+      </div>
+      <div className="rounded-xl border border-rule bg-card p-12 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-muted/30"><FolderOpen size={24} className="text-muted-foreground" /></div>
+        <h3 className="mt-4 text-base font-semibold text-ink">No cases yet</h3>
+        <p className="mt-2 text-sm text-muted-foreground">Start an appeal to create your first case. Upload your decision document and we'll analyze it.</p>
+        <Link to="/workflows" className="btn-amber mt-6"><Plus size={16} /> Start your first appeal</Link>
+      </div>
+      <div className="mt-8">
+        <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">Start Something New</h3>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Link to="/workflows" className="group flex items-center gap-3 rounded-lg border border-rule bg-card p-4 transition-all hover:border-ink/30 hover:shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}><Scale size={18} className="text-stamp" /></div>
+            <div className="flex-1"><div className="text-sm font-medium text-ink">Appeal a decision</div><div className="text-xs text-muted-foreground">Insurance, government, court, benefits</div></div>
+            <ChevronRight size={16} className="text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+          </Link>
+          <div className="flex items-center gap-3 rounded-lg border border-dashed border-rule bg-muted/20 p-4 opacity-60">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/40"><Mail size={18} className="text-muted-foreground" /></div>
+            <div className="flex-1"><div className="text-sm font-medium text-muted-foreground">Respond to a notice</div><div className="text-xs text-muted-foreground/60">Coming soon — Notice Respond</div></div>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border border-dashed border-rule bg-muted/20 p-4 opacity-60">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/40"><ShieldCheck size={18} className="text-muted-foreground" /></div>
+            <div className="flex-1"><div className="text-sm font-medium text-muted-foreground">Other MailMyPDF products</div><div className="text-xs text-muted-foreground/60">Coming soon</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MailingsTab() {
+  return (
+    <div>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-ink">Mailing History</h2>
+        <span className="font-mono text-xs text-muted-foreground">0 mailings</span>
+      </div>
+      <div className="rounded-xl border border-rule bg-card p-12 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-muted/30"><Mail size={24} className="text-muted-foreground" /></div>
+        <h3 className="mt-4 text-base font-semibold text-ink">No mailings yet</h3>
+        <p className="mt-2 text-sm text-muted-foreground">When you complete an appeal and send it, your mailing history and tracking will appear here.</p>
+      </div>
+    </div>
+  );
+}
+
+function AccountTab() {
+  const { user, signOut, updateProfile, isConfigured } = useAuth();
+  const [name, setName] = useState(user?.fullName || "");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function handleSave() {
+    setSaving(true);
+    const { error } = await updateProfile({ fullName: name });
+    setSaving(false);
+    setMessage(error || "Profile updated.");
+    if (!error) setTimeout(() => setMessage(null), 3000);
+  }
+
+  return (
+    <div>
+      <h2 className="text-lg font-semibold text-ink">Account Settings</h2>
+      <p className="mt-1 text-sm text-muted-foreground">Manage your MailMyPDF account.</p>
+      <div className="mt-6 space-y-6">
+        <div className="rounded-xl border border-rule bg-card p-6">
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Profile</h3>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="input-label">Full name</label>
+              <input className="input-field mt-1" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" disabled={!isConfigured} />
+            </div>
+            <div>
+              <label className="input-label">Email</label>
+              <input className="input-field mt-1" value={user?.email || ""} disabled style={{ opacity: 0.6 }} />
+            </div>
+          </div>
+          <button onClick={handleSave} disabled={saving || !isConfigured} className="btn-primary mt-4">{saving ? "Saving…" : "Save profile"}</button>
+          {message && <p className="mt-3 text-sm text-muted-foreground">{message}</p>}
+          {!isConfigured && <p className="mt-2 text-xs text-muted-foreground">Account features require MailMyPDF authentication to be configured.</p>}
+        </div>
+        <div className="rounded-xl border border-rule bg-card p-6">
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Role</h3>
+          <div className="mt-3 flex items-center gap-3">
+            <span className="badge badge-info">{user?.role}</span>
+            <span className="text-sm text-muted-foreground">{user?.role === "admin" || user?.role === "super_admin" ? "You have administrative access." : "Standard customer account."}</span>
+          </div>
+        </div>
+        <div className="rounded-xl border border-rule bg-card p-6">
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Security</h3>
+          <p className="mt-3 text-sm text-muted-foreground">Your MailMyPDF Account is managed by Supabase Auth. You can reset your password from the sign-in page.</p>
+          <Link to="/auth" className="btn-outline mt-4">Reset password</Link>
+        </div>
+        <div className="rounded-xl border border-rule bg-card p-6">
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Session</h3>
+          <button onClick={() => signOut()} className="btn-outline mt-4">Sign out of MailMyPDF Account</button>
+        </div>
+      </div>
+    </div>
   );
 }
