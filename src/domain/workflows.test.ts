@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { appealWorkflowCount, workflowExperienceStandard, workflowIds, workflows } from "./workflows";
 
 describe("Appeal Mail workflow catalog", () => {
-  it("contains all 32 current workflows", () => {
-    expect(appealWorkflowCount).toBe(32);
-    expect(workflowIds).toHaveLength(32);
+  it("contains all 33 current workflows", () => {
+    expect(appealWorkflowCount).toBe(33);
+    expect(workflowIds).toHaveLength(33);
   });
 
   it("gives every workflow the universal customer experience", () => {
