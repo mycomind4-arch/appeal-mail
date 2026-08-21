@@ -7,6 +7,7 @@ type AnalysisPayload = {
   extracted?: { summary?: string; decision?: string; deadline?: string; denialReasons?: string[]; facts?: Record<string, unknown>; evidenceMentions?: string[]; uncertainties?: string[] };
   analysis?: { analysisText?: string };
 };
+type Recipient = { name: string; address1: string; address2: string; city: string; state: string; zip: string };
 
 async function getAccessToken(): Promise<string> {
   const { getSupabaseClient } = await import("@/platform/supabase");
@@ -22,11 +23,15 @@ export function DeniedClaimWorkspace() {
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [building, setBuilding] = useState(false);
+  const [approving, setApproving] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisPayload | null>(null);
   const [draft, setDraft] = useState("");
   const [validation, setValidation] = useState("");
   const [approved, setApproved] = useState(false);
+  const [review, setReview] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [recipient, setRecipient] = useState<Recipient>({ name: "", address1: "", address2: "", city: "", state: "", zip: "" });
+  const [mailingMethod, setMailingMethod] = useState<"standard" | "certified" | "registered">("certified");
 
   const progress = useMemo(() => ({ understand: 0, build: 50, send: 100 }[stage]), [stage]);
 
@@ -75,6 +80,34 @@ export function DeniedClaimWorkspace() {
     }
   }
 
+  async function approveAndPrepareSend() {
+    if (!analysis?.appealId) return;
+    setApproving(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      const response = await fetch("/api/workflows/denied-claim/approve", {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+        credentials: "include",
+        body: JSON.stringify({ appealId: analysis.appealId, recipient, mailingMethod }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        if (payload?.review) setReview(payload.review);
+        throw new Error(payload?.error || "Approval failed.");
+      }
+      setReview(payload.review);
+      setApproved(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Approval failed.");
+    } finally {
+      setApproving(false);
+    }
+  }
+
+  const recipientComplete = recipient.name && recipient.address1 && recipient.city && recipient.state && recipient.zip;
+
   return (
     <main className="min-h-screen bg-paper px-6 py-10">
       <div className="mx-auto max-w-5xl">
@@ -106,7 +139,7 @@ export function DeniedClaimWorkspace() {
 
         {stage === "build" && analysis && (
           <section className="rounded-2xl border border-rule bg-paper-deep p-8">
-            <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full border border-rule bg-paper"><Sparkles size={18} /></div><div><h2 className="font-serif text-2xl">Here's what we found</h2><p className="text-sm text-muted-foreground">The document extraction and case analysis are complete.</p></div></div>
+            <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full border border-rule bg-paper"><Sparkles size={18} /></div><div><h2 className="font-serif text-2xl">Here's what we found</h2><p className="text-sm text-muted-foreground">The document analysis is complete.</p></div></div>
             <div className="mt-8 grid gap-4 md:grid-cols-3">
               <div className="rounded-xl border border-rule bg-paper p-5"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Decision</div><div className="mt-2 font-medium">{analysis.extracted?.decision || "Needs review"}</div></div>
               <div className="rounded-xl border border-rule bg-paper p-5"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Deadline</div><div className="mt-2 font-medium">{analysis.extracted?.deadline || "Needs confirmation"}</div></div>
@@ -120,10 +153,30 @@ export function DeniedClaimWorkspace() {
 
         {stage === "send" && (
           <section className="rounded-2xl border border-rule bg-paper-deep p-8">
-            <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full border border-rule bg-paper"><CheckCircle2 size={18} /></div><div><h2 className="font-serif text-2xl">Your appeal is ready for review</h2><p className="text-sm text-muted-foreground">The response was drafted by the configured AI provider and independently checked before mailing.</p></div></div>
+            <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-full border border-rule bg-paper"><CheckCircle2 size={18} /></div><div><h2 className="font-serif text-2xl">Your appeal is ready for review</h2><p className="text-sm text-muted-foreground">The response was drafted and checked by Gemini. Nothing is mailed without your explicit approval.</p></div></div>
             <div className="mt-8 rounded-xl border border-rule bg-paper p-6"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Draft response</div><p className="mt-4 whitespace-pre-wrap text-sm leading-7">{draft || "No draft returned."}</p></div>
             <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Validation</div><p className="mt-3 whitespace-pre-wrap text-sm leading-6">{validation || "No validation result returned."}</p></div>
-            <div className="mt-6 flex flex-wrap gap-3"><button onClick={() => setApproved((v) => !v)} className={`rounded-full border px-5 py-3 text-sm ${approved ? "bg-foreground text-background" : "border-foreground"}`}>{approved ? "Approved" : "Approve this response"}</button><button disabled={!approved} className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm text-background disabled:opacity-40"><Send size={16} /> Send with MailMyPDF</button></div>
+
+            <div className="mt-6 rounded-xl border border-rule bg-paper p-6">
+              <h3 className="font-serif text-xl">Where should we send it?</h3>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <input className="rounded-lg border border-rule bg-paper px-4 py-3 text-sm" placeholder="Recipient name" value={recipient.name} onChange={(e) => setRecipient((r) => ({ ...r, name: e.target.value }))} />
+                <input className="rounded-lg border border-rule bg-paper px-4 py-3 text-sm" placeholder="Street address" value={recipient.address1} onChange={(e) => setRecipient((r) => ({ ...r, address1: e.target.value }))} />
+                <input className="rounded-lg border border-rule bg-paper px-4 py-3 text-sm" placeholder="Apartment / suite (optional)" value={recipient.address2} onChange={(e) => setRecipient((r) => ({ ...r, address2: e.target.value }))} />
+                <input className="rounded-lg border border-rule bg-paper px-4 py-3 text-sm" placeholder="City" value={recipient.city} onChange={(e) => setRecipient((r) => ({ ...r, city: e.target.value }))} />
+                <input className="rounded-lg border border-rule bg-paper px-4 py-3 text-sm" placeholder="State" value={recipient.state} onChange={(e) => setRecipient((r) => ({ ...r, state: e.target.value }))} />
+                <input className="rounded-lg border border-rule bg-paper px-4 py-3 text-sm" placeholder="ZIP code" value={recipient.zip} onChange={(e) => setRecipient((r) => ({ ...r, zip: e.target.value }))} />
+              </div>
+              <select className="mt-4 rounded-lg border border-rule bg-paper px-4 py-3 text-sm" value={mailingMethod} onChange={(e) => setMailingMethod(e.target.value as typeof mailingMethod)}>
+                <option value="standard">Standard</option>
+                <option value="certified">Certified</option>
+                <option value="registered">Registered</option>
+              </select>
+            </div>
+
+            {review && <div className="mt-6 rounded-xl border border-rule bg-paper p-6"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Readiness review</div><div className="mt-2 text-2xl font-semibold">{review.score}/100</div><p className="mt-2 text-sm text-muted-foreground">{review.issuesRequiringAttention} item(s) require attention.</p></div>}
+
+            <div className="mt-6 flex flex-wrap gap-3"><button disabled={!recipientComplete || approving || approved} onClick={approveAndPrepareSend} className={`rounded-full border px-5 py-3 text-sm disabled:opacity-40 ${approved ? "bg-foreground text-background" : "border-foreground"}`}>{approved ? "Approved and ready" : approving ? "Checking readiness…" : "Approve & prepare to send"}</button><button disabled={!approved} className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm text-background disabled:opacity-40"><Send size={16} /> Continue to payment</button></div>
           </section>
         )}
       </div>
