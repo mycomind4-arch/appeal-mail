@@ -1,0 +1,79 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+
+export const Route = createFileRoute("/workflows/agency-decision")({
+  head: () => ({
+    meta: [
+      { title: "Appeal an Agency Decision — Authority-First Administrative Appeal | Appeal Mail" },
+      { name: "description", content: "Analyze an agency decision, verify the applicable appeal path and deadline from authoritative sources, identify evidence gaps, and prepare a human-reviewed response for mailing." },
+      { property: "og:title", content: "Appeal an Agency Decision" },
+      { property: "og:description", content: "Authority-first analysis for agency decisions: facts, cited authority, deadlines, evidence, contradictions, validation, and final-response mailing." },
+    ],
+    links: [{ rel: "canonical", href: "/workflows/agency-decision" }],
+  }),
+  component: AgencyDecisionPage,
+});
+
+function AgencyDecisionPage() {
+  const [file, setFile] = useState<File | null>(null);
+  const [status, setStatus] = useState("");
+  const [result, setResult] = useState<any>(null);
+
+  async function analyze() {
+    if (!file) return;
+    setStatus("Analyzing the decision and checking for authority-backed procedural facts…");
+    const body = new FormData();
+    body.set("document", file);
+    try {
+      const response = await fetch("/api/workflows/agency-decision/analyze", { method: "POST", body });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Unable to analyze the decision.");
+      setResult(payload);
+      setStatus("Analysis complete. Review the authority, evidence gaps, and unresolved items before drafting.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Unable to analyze the decision.");
+    }
+  }
+
+  return <main className="mx-auto max-w-6xl px-6 py-12">
+    <section className="rounded-3xl border border-slate-200 bg-slate-950 p-8 text-white shadow-xl">
+      <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">Authority-first administrative appeal</p>
+      <h1 className="mt-4 max-w-4xl text-4xl font-bold tracking-tight md:text-6xl">Appeal an Agency Decision</h1>
+      <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">Understand what the agency decided, what authority it relied on, what is actually disputed, and what must be verified before you send an appeal. Appeal Mail does not invent government deadlines or procedures.</p>
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        {[
+          ["Authority verification", "Procedural conclusions are tied to official agency, court, statute, regulation, or rule sources."],
+          ["Evidence intelligence", "See supporting documents, missing evidence, contradictions, and unresolved factual disputes before drafting."],
+          ["Independent validation", "The final response is challenged against the decision, authority record, evidence, and uncertainty register."],
+        ].map(([title, copy]) => <div key={title} className="rounded-2xl border border-white/10 bg-white/5 p-5"><h2 className="font-semibold">{title}</h2><p className="mt-2 text-sm leading-6 text-slate-300">{copy}</p></div>)}
+      </div>
+    </section>
+
+    <section className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_.8fr]">
+      <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+        <h2 className="text-2xl font-semibold">What happens to your decision</h2>
+        <ol className="mt-6 space-y-4 text-slate-700">
+          {["Classify the notice and extract the agency findings, dates, cited authority, and instructions.","Resolve the apparent appeal path and distinguish extracted dates from verified deadlines.","Map evidence and contradictions, then stress-test the proposed grounds.","Draft only from the supported record and independently validate the finished response.","Require your approval before the final PDF can enter payment and mailing."].map((x, i) => <li key={x} className="flex gap-4"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">{i + 1}</span><span>{x}</span></li>)}
+        </ol>
+      </div>
+      <div className="rounded-3xl border border-slate-200 bg-slate-50 p-7">
+        <h2 className="text-2xl font-semibold">Start with the agency decision</h2>
+        <p className="mt-3 text-sm leading-6 text-slate-600">PDF, PNG, or JPEG. The system will surface missing agency or jurisdiction information rather than guessing.</p>
+        <input className="mt-6 block w-full rounded-xl border border-slate-300 bg-white p-3 text-sm" type="file" accept="application/pdf,image/png,image/jpeg" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+        <button className="mt-4 w-full rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white disabled:opacity-40" disabled={!file} onClick={analyze}>Analyze decision</button>
+        {status && <p className="mt-4 text-sm text-slate-600">{status}</p>}
+        {result && <div className="mt-6 rounded-2xl bg-white p-5"><h3 className="font-semibold">Authority snapshot</h3><dl className="mt-3 space-y-2 text-sm"><div><dt className="inline font-medium">Agency: </dt><dd className="inline">{result.analysis?.issuer || "Not identified"}</dd></div><div><dt className="inline font-medium">Decision date: </dt><dd className="inline">{result.analysis?.decisionDate || "Not identified"}</dd></div><div><dt className="inline font-medium">Deadline: </dt><dd className="inline">{result.analysis?.deadline || "Not verified from the document"}</dd></div></dl><p className="mt-4 text-xs text-slate-500">Procedural conclusions remain unresolved until authoritative support is identified.</p></div>}
+      </div>
+    </section>
+
+    <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-7">
+      <h2 className="text-2xl font-semibold">What we verify before mailing</h2>
+      <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {["Appeal path", "Deadline", "Recipient", "Filing method", "Evidence", "Contradictions", "Draft integrity", "Mailing proof"].map((item) => <div key={item} className="rounded-2xl bg-slate-50 p-4 text-sm font-medium">{item}</div>)}
+      </div>
+      <p className="mt-6 text-sm leading-7 text-slate-600">No universal administrative-appeal rule is assumed. The governing notice, agency instructions, applicable law, and authoritative procedural sources control. Unverified items are surfaced visibly instead of being converted into confident instructions.</p>
+    </section>
+
+    <footer className="mt-10 flex flex-wrap gap-4 text-sm text-slate-600"><Link to="/workflows/denied-claim" className="underline">See a completed appeal workflow</Link><span>•</span><span>Appeal Mail is not a law firm and does not provide legal advice.</span></footer>
+  </main>;
+}
