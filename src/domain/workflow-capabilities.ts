@@ -16,8 +16,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 import type { WorkflowId, WorkflowDefinition } from "./workflows";
-
-// ── Capability Packs ──────────────────────────────────────────
+import { GOVERNMENT_DECISION_DOMAIN_PACK } from "./government-decision-pack";
 
 export type CapabilityPack =
   | "document-classification"
@@ -56,108 +55,26 @@ export const ALL_CAPABILITIES: readonly CapabilityPack[] = [
 
 export type WorkflowLifecycle = "blueprint" | "functional" | "authority";
 
-export interface DocumentPack {
-  name: string;
-  acceptedTypes: string[];
-  classifierHints: string[];
-  extractionSchema: string[];
-  minConfidence: number;
-}
+export interface DocumentPack { name: string; acceptedTypes: string[]; classifierHints: string[]; extractionSchema: string[]; minConfidence: number; }
+export interface DeadlinePack { name: string; triggeringEvents: string[]; sourcePriority: string[]; jurisdictionDependent: boolean; computationRules: string[]; }
+export interface EvidencePack { name: string; evidenceTypes: string[]; sufficiencyRules: string[]; contradictionRules: string[]; missingEvidenceBehavior: string; }
+export interface AnalysisPack { name: string; capabilities: CapabilityPack[]; orderedChecks: string[]; riskFactors: string[]; outputSections: string[]; }
+export interface DraftPack { name: string; draftType: string; requiredSections: string[]; prohibitedUnsupportedClaims: string[]; toneRules: string[]; }
+export interface ValidationPack { name: string; factualChecks: string[]; requirementChecks: string[]; unsupportedAssertionChecks: string[]; adversarialChecks: string[]; }
+export interface SubmissionPack { name: string; methods: string[]; recipientRules: string[]; supportsMailing: boolean; supportsTracking: boolean; proofRequirements: string[]; }
 
-export interface DeadlinePack {
-  name: string;
-  triggeringEvents: string[];
-  sourcePriority: string[];
-  jurisdictionDependent: boolean;
-  computationRules: string[];
-}
+export interface DomainPackSet { engine: "appeal"; document: DocumentPack; deadline: DeadlinePack; evidence: EvidencePack; analysis: AnalysisPack; draft: DraftPack; validation: ValidationPack; submission: SubmissionPack; }
 
-export interface EvidencePack {
-  name: string;
-  evidenceTypes: string[];
-  sufficiencyRules: string[];
-  contradictionRules: string[];
-  missingEvidenceBehavior: string;
-}
+const PACK_REGISTRY: Record<string, DomainPackSet> = { "government-decision": GOVERNMENT_DECISION_DOMAIN_PACK };
 
-export interface AnalysisPack {
-  name: string;
-  capabilities: CapabilityPack[];
-  orderedChecks: string[];
-  riskFactors: string[];
-  outputSections: string[];
-}
+export function registerDomainPack(workflowId: string, pack: DomainPackSet): void { PACK_REGISTRY[workflowId] = pack; }
 
-export interface DraftPack {
-  name: string;
-  draftType: string;
-  requiredSections: string[];
-  prohibitedUnsupportedClaims: string[];
-  toneRules: string[];
-}
+export function getDomainPack(workflowId: string): DomainPackSet | undefined { return PACK_REGISTRY[workflowId]; }
 
-export interface ValidationPack {
-  name: string;
-  factualChecks: string[];
-  requirementChecks: string[];
-  unsupportedAssertionChecks: string[];
-  adversarialChecks: string[];
-}
+export function getRegisteredWorkflowIds(): string[] { return Object.keys(PACK_REGISTRY); }
 
-export interface SubmissionPack {
-  name: string;
-  methods: string[];
-  recipientRules: string[];
-  supportsMailing: boolean;
-  supportsTracking: boolean;
-  proofRequirements: string[];
-}
-
-export interface DomainPackSet {
-  engine: "appeal";
-  document: DocumentPack;
-  deadline: DeadlinePack;
-  evidence: EvidencePack;
-  analysis: AnalysisPack;
-  draft: DraftPack;
-  validation: ValidationPack;
-  submission: SubmissionPack;
-}
-
-const PACK_REGISTRY: Record<string, DomainPackSet> = {};
-
-export function registerDomainPack(workflowId: string, pack: DomainPackSet): void {
-  PACK_REGISTRY[workflowId] = pack;
-}
-
-export function getDomainPack(workflowId: string): DomainPackSet | undefined {
-  return PACK_REGISTRY[workflowId];
-}
-
-export function getRegisteredWorkflowIds(): string[] {
-  return Object.keys(PACK_REGISTRY);
-}
-
-export interface QualityGate {
-  documentRecognition: boolean;
-  factGrounding: boolean;
-  deadlineVerification: boolean;
-  evidenceGrounding: boolean;
-  draftValidation: boolean;
-  submissionReadiness: boolean;
-  proofReady: boolean;
-}
-
-export interface ConstructedWorkflow {
-  definition: WorkflowDefinition;
-  capabilities: CapabilityPack[];
-  packs: DomainPackSet | undefined;
-  qualityGate: QualityGate;
-  lifecycle: WorkflowLifecycle;
-  warnings: string[];
-  errors: string[];
-  ready: boolean;
-}
+export interface QualityGate { documentRecognition: boolean; factGrounding: boolean; deadlineVerification: boolean; evidenceGrounding: boolean; draftValidation: boolean; submissionReadiness: boolean; proofReady: boolean; }
+export interface ConstructedWorkflow { definition: WorkflowDefinition; capabilities: CapabilityPack[]; packs: DomainPackSet | undefined; qualityGate: QualityGate; lifecycle: WorkflowLifecycle; warnings: string[]; errors: string[]; ready: boolean; }
 
 export function validateDefinition(def: WorkflowDefinition): string[] {
   const errors: string[] = [];
@@ -174,45 +91,22 @@ export function validateDefinition(def: WorkflowDefinition): string[] {
 
 export function loadCapabilities(def: WorkflowDefinition, packs?: DomainPackSet): CapabilityPack[] {
   const caps = new Set<CapabilityPack>();
-
-  // These capabilities are only executable when their concrete packs exist.
-  if (packs?.document) {
-    caps.add("document-classification");
-    caps.add("fact-extraction");
-  }
+  if (packs?.document) { caps.add("document-classification"); caps.add("fact-extraction"); }
   if (packs?.deadline) caps.add("deadline-analysis");
   if (packs?.evidence) caps.add("evidence-analysis");
-  if (packs?.analysis?.capabilities) {
-    for (const cap of packs.analysis.capabilities) caps.add(cap);
-  }
+  if (packs?.analysis?.capabilities) for (const cap of packs.analysis.capabilities) caps.add(cap);
   if (packs?.draft) caps.add("drafting");
   if (packs?.validation) caps.add("draft-validation");
   if (packs?.validation) caps.add("readiness-review");
-  if (packs?.submission) {
-    caps.add("submission");
-    if (packs.submission.supportsMailing) caps.add("mailing");
-    if (packs.submission.supportsTracking) caps.add("proof");
-  }
-
-  // Pipeline steps are evidence of intended behavior, not implementation.
-  // They must never manufacture executable capability by themselves.
+  if (packs?.submission) { caps.add("submission"); if (packs.submission.supportsMailing) caps.add("mailing"); if (packs.submission.supportsTracking) caps.add("proof"); }
   if (def.steps.includes("xray") && packs?.analysis?.capabilities.includes("xray-analysis")) caps.add("xray-analysis");
   if (def.steps.includes("timeline") && packs?.analysis?.capabilities.includes("timeline-analysis")) caps.add("timeline-analysis");
   if ((def.steps.includes("stress-test") || def.steps.includes("final-stress-test")) && packs?.analysis?.capabilities.includes("stress-testing")) caps.add("stress-testing");
-
   return Array.from(caps);
 }
 
-export function evaluateQualityGate(
-  def: WorkflowDefinition,
-  packs?: DomainPackSet,
-): QualityGate {
-  const hasDoc = !!packs?.document;
-  const hasEvidence = !!packs?.evidence;
-  const hasDraft = !!packs?.draft;
-  const hasValidation = !!packs?.validation;
-  const hasSubmission = !!packs?.submission;
-
+export function evaluateQualityGate(def: WorkflowDefinition, packs?: DomainPackSet): QualityGate {
+  const hasDoc = !!packs?.document; const hasEvidence = !!packs?.evidence; const hasDraft = !!packs?.draft; const hasValidation = !!packs?.validation; const hasSubmission = !!packs?.submission;
   return {
     documentRecognition: hasDoc,
     factGrounding: hasDoc,
@@ -224,63 +118,21 @@ export function evaluateQualityGate(
   };
 }
 
-export function determineLifecycle(gate: QualityGate): WorkflowLifecycle {
-  const allPassed = Object.values(gate).every(Boolean);
-  if (allPassed) return "authority";
-  const somePassed = Object.values(gate).some(Boolean);
-  if (somePassed) return "functional";
-  return "blueprint";
-}
+export function determineLifecycle(gate: QualityGate): WorkflowLifecycle { const allPassed = Object.values(gate).every(Boolean); if (allPassed) return "authority"; const somePassed = Object.values(gate).some(Boolean); if (somePassed) return "functional"; return "blueprint"; }
 
 export function constructWorkflow(def: WorkflowDefinition): ConstructedWorkflow {
-  const warnings: string[] = [];
-  const errors: string[] = [];
-
-  const validationErrors = validateDefinition(def);
-  errors.push(...validationErrors);
-
+  const warnings: string[] = []; const errors: string[] = [];
+  errors.push(...validateDefinition(def));
   const packs = getDomainPack(def.id);
-  if (!packs) {
-    warnings.push(`No domain pack set registered for ${def.id} — no executable capabilities are granted`);
-  }
-
-  const capabilities = loadCapabilities(def, packs);
-  const qualityGate = evaluateQualityGate(def, packs);
-  const lifecycle = determineLifecycle(qualityGate);
-
-  if (lifecycle === "blueprint") {
-    warnings.push(`Workflow ${def.id} has no executable domain packs — quality gate is all false`);
-  }
-
-  return {
-    definition: def,
-    capabilities,
-    packs,
-    qualityGate,
-    lifecycle,
-    warnings,
-    errors,
-    ready: errors.length === 0,
-  };
+  if (!packs) warnings.push(`No domain pack set registered for ${def.id} — no executable capabilities are granted`);
+  const capabilities = loadCapabilities(def, packs); const qualityGate = evaluateQualityGate(def, packs); const lifecycle = determineLifecycle(qualityGate);
+  if (lifecycle === "blueprint") warnings.push(`Workflow ${def.id} has no executable domain packs — quality gate is all false`);
+  return { definition: def, capabilities, packs, qualityGate, lifecycle, warnings, errors, ready: errors.length === 0 };
 }
 
-export function constructAllWorkflows(
-  definitions: Record<WorkflowId, WorkflowDefinition>,
-): ConstructedWorkflow[] {
-  return Object.values(definitions).map(constructWorkflow);
-}
+export function constructAllWorkflows(definitions: Record<WorkflowId, WorkflowDefinition>): ConstructedWorkflow[] { return Object.values(definitions).map(constructWorkflow); }
 
-export function factoryValidationSummary(workflows: ConstructedWorkflow[]): {
-  total: number;
-  ready: number;
-  withErrors: number;
-  withWarnings: number;
-  authorityCount: number;
-  functionalCount: number;
-  blueprintCount: number;
-  errors: { workflowId: string; errors: string[] }[];
-  warnings: { workflowId: string; warnings: string[] }[];
-} {
+export function factoryValidationSummary(workflows: ConstructedWorkflow[]): { total:number; ready:number; withErrors:number; withWarnings:number; authorityCount:number; functionalCount:number; blueprintCount:number; errors:{workflowId:string;errors:string[]}[]; warnings:{workflowId:string;warnings:string[]}[] } {
   return {
     total: workflows.length,
     ready: workflows.filter((w) => w.ready).length,
