@@ -23,5 +23,5 @@ export function calculateGovernmentDecisionTotal(input: {
   const mailing = input.mailingMethod === "standard" ? GOVERNMENT_DECISION_PRICING.standardMail : input.mailingMethod === "certified" ? GOVERNMENT_DECISION_PRICING.certifiedMail : GOVERNMENT_DECISION_PRICING.registeredMail;
   const surcharge = input.envelopeSurcharge ? GOVERNMENT_DECISION_PRICING.flatEnvelopeFee : 0;
   const total = GOVERNMENT_DECISION_PRICING.preparationFee + responsePrinting + supportingPrinting + mailing + surcharge;
-  return { preparationFee: GOVERNMENT_DECISION_PRICING.preparationFee, responseSheets, supportingSheets, responsePrinting, supportingPrinting, mailing, surcharge, total: Number(total.toFixed(2)) };
+  return { preparationFee: GOVERNMENT_DECISION_PRICING.preparationFee, includedResponsePages: GOVERNMENT_DECISION_PRICING.includedResponsePages, responseSheets, supportingSheets, responsePrinting, supportingPrinting, mailing, surcharge, total: Number(total.toFixed(2)) };
 }
