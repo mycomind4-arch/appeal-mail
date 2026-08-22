@@ -4,16 +4,13 @@ import { runReadinessReview } from "@/domain/review";
 import { assemblePacket } from "@/domain/packet";
 import { INSURANCE_CLAIM_DENIAL_PRICING as P } from "@/domain/insurance-claim-denial-gold";
 
-function calculatePricing(pageCount:number, mailingMethod:"standard"|"certified"|"registered") {
-  const responseSheets = Math.min(pageCount, P.includedResponsePages);
-  const extraResponseSheets = Math.max(0, pageCount - P.includedResponsePages);
-  const supportingSheets = Math.max(0, pageCount - 1);
-  const includedExtraOverlap = Math.min(extraResponseSheets, supportingSheets);
-  const payableSupportingSheets = Math.max(0, supportingSheets - includedExtraOverlap);
+function calculatePricing(supportingSheets:number, mailingMethod:"standard"|"certified"|"registered") {
+  const responseSheets = P.includedResponsePages;
+  const extraResponseSheets = 0;
   const mailing = mailingMethod === "standard" ? P.standardMail : mailingMethod === "certified" ? P.certifiedMail : P.registeredMail;
-  const largePacket = pageCount >= P.largePacketThresholdSheets ? P.largePacketFee : 0;
-  const subtotal = P.preparationFee + extraResponseSheets * P.responsePagePrice + payableSupportingSheets * P.supportingPagePrice + mailing + largePacket;
-  return { preparationFee:P.preparationFee, includedResponseSheets:responseSheets, responseSheets:pageCount, extraResponseSheets, supportingSheets:payableSupportingSheets, mailingMethod, mailingFee:mailing, largePacketFee:largePacket, total:Number(subtotal.toFixed(2)) };
+  const largePacket = supportingSheets + responseSheets >= P.largePacketThresholdSheets ? P.largePacketFee : 0;
+  const total = P.preparationFee + supportingSheets * P.supportingPagePrice + mailing + largePacket;
+  return { preparationFee:P.preparationFee, includedResponseSheets:responseSheets, responseSheets, extraResponseSheets, supportingSheets, mailingMethod, mailingFee:mailing, largePacketFee:largePacket, total:Number(total.toFixed(2)) };
 }
 
 export const Route = createFileRoute("/api/workflows/denied-claim/approve")({ server: { handlers: { POST: async ({ request }) => {
@@ -34,7 +31,7 @@ export const Route = createFileRoute("/api/workflows/denied-claim/approve")({ se
     const review=runReadinessReview({decision:appeal.decision,grounds,evidence,draft:appeal.draft,recipient:{name:recipient.name,address1:recipient.address1,address2:recipient.address2,city:recipient.city,state:recipient.state,zip:recipient.zip},exhibitCount:evidence.length,hasSignature:/sincerely[,\s]*$/im.test(appeal.draft)||/\[your name\]/i.test(appeal.draft)});
     if(review.score<80||review.issuesRequiringAttention>2||review.checks.some((check)=>check.status==="fail")) return Response.json({error:"Appeal is not ready for approval.",review},{status:409});
     const packet=assemblePacket({appealId,finalLetter:appeal.draft,evidence,recipient:{name:recipient.name,address1:recipient.address1,address2:recipient.address2,city:recipient.city,state:recipient.state,zip:recipient.zip},mailingMethod});
-    const pricing=calculatePricing(packet.pageCount,mailingMethod);
+    const pricing=calculatePricing(evidence.length,mailingMethod);
     const currentVersion=appeal.version??1;
     const {error:updateError}=await supabase.from("appeals").update({status:"ready",review,packet:{...packet,pricing},version:currentVersion+1,updated_at:new Date().toISOString()}).eq("id",appealId).eq("user_id",user.id).eq("version",currentVersion);
     if(updateError) throw new Error(`Unable to approve appeal: ${updateError.message}`);
