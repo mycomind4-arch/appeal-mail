@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { GovernmentDecisionWorkspace } from "@/components/workflow/government-decision-workspace";
+import { GovernmentDecisionPricing } from "@/components/workflow/government-decision-pricing";
 import { GOVERNMENT_DECISION_SEO } from "@/domain/government-decision-seo";
 
 export const Route = createFileRoute("/workflows/government-decision")({
@@ -17,5 +18,5 @@ export const Route = createFileRoute("/workflows/government-decision")({
     ],
     links: [{ rel: "canonical", href: GOVERNMENT_DECISION_SEO.canonicalPath }],
   }),
-  component: GovernmentDecisionWorkspace,
+  component: () => <><GovernmentDecisionWorkspace /><GovernmentDecisionPricing /></>,
 });
