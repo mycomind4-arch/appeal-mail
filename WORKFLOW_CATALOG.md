@@ -1,18 +1,15 @@
 # WORKFLOW_CATALOG.md — Appeal Mail
 
-**Last updated:** 2026-08-20
-**Commit:** 601a5b2a
-
----
+**Last updated:** 2026-08-22
 
 ## Overview
 
-20 appeal workflows across 7 categories. 1 implemented, 19 coming soon.
+20 appeal workflows across 7 categories. 1 original flagship plus Gold-upgraded workflow routes in progress; catalog marks only verified executable routes as implemented.
 
 ## Categories
 
 | Category | Slug | Workflows |
-|----------|------|-----------|
+|----------|-------|-----------|
 | Insurance | insurance | 9 |
 | Disability & Social Security | disability | 5 |
 | Unemployment | unemployment | 2 |
@@ -21,70 +18,49 @@
 | Veterans | veterans | 1 |
 | Administrative | administrative | 3 |
 
-*Note: counts include category parent pages where applicable.*
-
 ## Workflows
 
-### Insurance (9)
+### Government Benefits
 | Slug | Title | Status | Executable |
 |------|-------|--------|------------|
-| insurance-claim | Insurance Claim Appeal | IMPLEMENTED | ✅ |
-| health-insurance | Health Insurance Appeal | COMING_SOON | ❌ |
-| medical-claim | Medical Claim Appeal | COMING_SOON | ❌ |
-| prior-authorization | Prior Authorization Appeal | COMING_SOON | ❌ |
-| out-of-network | Out-of-Network Appeal | COMING_SOON | ❌ |
-| no-authorization | No Authorization Appeal | COMING_SOON | ❌ |
-| timely-filing | Timely Filing Appeal | COMING_SOON | ❌ |
-| medicare | Medicare Appeal | COMING_SOON | ❌ |
-| dental-insurance | Dental Insurance Appeal | COMING_SOON | ❌ |
-
-### Disability & Social Security (5)
-| Slug | Title | Status | Executable |
-|------|-------|--------|------------|
-| ssi | SSI Appeal | COMING_SOON | ❌ |
-| ssdi | SSDI Appeal | COMING_SOON | ❌ |
-| social-security-reconsideration | Social Security Reconsideration | COMING_SOON | ❌ |
-| social-security-overpayment | Social Security Overpayment Appeal | COMING_SOON | ❌ |
-| appeals-council | Appeals Council Appeal | COMING_SOON | ❌ |
-
-### Unemployment (2)
-| Slug | Title | Status | Executable |
-|------|-------|--------|------------|
-| unemployment | Unemployment Appeal | COMING_SOON | ❌ |
-| edd | EDD Appeal | COMING_SOON | ❌ |
-
-### Government Benefits (4)
-| Slug | Title | Status | Executable |
-|------|-------|--------|------------|
-| medicaid | Medicaid Appeal | COMING_SOON | ❌ |
-| snap | SNAP Appeal | COMING_SOON | ❌ |
+| medicaid | Medicaid Appeal | Gold PR #11 | ✅ |
+| snap | SNAP Appeal | Gold PR #12 | ✅ |
 | benefits-denial | Benefits Denial Appeal | COMING_SOON | ❌ |
 | snap-eligibility | SNAP Eligibility Appeal | COMING_SOON | ❌ |
 
-### Workers' Compensation (2)
+### Disability & Social Security
 | Slug | Title | Status | Executable |
 |------|-------|--------|------------|
-| workers-comp | Workers Comp Appeal | COMING_SOON | ❌ |
-| workers-comp-claim-denial | Workers Comp Claim Denial | COMING_SOON | ❌ |
+| ssi | SSI Appeal | COMING_SOON | ❌ |
+| ssdi | SSDI Appeal | Gold PR #6 | ✅ |
+| social-security-reconsideration | Social Security Reconsideration | Gold PR #6 | ✅ |
+| social-security-overpayment | Social Security Overpayment Appeal | Gold PR #7 | ✅ |
+| appeals-council | Appeals Council Appeal | Gold PR #8 | ✅ |
 
-### Veterans (1)
+### Unemployment
 | Slug | Title | Status | Executable |
 |------|-------|--------|------------|
-| va-claim | VA Claim Appeal | COMING_SOON | ❌ |
+| unemployment | Unemployment Appeal | Gold PR #9 | ✅ |
+| edd | EDD Appeal | Gold PR #10 | ✅ |
 
-### Administrative (3)
-| Slug | Title | Status | Executable |
-|------|-------|--------|------------|
-| agency-decision | Agency Decision Appeal | COMING_SOON | ❌ |
-| administrative-decision | Administrative Decision Appeal | COMING_SOON | ❌ |
-| licensing | Licensing Appeal | COMING_SOON | ❌ |
+### Other categories
 
-## Routes
+Insurance: insurance-claim implemented; remaining insurance workflows COMING_SOON.
+Workers' Compensation: workers-comp and workers-comp-claim-denial COMING_SOON.
+Veterans: va-claim COMING_SOON.
+Administrative: agency-decision, administrative-decision, licensing upgraded in PRs #3–#5.
 
-- Category pages: `/appeal/insurance`, `/appeal/disability`, `/appeal/unemployment`, `/appeal/benefits`, `/appeal/workers-comp`, `/appeal/veterans`, `/appeal/administrative`
-- Workflow pages: `/appeal/$slug` (e.g., `/appeal/insurance-claim`, `/appeal/ssi`, etc.)
-- Executable workflow: `/workflows/denied-claim` (Insurance Appeal)
+## Executable Gold routes
+
+- `/workflows/ssdi-appeal`
+- `/workflows/social-security-reconsideration`
+- `/workflows/social-security-overpayment`
+- `/workflows/appeals-council`
+- `/workflows/unemployment-appeal`
+- `/workflows/edd-appeal`
+- `/workflows/medicaid-appeal`
+- `/workflows/snap-appeal`
 
 ## Catalog Entry Schema
 
-Each entry has: slug, title, category, shortDescription, longDescription, intendedUser, problemSolved, whatWeAnalyze[], whatYouNeed[], whatWeIdentify[], whatAppealAddresses[], seoTitle, seoDescription, primaryKeyword, relatedKeywords[], route, status, engine, executable, cta
+Each entry should include stable slug/title/category, product copy, search intent, authority maturity, SEO title/description, related keywords, route, status, engine, executable flag, CTA, and pricing profile.
