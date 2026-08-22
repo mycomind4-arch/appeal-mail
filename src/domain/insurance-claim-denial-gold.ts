@@ -1,5 +1,4 @@
 export const INSURANCE_CLAIM_DENIAL_CAPABILITIES = ["document-classification","fact-extraction","authority-resolution","deadline-verification","appeal-path-verification","evidence-analysis","contradiction-detection","timeline-analysis","adversarial-stress-test","response-strategy","drafting","independent-validation","readiness","human-approval","pricing","deterministic-pdf","submission","mailing","proof"] as const;
-
 export const INSURANCE_CLAIM_DENIAL_AUTHORITY_RULES = [
   "Use the actual denial notice, policy/plan documents supplied by the user, applicable regulator guidance, and current authoritative sources as the controlling record.",
   "Never invent coverage terms, exclusions, claim facts, diagnoses, damages, appeal rights, deadlines, or outcomes.",
@@ -8,7 +7,11 @@ export const INSURANCE_CLAIM_DENIAL_AUTHORITY_RULES = [
   "Unsupported procedural conclusions remain unresolved and block confident ready-to-send status.",
   "Never promise that an appeal will reverse the denial.",
 ] as const;
-
+export const INSURANCE_CLAIM_DENIAL_AUTHORITY_SOURCES = [
+  { title:"CMS — Appeals", url:"https://www.cms.gov/medicare/appeals-grievances/medicare-health-plans", freshnessRule:"verify-before-use" },
+  { title:"Healthcare.gov — Appeal a health plan decision", url:"https://www.healthcare.gov/marketplace-appeals/", freshnessRule:"verify-before-use" },
+  { title:"NAIC — Consumer Insurance Information", url:"https://content.naic.org/consumer", freshnessRule:"verify-before-use" },
+] as const;
 export const INSURANCE_CLAIM_DENIAL_PRICING = {
   preparationFee: 24.99,
   includedResponsePages: 3,
@@ -21,12 +24,12 @@ export const INSURANCE_CLAIM_DENIAL_PRICING = {
   largePacketFee: 2.50,
   largePacketThresholdSheets: 7,
 } as const;
-
 export const INSURANCE_CLAIM_DENIAL_GOLD = {
-  workflowId: "denied-claim",
-  title: "Appeal an Insurance Claim Denial",
-  lifecycle: "authority",
-  capabilities: INSURANCE_CLAIM_DENIAL_CAPABILITIES,
-  authorityRules: INSURANCE_CLAIM_DENIAL_AUTHORITY_RULES,
-  pricing: INSURANCE_CLAIM_DENIAL_PRICING,
+  workflowId:"denied-claim",
+  title:"Appeal an Insurance Claim Denial",
+  lifecycle:"authority",
+  capabilities:INSURANCE_CLAIM_DENIAL_CAPABILITIES,
+  authorityRules:INSURANCE_CLAIM_DENIAL_AUTHORITY_RULES,
+  authoritySources:INSURANCE_CLAIM_DENIAL_AUTHORITY_SOURCES,
+  pricing:INSURANCE_CLAIM_DENIAL_PRICING,
 } as const;
