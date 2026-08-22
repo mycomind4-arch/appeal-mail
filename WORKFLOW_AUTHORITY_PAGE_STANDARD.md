@@ -20,12 +20,32 @@ Required sections:
 15. Workflow-specific FAQ
 16. Glossary
 17. Related workflows
-18. Execution CTA
-19. Mailing, tracking, and proof
-20. Source freshness / last reviewed
+18. Transparent pricing
+19. Execution CTA
+20. Mailing, tracking, and proof
+21. Source freshness / last reviewed
+
+## Pricing requirement — LOCKED
+
+Every workflow landing page must show a truthful starting price and a transparent explanation of what changes the final price. Pricing must be workflow-specific.
+
+Show:
+- starting price and its packet assumption;
+- workflow preparation fee;
+- included response pages/sheets;
+- additional response-page pricing;
+- supporting-document/evidence-page pricing;
+- standard, Certified, and any available Registered/return-receipt options;
+- envelope/flat or color surcharges where applicable;
+- at least one representative total;
+- the exact-price-before-payment rule.
+
+The page must never imply that evidence-heavy workflows have the same fulfillment cost as a short response. The calculator uses physical sheets as the controlling unit when duplex printing or envelope size changes fulfillment economics.
 
 High-stakes claims require current source verification. Never invent deadlines, eligibility, authorities, recipients, facts, or outcomes. Authority-page maturity is separate from workflow maturity: placeholder -> authority-draft -> source-verified -> workflow-wired -> gold -> production-verified.
 
+Pricing maturity follows the same discipline: profile-defined -> market-modeled -> fulfillment-cost-verified -> checkout-wired -> gold -> production-verified.
+
 Canonical public host: https://mailmypdf.ai. Prelaunch indexing remains disabled until the owner's launch switch is enabled.
 
-Architecture source of truth: mailmypdf-platform. Do not create a competing page structure, URL scheme, or global navigation model.
+Architecture source of truth: mailmypdf-platform. Do not create a competing page structure, URL scheme, global navigation model, or pricing engine.
