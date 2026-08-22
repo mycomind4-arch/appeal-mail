@@ -7,12 +7,12 @@
 
 ## Overview
 
-20 appeal workflows across 7 categories. 3 executable Gold-standard workflows, with the remaining catalog entries staged for subsequent upgrades.
+20 appeal workflows across 7 categories. 2 production executable workflows are on the mainline catalog, with Agency Decision Appeal now upgraded on this branch to the Supreme Authority Gold Standard.
 
 ## Categories
 
 | Category | Slug | Workflows |
-|----------|------|-----------|
+|----------|-------|-----------|
 | Insurance | insurance | 9 |
 | Disability & Social Security | disability | 5 |
 | Unemployment | unemployment | 2 |
@@ -73,8 +73,8 @@
 ### Administrative (3)
 | Slug | Title | Status | Executable |
 |------|-------|--------|------------|
-| agency-decision | Agency Decision Appeal | GOLD | ✅ |
-| administrative-decision | Administrative Decision Appeal | GOLD | ✅ |
+| agency-decision | Agency Decision Appeal | GOLD_CANDIDATE | ✅ ON BRANCH `gold/agency-decision` |
+| administrative-decision | Administrative Decision Appeal | COMING_SOON | ❌ |
 | licensing | Licensing Appeal | COMING_SOON | ❌ |
 
 ## Gold workflow #3
@@ -87,6 +87,7 @@
 - API approval/readiness: `/api/workflows/agency-decision/approve`
 - API checkout: `/api/workflows/agency-decision/checkout`
 - Post-payment fulfillment: `/api/stripe-webhook`
+- Deterministic final-response PDF: `src/platform/simple-pdf.ts`
 - Primary SEO intent: `agency decision appeal`
 - Related intent: `appeal an agency decision`, `administrative agency appeal`, `government agency decision appeal`, `administrative decision review`, `challenge agency decision`
 
@@ -96,7 +97,7 @@ The landing page explicitly explains authority verification, deadline verificati
 
 - Category pages: `/appeal/insurance`, `/appeal/disability`, `/appeal/unemployment`, `/appeal/benefits`, `/appeal/workers-comp`, `/appeal/veterans`, `/appeal/administrative`
 - Workflow pages: `/appeal/$slug`
-- Gold executable workflows: `/workflows/denied-claim`, `/workflows/government-decision`, `/workflows/agency-decision`
+- Executable workflows: `/workflows/denied-claim`, `/workflows/agency-decision`
 
 ## Catalog Entry Schema
 
