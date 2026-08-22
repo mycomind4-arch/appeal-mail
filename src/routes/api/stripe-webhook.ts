@@ -11,8 +11,7 @@ export const Route = createFileRoute("/api/stripe-webhook")({
     if (!stripeSecretKey || !webhookSecret) return Response.json({ error: "Stripe webhook is not configured." }, { status: 503 });
     if (!signature) return Response.json({ error: "Missing Stripe signature header." }, { status: 400 });
     const stripe = new Stripe(stripeSecretKey, { apiVersion: "2024-06-20" as Stripe.LatestApiVersion });
-    const body = await request.text();
-    let event: Stripe.Event;
+    const body = await request.text(); let event: Stripe.Event;
     try { event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret); }
     catch (err) { return Response.json({ error: `Webhook signature verification failed: ${(err as Error).message}` }, { status: 400 }); }
 
@@ -37,16 +36,7 @@ export const Route = createFileRoute("/api/stripe-webhook")({
             const pdfBytes = textToPdf(appeal.draft, "Government Decision Appeal Response");
             const responseFile = new File([pdfBytes], `government-decision-${appealId}.pdf`, { type: "application/pdf" });
             const mailedDocument = await uploadDocument(responseFile);
-            const provider = await mailMyPDFProvider.createLetter({
-              workflowId,
-              documentId: mailedDocument.id,
-              recipient: { name: packet.recipientName, address1: packet.recipientAddress1, address2: packet.recipientAddress2, city: packet.recipientCity, state: packet.recipientState, postalCode: packet.recipientZip },
-              method: mailingMethod as "standard" | "certified" | "registered",
-              stripePaymentId: session.payment_intent as string,
-              idempotencyKey: `stripe:${session.id}:appeal:${appealId}`,
-              matterReference: appeal.decision?.referenceNumber || appealId,
-              matterType: "government-decision",
-            });
+            const provider = await mailMyPDFProvider.createLetter({ workflowId, documentId: mailedDocument.id, recipient: { name: packet.recipientName, address1: packet.recipientAddress1, address2: packet.recipientAddress2, city: packet.recipientCity, state: packet.recipientState, postalCode: packet.recipientZip }, method: mailingMethod as "standard" | "certified" | "registered", stripePaymentId: session.payment_intent as string, idempotencyKey: `stripe:${session.id}:appeal:${appealId}`, matterReference: appeal.decision?.referenceNumber || appealId, matterType: "government-decision" });
             const providerStatus = await mailMyPDFProvider.getStatus(provider.providerOrderId);
             const now = new Date().toISOString(); const finalAppealHash = await computeHash(appeal.draft);
             const proof = createProofPacket({ appealId, packetId: packet.id, finalAppealHash, attachmentHashes: [], recipient: { name: packet.recipientName, address1: packet.recipientAddress1, city: packet.recipientCity, state: packet.recipientState, zip: packet.recipientZip }, mailingMethod: mailingMethod as "standard" | "certified" | "registered", providerOrderId: provider.providerOrderId });
@@ -56,7 +46,6 @@ export const Route = createFileRoute("/api/stripe-webhook")({
             proof.sealedAt = now;
             const appealStatus = proof.status === "delivered" ? "delivered" : proof.status === "mailed" || proof.status === "in_transit" ? "mailed" : "ready";
             await supabase.from("appeals").update({ status: appealStatus, proof, updated_at: now }).eq("id", appealId).eq("user_id", appeal.user_id);
-            await supabase.from("mailings").update({ status: providerStatus.state, tracking_number: providerStatus.trackingNumber || null, provider_order_id: provider.providerOrderId }).eq("stripe_session_id", session.id);
             console.log(`Government decision fulfilled: ${appealId} -> ${provider.providerOrderId} (${providerStatus.state})`);
           } else {
             await supabase.from("appeals").update({ status: "ready", updated_at: new Date().toISOString() }).eq("id", appealId);
