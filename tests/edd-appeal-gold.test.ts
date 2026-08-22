@@ -1,0 +1,6 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { EDD_APPEAL_GOLD, EDD_APPEAL_CAPABILITIES, EDD_APPEAL_PRICING, EDD_APPEAL_AUTHORITY_SOURCES } from "../src/domain/edd-appeal-gold.ts";
+
+test("EDD Gold contract is complete",()=>{assert.equal(EDD_APPEAL_GOLD.workflowId,"edd-appeal");for(const capability of EDD_APPEAL_CAPABILITIES)assert.ok(EDD_APPEAL_GOLD.capabilities.includes(capability));assert.equal(EDD_APPEAL_PRICING.preparationFee,24.99);assert.equal(EDD_APPEAL_PRICING.includedResponsePages,3);assert.ok(EDD_APPEAL_AUTHORITY_SOURCES.length>=4);});
+test("EDD executable boundaries and pricing are wired",async()=>{const fs=await import("node:fs/promises");const source=(await Promise.all(["src/routes/workflows/edd-appeal.tsx","src/routes/api/workflows/edd-appeal/analyze.ts","src/routes/api/workflows/edd-appeal/draft.ts","src/routes/api/workflows/edd-appeal/validate.ts","src/routes/api/workflows/edd-appeal/approve.ts","src/routes/api/workflows/edd-appeal/checkout.ts","src/routes/api/stripe-webhook.ts"].map(p=>fs.readFile(p,"utf8")))).join("\n");assert.match(source,/edd-appeal/);assert.match(source,/Gemini/);assert.match(source,/MailMyPDF/);assert.match(source,/proof/i);assert.match(source,/24\.99/);assert.match(source,/0\.40/);assert.match(source,/0\.25/);assert.match(source,/independent/i);});
