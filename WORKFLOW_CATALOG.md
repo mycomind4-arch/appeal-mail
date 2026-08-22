@@ -1,13 +1,13 @@
 # WORKFLOW_CATALOG.md — Appeal Mail
 
-**Last updated:** 2026-08-20
-**Commit:** 601a5b2a
+**Last updated:** 2026-08-22
+**Commit:** Agency Decision Gold
 
 ---
 
 ## Overview
 
-20 appeal workflows across 7 categories. 1 implemented, 19 coming soon.
+20 appeal workflows across 7 categories. 3 executable Gold-standard workflows, with the remaining catalog entries staged for subsequent upgrades.
 
 ## Categories
 
@@ -20,8 +20,6 @@
 | Workers' Compensation | workers-comp | 2 |
 | Veterans | veterans | 1 |
 | Administrative | administrative | 3 |
-
-*Note: counts include category parent pages where applicable.*
 
 ## Workflows
 
@@ -75,15 +73,30 @@
 ### Administrative (3)
 | Slug | Title | Status | Executable |
 |------|-------|--------|------------|
-| agency-decision | Agency Decision Appeal | COMING_SOON | ❌ |
-| administrative-decision | Administrative Decision Appeal | COMING_SOON | ❌ |
+| agency-decision | Agency Decision Appeal | GOLD | ✅ |
+| administrative-decision | Administrative Decision Appeal | GOLD | ✅ |
 | licensing | Licensing Appeal | COMING_SOON | ❌ |
+
+## Gold workflow #3
+
+### Agency Decision Appeal
+
+- User-facing route: `/workflows/agency-decision`
+- API analyze: `/api/workflows/agency-decision/analyze`
+- API draft: `/api/workflows/agency-decision/draft`
+- API approval/readiness: `/api/workflows/agency-decision/approve`
+- API checkout: `/api/workflows/agency-decision/checkout`
+- Post-payment fulfillment: `/api/stripe-webhook`
+- Primary SEO intent: `agency decision appeal`
+- Related intent: `appeal an agency decision`, `administrative agency appeal`, `government agency decision appeal`, `administrative decision review`, `challenge agency decision`
+
+The landing page explicitly explains authority verification, deadline verification, appeal-path verification, evidence intelligence, contradiction analysis, independent validation, human approval, and provider-backed proof. Procedural claims remain source-dependent and unresolved claims are surfaced rather than invented.
 
 ## Routes
 
 - Category pages: `/appeal/insurance`, `/appeal/disability`, `/appeal/unemployment`, `/appeal/benefits`, `/appeal/workers-comp`, `/appeal/veterans`, `/appeal/administrative`
-- Workflow pages: `/appeal/$slug` (e.g., `/appeal/insurance-claim`, `/appeal/ssi`, etc.)
-- Executable workflow: `/workflows/denied-claim` (Insurance Appeal)
+- Workflow pages: `/appeal/$slug`
+- Gold executable workflows: `/workflows/denied-claim`, `/workflows/government-decision`, `/workflows/agency-decision`
 
 ## Catalog Entry Schema
 
