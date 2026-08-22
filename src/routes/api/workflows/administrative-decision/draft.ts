@@ -1,0 +1,21 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
+
+export const Route = createFileRoute("/api/workflows/administrative-decision/draft")({ server: { handlers: { POST: async ({ request }) => {
+  try {
+    const user = await requireAuthenticatedUser(request); const input = await request.json() as { appealId?: string };
+    if (!input.appealId) return Response.json({ error: "Appeal id is required." }, { status: 400 });
+    const supabase = await getSupabaseServer(); const { data: appeal } = await supabase.from("appeals").select("*").eq("id", input.appealId).single();
+    if (!appeal) return Response.json({ error: "Appeal case not found." }, { status: 404 }); if (appeal.user_id !== user.id) return Response.json({ error: "You do not own this appeal." }, { status: 403 });
+    const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN; const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
+    if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
+    const cfgRes = await fetch(`${base.replace(/\/$/,"")}/api/control-plane/ai`, { method: "POST", headers: { "content-type":"application/json", authorization:`Bearer ${token}` }, body: JSON.stringify({ verticalSlug:"appeal-mail", workflowSlug:"administrative-decision-appeal", task:"draft" }) });
+    const cfg = await cfgRes.json().catch(()=>null) as any; if (!cfgRes.ok) throw new Error(cfg?.error || `Control plane error (${cfgRes.status}).`); if (cfg.provider !== "gemini") throw new Error("Administrative Decision Appeal is currently configured for Gemini.");
+    const prompt = cfg.promptOverride || ["Draft a formal administrative decision appeal using only the supplied decision analysis.","Never invent facts, authority, deadlines, filing instructions, recipients, exhaustion requirements, or legal conclusions.","Keep unsupported procedural issues explicitly qualified and preserve the distinction between administrative and judicial review.","Write a complete, professional response suitable for human approval and mailing.",JSON.stringify(appeal.decision)].join("\n\n");
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(cfg.model)}:generateContent?key=${encodeURIComponent(cfg.apiKey)}`, { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:0.2}})});
+    const body = await response.json().catch(()=>null) as any; if (!response.ok) throw new Error(body?.error?.message || `Gemini drafting failed (${response.status}).`);
+    const draft = body?.candidates?.[0]?.content?.parts?.map((p:{text?:string})=>p.text||"").join("").trim(); if (!draft) throw new Error("Gemini returned no draft.");
+    await supabase.from("appeals").update({ draft, status:"in_progress", updated_at:new Date().toISOString() }).eq("id",input.appealId).eq("user_id",user.id);
+    return Response.json({ ok:true, appealId:input.appealId, draft, provider:"gemini", model:cfg.model });
+  } catch(error) { const message=error instanceof Error?error.message:"Unable to draft appeal."; return Response.json({error:message},{status:/authentication|required|token/i.test(message)?401:502}); }
+} } } });
