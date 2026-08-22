@@ -4,12 +4,12 @@
 
 ## Overview
 
-20 appeal workflows across 7 categories. 17 Gold workflow builds have now been prepared as executable products; CI/merge remains the certification gate.
+20 appeal workflows across 7 categories. Gold workflow builds are being prepared as executable products; CI and merge remain the certification gate.
 
 ## Categories
 
 | Category | Slug | Workflows |
-|---|---|---|
+|---|---|---:|
 | Insurance | insurance | 9 |
 | Disability & Social Security | disability | 5 |
 | Unemployment | unemployment | 2 |
@@ -21,7 +21,7 @@
 ## Workers' Compensation
 | Slug | Title | Status | Executable |
 |---|---|---|---|
-| workers-comp | Workers Comp Appeal | GOLD_PR |
+| workers-comp | Workers Comp Appeal | GOLD_PR | ✅ |
 | workers-comp-claim-denial | Workers Comp Claim Denial | GOLD_PR | ✅ |
 
 ## Routes
