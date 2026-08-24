@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Scale, ArrowRight, CheckCircle2, Loader2, AlertCircle, Mail } from "lucide-react";
+import { Stamp, ArrowRight, CheckCircle2, Loader2, AlertCircle, Mail } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/lib/auth";
@@ -98,7 +98,7 @@ function AuthPage() {
 
               <div className="mt-10 pt-6 border-t border-white/10">
                 <div className="flex items-center gap-2 text-xs text-white/40">
-                  <Scale size={14} />
+                  <Stamp size={14} />
                   <span>Appeal Mail is a MailMyPDF product</span>
                 </div>
               </div>

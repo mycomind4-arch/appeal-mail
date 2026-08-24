@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Clock, Scale, PackageCheck, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Clock, FileText, PackageCheck, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 export const Route = createFileRoute("/resources/$slug")({
@@ -27,7 +27,7 @@ function GuidePage() {
           <h1 className="mt-3 text-3xl font-bold text-indigo-700 md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>{guide.title}</h1>
         </div></section>
         <section className="py-10 md:py-14"><div className="container max-w-2xl prose-content">{guide.content}</div></section>
-        <section style={{ background: "linear-gradient(135deg, #312e81 0%, #1e1b4b 100%)" }} className="py-12"><div className="container max-w-2xl text-center"><h2 className="text-2xl font-bold text-white" style={{ fontFamily: "var(--font-serif)" }}>Ready to appeal?</h2><p className="mt-3 text-white/60">Start a guided workflow and get your appeal in the mail today.</p><Link to="/workflows/denied-claim" className="btn-amber mt-6">Start now</Link></div></section>
+        <section style={{ background: "linear-gradient(135deg, var(--ink) 0%, color-mix(in oklab, var(--ink) 85%, var(--paper-deep)) 100%)" }} className="py-12"><div className="container max-w-2xl text-center"><h2 className="text-2xl font-bold text-white" style={{ fontFamily: "var(--font-serif)" }}>Ready to appeal?</h2><p className="mt-3 text-white/60">Start a guided workflow and get your appeal in the mail today.</p><Link to="/workflows/denied-claim" className="btn-amber mt-6">Start now</Link></div></section>
       </article>
       <SiteFooter />
     </main>
@@ -52,7 +52,7 @@ function WritingContent() {
   return (<><P>A well-organized appeal letter can make the difference between a reversal and a denied appeal. Here's what to include and what to avoid.</P>
     <H2>What to include</H2>
     <UL><li><strong>Reference numbers:</strong> Claim number, case number, policy number, or any identifier from the denial</li><li><strong>Clear statement of what you're appealing:</strong> Don't leave the reviewer guessing</li><li><strong>Grounds for appeal:</strong> Why the decision should be reversed — factual errors, missing evidence, policy misinterpretation</li><li><strong>Supporting evidence:</strong> Reference any enclosed documents</li><li><strong>What outcome you want:</strong> Be specific about the resolution you're seeking</li></UL>
-    <Callout><Scale size={16} className="inline mr-1" /> <strong>Structure:</strong> Start with the reference, state your objective, present your facts, and close with your request. Keep it professional and concise.</Callout>
+    <Callout><FileText size={16} className="inline mr-1" /> <strong>Structure:</strong> Start with the reference, state your objective, present your facts, and close with your request. Keep it professional and concise.</Callout>
     <H2>What to avoid</H2>
     <UL><li>Emotional arguments — stick to facts</li><li>Vague statements — be specific about what was wrong with the decision</li><li>Missing information — always include reference numbers</li><li>Invented facts — never fabricate or exaggerate</li></UL>
     <P className="text-xs text-slate-300 mt-8">This guide is for informational purposes only and does not constitute legal advice.</P></>);

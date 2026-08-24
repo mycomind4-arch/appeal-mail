@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { FolderOpen, Mail, Settings, Plus, ChevronRight, Scale, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
+import { FolderOpen, Mail, Settings, Plus, ChevronRight, Stamp, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/lib/auth";
@@ -31,7 +31,7 @@ function DashboardPage() {
         <section className="py-20 md:py-32">
           <div className="container max-w-md text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full" style={{ background: "color-mix(in oklab, var(--stamp) 10%, transparent)" }}>
-              <Scale size={28} className="text-stamp" />
+              <Stamp size={28} className="text-stamp" />
             </div>
             <h1 className="mt-6 text-2xl font-bold text-ink" style={{ fontFamily: "var(--font-serif)" }}>
               Sign in to your MailMyPDF Account
@@ -118,7 +118,7 @@ function CasesTab() {
         <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">Start Something New</h3>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link to="/workflows" className="group flex items-center gap-3 rounded-lg border border-rule bg-card p-4 transition-all hover:border-ink/30 hover:shadow-sm">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}><Scale size={18} className="text-stamp" /></div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}><Stamp size={18} className="text-stamp" /></div>
             <div className="flex-1"><div className="text-sm font-medium text-ink">Appeal a decision</div><div className="text-xs text-muted-foreground">Insurance, government, court, benefits</div></div>
             <ChevronRight size={16} className="text-muted-foreground transition-transform group-hover:translate-x-0.5" />
           </Link>

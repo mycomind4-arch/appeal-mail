@@ -1,7 +1,7 @@
 import { AppShell, StatusBadge, DeadlineCard, ReadinessScore, EmptyState, SourceReference, ConfidenceBadge, IssueCard, AIActionBar, ActivityFeed, NAV_ICONS, NAV_LABELS, type WorkspaceNav } from "@/components/workspace/app-shell";
 import { AIDraftHelper } from "@/components/ai-draft-helper";
 import { Link } from "@tanstack/react-router";
-import { FileUp, ShieldAlert, CheckCircle2, Mail, PackageCheck, Stamp, CreditCard, Check, AlertTriangle, Clock, FileText, Link2, Scale, Gavel, Calendar, Paperclip, Send, Award, Download, Copy, FileSearch, LayoutDashboard, CalendarClock, TrendingUp, ArrowRight } from "lucide-react";
+import { FileUp, ShieldAlert, CheckCircle2, Mail, PackageCheck, Stamp, CreditCard, Check, AlertTriangle, Clock, FileText, Link2, FileSearch, Gavel, Calendar, Paperclip, Send, Award, Download, Copy, LayoutDashboard, CalendarClock, TrendingUp, ArrowRight } from "lucide-react";
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { workflows, type WorkflowId, type WorkflowDefinition, type WorkflowStep } from "@/domain/workflows";
 import { createDecision, type Decision, daysUntilDeadline, deadlineStatus } from "@/domain/decision";
@@ -597,7 +597,7 @@ export function WorkflowWizard({ workflowId, metaTitle, metaDescription, compone
   // ── Recent activity ──
   const activityItems = [
     ...(documentUploaded ? [{ description: "Decision uploaded", timestamp: "Recently", icon: FileText }] : []),
-    ...(xrayResult ? [{ description: `${xrayResult.findings.length} findings from X-Ray`, timestamp: "Recently", icon: Scale }] : []),
+    ...(xrayResult ? [{ description: `${xrayResult.findings.length} findings from X-Ray`, timestamp: "Recently", icon: FileSearch }] : []),
     ...(timelineResult ? [{ description: `Timeline reconstructed (${timelineResult.summary.totalEvents} events)`, timestamp: "Recently", icon: Calendar }] : []),
     ...(grounds.length > 0 ? [{ description: `${grounds.length} ground${grounds.length > 1 ? "s" : ""} defined`, timestamp: "Recently", icon: ShieldAlert }] : []),
     ...(evidence.length > 0 ? [{ description: `${evidence.length} evidence item${evidence.length > 1 ? "s" : ""} added`, timestamp: "Recently", icon: FileText }] : []),

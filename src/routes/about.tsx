@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Scale, Sparkles, Mail, ShieldCheck, ArrowRight, FileCheck } from "lucide-react";
+import { Stamp, Sparkles, Mail, ShieldCheck, ArrowRight, FileCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 export const Route = createFileRoute("/about")({
@@ -21,9 +21,9 @@ export const Route = createFileRoute("/about")({
 function AboutPage() {
   return (
     <main className="min-h-screen bg-cream"><SiteHeader />
-      <section style={{ background: "linear-gradient(135deg, #312e81 0%, #1e1b4b 100%)" }} className="py-16 md:py-24">
+      <section style={{ background: "linear-gradient(135deg, var(--ink) 0%, color-mix(in oklab, var(--ink) 85%, var(--paper-deep)) 100%)" }} className="py-16 md:py-24">
         <div className="container max-w-2xl text-center">
-          <div className="badge badge-amber mb-4" style={{ background: "rgba(245,158,11,.15)", color: "#fbbf24" }}>About Appeal Mail</div>
+          <div className="badge badge-amber mb-4" >About Appeal Mail</div>
           <h1 className="text-4xl font-bold text-white md:text-5xl" style={{ fontFamily: "var(--font-serif)" }}>Every denial deserves a response.</h1>
           <p className="mt-5 text-lg leading-8 text-white/60">We believe everyone deserves a clear, professional tool for appealing denied claims and decisions — without confusion, without guesswork, and without a printer.</p>
         </div>
@@ -46,7 +46,7 @@ function AboutPage() {
         <p className="mt-4 text-sm leading-7 text-slate-400">Appeal Mail is a standalone product built on the MailMyPDF mailing platform, which handles printing, enveloping, USPS delivery, tracking, and proof of delivery.</p>
         <div className="mt-6 flex items-center gap-4 rounded-xl border border-warm-border bg-white p-5"><div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50"><FileCheck size={22} className="text-indigo-700" /></div><div><p className="font-semibold text-indigo-700">MailMyPDF</p><p className="text-sm text-slate-400">The mailing infrastructure behind Appeal Mail</p></div></div>
       </div></section>
-      <section style={{ background: "linear-gradient(135deg, #312e81 0%, #1e1b4b 100%)" }} className="py-16"><div className="container text-center"><h2 className="text-2xl font-bold text-white" style={{ fontFamily: "var(--font-serif)" }}>Ready to appeal?</h2><p className="mx-auto mt-3 max-w-md text-white/60">Prepare and send your appeal today.</p><Link to="/workflows/denied-claim" className="btn-amber mt-6 text-base">Start now <ArrowRight size={18} /></Link></div></section>
+      <section style={{ background: "linear-gradient(135deg, var(--ink) 0%, color-mix(in oklab, var(--ink) 85%, var(--paper-deep)) 100%)" }} className="py-16"><div className="container text-center"><h2 className="text-2xl font-bold text-white" style={{ fontFamily: "var(--font-serif)" }}>Ready to appeal?</h2><p className="mx-auto mt-3 max-w-md text-white/60">Prepare and send your appeal today.</p><Link to="/workflows/denied-claim" className="btn-amber mt-6 text-base">Start now <ArrowRight size={18} /></Link></div></section>
       <SiteFooter />
     </main>
   );

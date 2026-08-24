@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Scale, Mail, ShieldCheck, Clock, PackageCheck, FileSearch, Send, Eye, CalendarClock, Stamp, FileText } from "lucide-react";
+import { ArrowRight, Mail, ShieldCheck, Clock, PackageCheck, FileSearch, Send, Eye, CalendarClock, Stamp, FileText, CheckCircle2, AlertTriangle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { workflows } from "@/domain/workflows";
+import { APPEAL_CATALOG, CATEGORY_ORDER } from "@/domain/appeal-catalog";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -19,14 +20,18 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const steps = [
-  { n: "01", title: "Understand", desc: "Upload the decision letter and supporting documents. We cross-reference everything to find date conflicts, unaddressed evidence, and contradictions — each finding source-linked.", icon: Eye },
-  { n: "02", title: "Build", desc: "Approved findings become appeal grounds with linked evidence. The draft is built from your analysis, not a blank page. Review and edit every word.", icon: FileText },
-  { n: "03", title: "Verify", desc: "We attack every ground from the decision-maker's perspective, score each argument 0–100, and find your weakest link. Then show you exactly how to fix it.", icon: ShieldCheck },
-  { n: "04", title: "Send", desc: "Before mailing, we scan your draft for exaggerated claims. Then MailMyPDF prints, envelops, and sends your document via USPS — certified with return receipt is recommended.", icon: Send },
-  { n: "05", title: "Track", desc: "MailMyPDF tracks delivery and gives you a permanent proof certificate with SHA-256 hash — your record that the appeal was filed on time.", icon: PackageCheck },
+/* ── Lifecycle steps for the hero diagram ── */
+const lifecycleSteps = [
+  { icon: FileText, label: "Decision", desc: "Upload the letter" },
+  { icon: FileSearch, label: "Issues", desc: "AI finds problems" },
+  { icon: ShieldCheck, label: "Evidence", desc: "Source-linked grounds" },
+  { icon: FileText, label: "Draft", desc: "Built from analysis" },
+  { icon: CheckCircle2, label: "Review", desc: "You approve it" },
+  { icon: Mail, label: "Mail", desc: "USPS via MailMyPDF" },
+  { icon: PackageCheck, label: "Proof", desc: "Delivery certificate" },
 ];
 
+/* ── Stats ── */
 const stats = [
   { value: "3–5", label: "Business day delivery" },
   { value: "$4.99", label: "Starting price per mailing" },
@@ -34,13 +39,15 @@ const stats = [
   { value: "0", label: "Printers needed" },
 ];
 
+/* ── Trust items ── */
 const trustItems = [
   { icon: ShieldCheck, title: "User review before sending", desc: "Nothing is mailed until you review and approve it." },
   { icon: Eye, title: "Source-aware reasoning", desc: "Findings cite the exact document and passage they come from." },
-  { icon: ShieldCheck, title: "No fabricated facts", desc: "The AI never invents facts, legal conclusions, or evidence." },
+  { icon: AlertTriangle, title: "No fabricated facts", desc: "The AI never invents facts, legal conclusions, or evidence." },
   { icon: Mail, title: "No automatic mailing", desc: "Physical mail is never sent without your explicit authorization." },
 ];
 
+/* ── FAQ ── */
 const faqItems = [
   { q: "Is this legal advice?", a: "No. Appeal Mail is a correspondence tool, not a law firm. We help you prepare and send appeal documents — we do not provide legal advice." },
   { q: "What types of decisions can I appeal?", a: "Insurance claim denials, health insurance decisions, SSI and SSDI denials, unemployment determinations, Medicaid denials, licensing and DMV decisions, and more. Browse the full directory on the Workflows page." },
@@ -50,6 +57,127 @@ const faqItems = [
   { q: "Do I need a MailMyPDF account?", a: "Yes. A free MailMyPDF Account lets you save your work, track mailings, and keep proof of delivery. One account works across all MailMyPDF products." },
 ];
 
+/* ── Featured workflow categories for the preview grid ── */
+const featuredCategories = [
+  {
+    name: "Insurance",
+    workflows: ["insurance-claim", "health-insurance", "medicare"],
+  },
+  {
+    name: "Disability & Social Security",
+    workflows: ["ssi", "ssdi", "social-security-reconsideration"],
+  },
+  {
+    name: "Government & Administrative",
+    workflows: ["medicaid", "unemployment", "agency-decision"],
+  },
+];
+
+function getCatalogEntry(slug: string) {
+  return APPEAL_CATALOG.find((w) => w.slug === slug);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Workflow Diagram — the signature hero visual
+   ═══════════════════════════════════════════════════════════ */
+function WorkflowDiagram() {
+  return (
+    <div className="relative">
+      {/* Subtle paper texture via stamp-colored radial */}
+      <div
+        className="absolute inset-0 -z-10 rounded-2xl"
+        style={{
+          background: "radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--stamp) 5%, transparent) 0%, transparent 70%)",
+        }}
+      />
+      <div className="rounded-2xl border border-rule bg-card p-6 md:p-8" style={{ boxShadow: "var(--shadow-card)" }}>
+        {/* Header row */}
+        <div className="mb-6 flex items-center justify-between">
+          <span className="postmark">Appeal Lifecycle</span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">7 stages</span>
+        </div>
+
+        {/* Vertical flow on mobile, horizontal on desktop */}
+        <div className="flex flex-col gap-1 md:flex-row md:items-start md:gap-0">
+          {lifecycleSteps.map((step, i) => (
+            <div key={step.label} className="flex items-center gap-2 md:flex-1 md:flex-col md:items-center md:text-center">
+              {/* Node */}
+              <div className="relative flex flex-shrink-0 items-center justify-center">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl border transition-all"
+                  style={{
+                    borderColor: i === 0 ? "var(--stamp)" : "var(--rule)",
+                    background: i === 0 ? "color-mix(in oklab, var(--stamp) 8%, transparent)" : "var(--paper-deep)",
+                  }}
+                >
+                  <step.icon
+                    size={18}
+                    className={i === 0 ? "text-stamp" : "text-ink-soft"}
+                  />
+                </div>
+              </div>
+
+              {/* Label */}
+              <div className="flex-1 md:mt-3 md:flex-none">
+                <p className="text-sm font-semibold text-ink">{step.label}</p>
+                <p className="text-xs text-muted-foreground">{step.desc}</p>
+              </div>
+
+              {/* Connector */}
+              {i < lifecycleSteps.length - 1 && (
+                <div
+                  className="ml-auto h-px flex-1 md:mb-0 md:ml-0 md:mt-0 md:w-8"
+                  style={{
+                    background: "var(--rule)",
+                    minHeight: "1px",
+                    minWidth: "1px",
+                  }}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-6 border-t border-rule pt-4">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Stamp size={12} className="text-stamp" />
+            <span className="font-mono uppercase tracking-widest">You approve before anything is mailed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Featured Workflow Card
+   ═══════════════════════════════════════════════════════════ */
+function FeaturedWorkflowCard({ entry }: { entry: ReturnType<typeof getCatalogEntry> }) {
+  if (!entry) return null;
+  const isExecutable = entry.status === "IMPLEMENTED" && entry.executable;
+
+  return (
+    <Link to={entry.route} className="card group block p-5 transition-all hover:shadow-[var(--shadow-hover)] hover:-translate-y-0.5">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="badge badge-amber">{entry.category}</span>
+        {isExecutable ? (
+          <span className="badge badge-green">Available</span>
+        ) : (
+          <span className="badge badge-outline">Catalog</span>
+        )}
+      </div>
+      <h3 className="text-base font-semibold text-ink transition-colors group-hover:text-stamp" style={{ fontFamily: "var(--font-serif)" }}>
+        {entry.title}
+      </h3>
+      <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{entry.shortDescription}</p>
+      <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-ink-soft transition-colors group-hover:text-stamp">
+        Learn more <ArrowRight size={12} />
+      </div>
+    </Link>
+  );
+}
+
 function HomePage() {
   const workflowCount = Object.keys(workflows).length;
 
@@ -57,63 +185,52 @@ function HomePage() {
     <main>
       <SiteHeader />
 
-      {/* Hero */}
+      {/* ═══════════ Hero ═══════════ */}
       <section className="relative overflow-hidden border-b border-rule">
+        <div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/f5976211c_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.06}}/>
         <div className="container relative py-20 md:py-28">
-          <div className="max-w-3xl">
-            <span className="postmark mb-6">Don't let the deadline pass</span>
-            <h1 className="mt-6 text-4xl leading-tight text-ink md:text-5xl lg:text-6xl" style={{ fontFamily: "var(--font-serif)" }}>
-              Understand the decision.<br />
-              Build the response.<br />
-              <span className="text-stamp">Send it with proof.</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-ink-soft sm:text-lg">
-              Got a denial, suspension, or government decision you need to challenge?
-              Upload the document, let the analysis find the issues, build a supported response,
-              and mail it with proof of timely filing.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/workflows" className="btn-amber">Find your appeal type <ArrowRight size={16} /></Link>
-              <Link to="/workflows/denied-claim" className="btn-outline">Start with a denied claim</Link>
-            </div>
-            <div className="mt-8 flex items-center gap-2 text-xs text-muted-foreground">
-              <Mail size={12} strokeWidth={2.5} />
-              <span className="font-mono uppercase tracking-widest">A MailMyPDF product</span>
-              <span className="mx-2 text-rule">·</span>
-              <span>{workflowCount} specialized workflows</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Core Journey */}
-      <section id="how" className="py-16 md:py-24">
-        <div className="container">
-          <div className="max-w-2xl">
-            <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">How it works</span>
-            <h2 className="mt-3 text-3xl font-bold text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>
-              Understand → Build → Verify → Send → Track
-            </h2>
-            <p className="mt-4 text-base leading-7 text-ink-soft">
-              Every appeal follows the same disciplined progression. You stay in control at every step.
-            </p>
-          </div>
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-            {steps.map((step) => (
-              <div key={step.n} className="group relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-rule bg-card transition-colors group-hover:border-stamp/40">
-                  <step.icon size={20} className="text-ink-soft transition-colors group-hover:text-stamp" />
-                </div>
-                <span className="mt-4 block font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">{step.n}</span>
-                <h3 className="mt-1 text-xl font-bold text-ink" style={{ fontFamily: "var(--font-serif)" }}>{step.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{step.desc}</p>
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            {/* Left: text */}
+            <div className="max-w-xl">
+              <span className="postmark mb-6">Don't let the deadline pass</span>
+              <h1
+                className="mt-6 text-4xl leading-tight text-ink md:text-5xl lg:text-6xl"
+                style={{ fontFamily: "var(--font-serif)" }}
+              >
+                Understand the decision.<br />
+                Build the response.<br />
+                <span className="text-stamp">Send it with proof.</span>
+              </h1>
+              <p className="mt-6 max-w-lg text-base leading-7 text-ink-soft sm:text-lg">
+                Got a denial, suspension, or government decision you need to challenge?
+                Upload the document, let the analysis find the issues, build a supported response,
+                and mail it with proof of timely filing.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link to="/workflows" className="btn-amber">
+                  Find your appeal type <ArrowRight size={16} />
+                </Link>
+                <Link to="/workflows/denied-claim" className="btn-outline">
+                  Start with a denied claim
+                </Link>
               </div>
-            ))}
+              <div className="mt-8 flex items-center gap-2 text-xs text-muted-foreground">
+                <Mail size={12} strokeWidth={2.5} />
+                <span className="font-mono uppercase tracking-widest">A MailMyPDF product</span>
+                <span className="mx-2 text-rule">·</span>
+                <span>{workflowCount} specialized workflows</span>
+              </div>
+            </div>
+
+            {/* Right: workflow diagram */}
+            <div className="hidden lg:block">
+              <WorkflowDiagram />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
+      {/* ═══════════ Stats ═══════════ */}
       <section className="border-y border-rule bg-card py-12">
         <div className="container">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
@@ -127,48 +244,124 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Workflow Types */}
-      <section className="py-16 md:py-24">
+      {/* ═══════════ Workflow Lifecycle ═══════════ */}
+      <section id="how" className="py-20 md:py-28">
         <div className="container">
           <div className="max-w-2xl">
-            <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Appeal Types</span>
+            <span className="eyebrow">How it works</span>
             <h2 className="mt-3 text-3xl font-bold text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>
-              {workflowCount} specialized workflows
+              From decision to proof of delivery
             </h2>
             <p className="mt-4 text-base leading-7 text-ink-soft">
-              Each workflow is tailored to a specific type of decision. Insurance denials, government benefits,
-              DMV suspensions, financial aid appeals, and more.
+              Every appeal follows the same disciplined progression. You stay in control at every step —
+              nothing is mailed until you approve it.
             </p>
           </div>
-          <div className="mt-8">
-            <Link to="/workflows" className="btn-amber">Browse all {workflowCount} workflows <ArrowRight size={16} /></Link>
+
+          {/* Mobile diagram (shown on small screens) */}
+          <div className="mt-12 lg:hidden">
+            <WorkflowDiagram />
+          </div>
+
+          {/* Desktop expanded lifecycle */}
+          <div className="mt-12 hidden lg:block">
+            <div className="flex items-start gap-2">
+              {lifecycleSteps.map((step, i) => (
+                <div key={step.label} className="flex flex-1 items-start">
+                  <div className="flex flex-col items-center text-center">
+                    <div
+                      className="flex h-14 w-14 items-center justify-center rounded-2xl border transition-all"
+                      style={{
+                        borderColor: i === 0 ? "var(--stamp)" : "var(--rule)",
+                        background: i === 0 ? "color-mix(in oklab, var(--stamp) 8%, transparent)" : "var(--paper-deep)",
+                      }}
+                    >
+                      <step.icon size={22} className={i === 0 ? "text-stamp" : "text-ink-soft"} />
+                    </div>
+                    <span className="mt-3 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="mt-1 text-lg font-bold text-ink" style={{ fontFamily: "var(--font-serif)" }}>{step.label}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">{step.desc}</p>
+                  </div>
+                  {i < lifecycleSteps.length - 1 && (
+                    <div
+                      className="mt-7 h-px flex-1 self-start"
+                      style={{ background: "var(--rule)", minWidth: "20px" }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Trust */}
-      <section className="border-y border-rule bg-card py-16 md:py-20">
+      {/* ═══════════ Featured Workflow Types ═══════════ */}
+      <section className="border-y border-rule bg-card py-20 md:py-28">
         <div className="container">
-          <h2 className="text-2xl font-bold text-ink md:text-3xl" style={{ fontFamily: "var(--font-serif)" }}>
-            You stay in control
-          </h2>
+          <div className="max-w-2xl">
+            <span className="eyebrow">Appeal Types</span>
+            <h2 className="mt-3 text-3xl font-bold text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>
+              {workflowCount} specialized workflows
+            </h2>
+            <p className="mt-4 text-base leading-7 text-ink-soft">
+              Each workflow is tailored to a specific type of decision — insurance denials, government benefits,
+              DMV suspensions, financial aid appeals, and more.
+            </p>
+          </div>
+
+          {featuredCategories.map((cat) => (
+            <div key={cat.name} className="mt-10">
+              <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-ink-soft">
+                <span className="h-px w-6 bg-rule" />
+                {cat.name}
+              </h3>
+              <div className="grid gap-4 md:grid-cols-3">
+                {cat.workflows.map((slug) => {
+                  const entry = getCatalogEntry(slug);
+                  return <FeaturedWorkflowCard key={slug} entry={entry} />;
+                })}
+              </div>
+            </div>
+          ))}
+
+          <div className="mt-10">
+            <Link to="/workflows" className="btn-amber">
+              Browse all {workflowCount} workflows <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ Trust ═══════════ */}
+      <section className="py-20 md:py-28">
+        <div className="container">
+          <div className="max-w-2xl">
+            <span className="eyebrow">Safety & Control</span>
+            <h2 className="mt-3 text-3xl font-bold text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>
+              You stay in control
+            </h2>
+          </div>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {trustItems.map((item) => (
-              <div key={item.title}>
-                <item.icon size={24} className="text-stamp" />
-                <h3 className="mt-3 text-base font-semibold text-ink">{item.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
+              <div key={item.title} className="card p-5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}>
+                  <item.icon size={18} className="text-stamp" />
+                </div>
+                <h3 className="mt-4 text-base font-semibold text-ink">{item.title}</h3>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-16 md:py-24">
+      {/* ═══════════ FAQ ═══════════ */}
+      <section className="border-y border-rule bg-card py-20 md:py-28">
         <div className="container max-w-3xl">
-          <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">FAQ</span>
-          <h2 className="mt-3 text-3xl font-bold text-ink" style={{ fontFamily: "var(--font-serif)" }}>
+          <span className="eyebrow">FAQ</span>
+          <h2 className="mt-3 text-3xl font-bold text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>
             Common questions
           </h2>
           <div className="mt-8 space-y-6">
@@ -182,9 +375,10 @@ function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="border-t border-rule bg-card py-16 md:py-24">
+      {/* ═══════════ CTA ═══════════ */}
+      <section className="py-20 md:py-28">
         <div className="container max-w-2xl text-center">
+          <span className="postmark mb-6">Start today</span>
           <h2 className="text-3xl font-bold text-ink md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>
             Ready to start?
           </h2>
@@ -192,8 +386,12 @@ function HomePage() {
             Find the workflow that matches your situation and upload your document.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/workflows" className="btn-amber">Browse appeal types <ArrowRight size={16} /></Link>
-            <Link to="/auth" className="btn-outline">Create a MailMyPDF Account</Link>
+            <Link to="/workflows" className="btn-amber">
+              Browse appeal types <ArrowRight size={16} />
+            </Link>
+            <Link to="/auth" className="btn-outline">
+              Create a MailMyPDF Account
+            </Link>
           </div>
         </div>
       </section>

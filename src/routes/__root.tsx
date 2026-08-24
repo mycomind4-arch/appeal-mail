@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext, Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Home, ArrowRight, Scale, Mail } from "lucide-react";
+import { Home, ArrowRight, Stamp, Mail } from "lucide-react";
 import appCss from "../styles.css?url";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -15,7 +15,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Appeal Mail — Understand the Decision. Build the Appeal. Mail It." },
       { name: "description", content: "Understand adverse decisions, organize evidence, build supported appeals, and mail them with proof of delivery. A MailMyPDF product." },
       { name: "robots", content: "index,follow" },
-      { name: "theme-color", content: "#1a1f2e" },
+      { name: "theme-color", content: "#2a2d3f" },
       { property: "og:title", content: "Appeal Mail — Understand the Decision. Build the Appeal. Mail It." },
       { property: "og:description", content: "Analyze decisions, organize evidence, build supported appeals, and send with proof of delivery. A MailMyPDF product." },
       { property: "og:type", content: "website" },
@@ -63,7 +63,7 @@ function NotFoundPage() {
       <section className="py-20 md:py-32">
         <div className="container max-w-lg text-center">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl" style={{ background: "color-mix(in oklab, var(--stamp) 10%, transparent)" }}>
-            <Scale size={36} className="text-stamp" />
+            <Stamp size={36} className="text-stamp" />
           </div>
           <h1 className="mt-8 text-6xl" style={{ fontFamily: "var(--font-serif)" }}>404</h1>
           <h2 className="mt-2 text-xl font-semibold text-ink-soft">This ruling is being appealed elsewhere</h2>

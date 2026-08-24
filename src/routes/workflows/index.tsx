@@ -22,7 +22,7 @@ function WorkflowDirectoryPage() {
   return (
     <main className="min-h-screen bg-cream">
       <SiteHeader />
-      <section className="border-b border-rule/60">
+      <section className="relative overflow-hidden border-b border-rule/60"><div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/1b0b677ad_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.05}}/>
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
           <div className="max-w-3xl">
             <div className="postmark w-fit">Appeal Mail</div>

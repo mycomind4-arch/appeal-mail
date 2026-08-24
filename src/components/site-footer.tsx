@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Scale, Mail } from "lucide-react";
+import { Stamp, Mail } from "lucide-react";
 import { workflows } from "@/domain/workflows";
 
 /* ═══════════════════════════════════════════════════════════
@@ -21,7 +21,7 @@ export function SiteFooter() {
           <div className="md:col-span-1">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: "var(--ink)" }}>
-                <Scale size={16} className="text-stamp" />
+                <Stamp size={16} className="text-stamp" />
               </div>
               <div className="flex flex-col">
                 <span className="text-base font-semibold text-ink" style={{ fontFamily: "var(--font-serif)" }}>Appeal Mail</span>

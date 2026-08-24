@@ -21,7 +21,7 @@ function AdministrativeDecisionPage() {
     catch (error) { setStatus(error instanceof Error ? error.message : "Unable to analyze the decision."); }
   }
   return <main className="mx-auto max-w-6xl px-6 py-12">
-    <section className="rounded-3xl border border-slate-200 bg-slate-950 p-8 text-white shadow-xl">
+    <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 p-8 text-white shadow-xl"><div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/1b0b677ad_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.06}}/>
       <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">Authority-first administrative review</p>
       <h1 className="mt-4 max-w-4xl text-4xl font-bold tracking-tight md:text-6xl">Appeal an Administrative Decision</h1>
       <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">Analyze what the decision actually says, identify the agency and jurisdiction, verify the applicable appeal path from authoritative sources, expose evidence gaps and contradictions, and build a response that you approve before it is mailed. No generic deadline or filing rule is treated as universal.</p>

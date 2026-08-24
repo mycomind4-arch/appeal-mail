@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import {
-  LayoutDashboard, FileText, Calendar, Scale, FolderOpen, FileEdit,
+  LayoutDashboard, FileText, Calendar, Stamp, FolderOpen, FileEdit, FileSearch,
   CheckCircle2, Package, Send, Truck, ShieldCheck, Menu, X, ChevronRight,
 } from "lucide-react";
 import type { WorkflowStep } from "../../domain/workflows";
@@ -56,7 +56,7 @@ export function AppShell({
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-warm-border">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-700">
-            <Scale size={16} className="text-amber-400" />
+            <Stamp size={16} className="text-stamp" />
           </div>
           <span className="text-base font-bold text-indigo-700" style={{ fontFamily: "var(--font-serif)" }}>
             Appeal Mail
@@ -476,10 +476,10 @@ export function ActivityFeed({
 export const NAV_ICONS: Record<string, typeof FileText> = {
   intro: LayoutDashboard,
   document: FileText,
-  xray: Scale,
+  xray: FileSearch,
   decision: FileText,
   timeline: Calendar,
-  grounds: Scale,
+  grounds: Stamp,
   evidence: FolderOpen,
   arguments: FileText,
   "stress-test": ShieldCheck,

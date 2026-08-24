@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Shield, ShieldCheck, AlertCircle, Loader2, Scale, Mail, FileText, PackageCheck } from "lucide-react";
+import { Shield, ShieldCheck, AlertCircle, Loader2, Stamp, Mail, FileText, PackageCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/lib/auth";
@@ -138,7 +138,7 @@ function AdminPage() {
 
         {adminData?.system && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <StatCard icon={Scale} label="Workflows" value={String(workflowCount)} status="ok" />
+            <StatCard icon={Stamp} label="Workflows" value={String(workflowCount)} status="ok" />
             <StatCard icon={Shield} label="Auth Configured" value={authConfigured ? "Yes" : "No"} status={authConfigured ? "ok" : "warning"} />
             <StatCard icon={FileText} label="Supabase URL" value={adminData.system.supabase_url_set ? "Set" : "Missing"} status={adminData.system.supabase_url_set ? "ok" : "error"} />
             <StatCard icon={ShieldCheck} label="Service Role Key" value={adminData.system.service_role_set ? "Set" : "Missing"} status={adminData.system.service_role_set ? "ok" : "error"} />
@@ -168,7 +168,7 @@ function AdminPage() {
 }
 
 function StatCard({ icon: Icon, label, value, status }: {
-  icon: typeof Scale;
+  icon: typeof Stamp;
   label: string;
   value: string;
   status: "ok" | "warning" | "error";

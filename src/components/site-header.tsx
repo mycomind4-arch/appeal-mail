@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Menu, X, Scale, Mail, User, LogOut, Shield } from "lucide-react";
+import { Menu, X, Stamp, Mail, User, LogOut, Shield } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 /* ═══════════════════════════════════════════════════════════
@@ -23,7 +23,7 @@ function BrandLockup() {
     <Link to="/" className="flex items-center gap-2.5 group">
       {/* Appeal Mail icon */}
       <div className="flex h-8 w-8 items-center justify-center rounded-md border border-rule" style={{ background: "var(--ink)" }}>
-        <Scale size={16} className="text-stamp" />
+        <Stamp size={16} className="text-stamp" />
       </div>
       <div className="flex flex-col">
         <span className="font-serif text-lg leading-none transition-colors group-hover:text-stamp">
