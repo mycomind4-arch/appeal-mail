@@ -1,17 +1,21 @@
 import { Link } from "@tanstack/react-router";
 import { Stamp, Mail } from "lucide-react";
 import { workflows } from "@/domain/workflows";
+import { ECOSYSTEM_PRODUCTS, ECOSYSTEM_PAGE_URL } from "./ecosystem-nav";
 
 /* ═══════════════════════════════════════════════════════════
    MailMyPDF Ecosystem Footer
    ═══════════════════════════════════════════════════════════
 
    Reinforces the MailMyPDF parent brand and ecosystem.
-   Only links products and routes that actually exist.
+   Links to all live product verticals at their production URLs.
    ═══════════════════════════════════════════════════════════ */
 
 export function SiteFooter() {
   const workflowCount = Object.keys(workflows).length;
+
+  // Filter out Appeal Mail (this product) for the "other products" list
+  const otherProducts = ECOSYSTEM_PRODUCTS.filter(p => p.product !== "Appeal Mail");
 
   return (
     <footer className="border-t border-rule bg-card">
@@ -41,10 +45,12 @@ export function SiteFooter() {
             <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">MailMyPDF Products</h3>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               <li><span className="font-medium text-foreground">Appeal Mail</span> <span className="text-muted-foreground/60">(this product)</span></li>
-              <li className="text-muted-foreground/50">Notice Respond <span className="text-[10px]">coming soon</span></li>
-              <li className="text-muted-foreground/50">Immigration Mail <span className="text-[10px]">coming soon</span></li>
-              <li className="text-muted-foreground/50">Dispute Mail <span className="text-[10px]">coming soon</span></li>
-              <li className="text-muted-foreground/50">Small Business Mail <span className="text-[10px]">coming soon</span></li>
+              {otherProducts.map((p) => (
+                <li key={p.product}>
+                  <a href={p.href} className="hover:text-stamp transition-colors">{p.product}</a>
+                </li>
+              ))}
+              <li><a href={ECOSYSTEM_PAGE_URL} className="font-medium text-stamp hover:text-stamp/80 transition-colors">Explore all workflows →</a></li>
             </ul>
           </div>
 
