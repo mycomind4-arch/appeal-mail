@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { Menu, X, Stamp, Mail, User, LogOut, Shield } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Menu, X, Stamp, Mail, User, LogOut, Shield, ChevronDown, ArrowRight } from "lucide-react";
+import { ECOSYSTEM_PRODUCTS, ECOSYSTEM_PAGE_URL } from "./ecosystem-nav";
 import { useAuth } from "@/lib/auth";
 
 /* ═══════════════════════════════════════════════════════════
@@ -36,6 +37,65 @@ function BrandLockup() {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   Ecosystem Workflows Dropdown
+   ═══════════════════════════════════════════════════════════ */
+
+function WorkflowsDropdown({ transparent }: { transparent?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1 px-3 py-2 text-sm transition-colors ${transparent ? "text-white/80 hover:text-white" : "text-ink-soft hover:text-foreground"}`}
+      >
+        Workflows
+        <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1.5 w-[520px] max-w-[calc(100vw-2rem)]">
+          <div className="overflow-hidden rounded-xl border border-rule bg-card shadow-premium">
+            <div className="border-b border-rule/60 px-5 py-3">
+              <div className="font-serif text-base">Workflows</div>
+              <p className="mt-0.5 text-xs text-muted-foreground">Purpose-built products for specific document problems.</p>
+            </div>
+            <div className="grid gap-px bg-rule/20 sm:grid-cols-2">
+              {ECOSYSTEM_PRODUCTS.map((p) => (
+                <a
+                  key={p.product}
+                  href={p.href}
+                  onClick={() => setOpen(false)}
+                  className="block bg-card px-4 py-3 transition-colors hover:bg-muted/40"
+                >
+                  <div className="font-medium text-sm text-foreground">{p.product}</div>
+                  <div className="mt-0.5 text-xs leading-5 text-muted-foreground">{p.description}</div>
+                </a>
+              ))}
+            </div>
+            <div className="flex items-center justify-between border-t border-rule bg-paper-deep/30 px-5 py-2.5">
+              <a href={ECOSYSTEM_PAGE_URL} onClick={() => setOpen(false)} className="text-xs font-medium text-cobalt hover:text-cobalt/80">
+                Explore all workflows →
+              </a>
+              <div className="text-[10px] text-muted-foreground">{ECOSYSTEM_PRODUCTS.length} product families</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
    Site Header
    ═══════════════════════════════════════════════════════════ */
 
@@ -65,6 +125,7 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-1 md:flex">
+          <WorkflowsDropdown transparent={transparent} />
           {links.map((item) => (
             <Link key={item.label} to={item.href} className={`px-3 py-2 text-sm transition-colors ${transparent ? "text-white/80 hover:text-white" : "text-ink-soft hover:text-foreground"}`}>
               {item.label}
@@ -110,6 +171,16 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
       {open && (
         <div className="border-t border-rule bg-paper md:hidden">
           <div className="flex flex-col gap-1 px-4 py-3">
+            <div className="mb-2">
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Workflows</div>
+              <div className="grid gap-0.5">
+                {ECOSYSTEM_PRODUCTS.map((p) => (
+                  <a key={p.product} href={p.href} className="rounded-lg px-3 py-2.5 text-sm text-ink-soft transition-colors hover:bg-muted/50 hover:text-foreground" onClick={() => setOpen(false)}>
+                    {p.product}
+                  </a>
+                ))}
+              </div>
+            </div>
             {links.map((item) => (
               <Link key={item.label} to={item.href} className="rounded-md px-3 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-muted/50 hover:text-foreground" onClick={() => setOpen(false)}>
                 {item.label}

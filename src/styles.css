@@ -377,3 +377,13 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ── Dark hero text utilities ──
+   These bypass the white→card remap so text is actually
+   white on dark background-image heroes. */
+.hero-light { color: #f8fafc; }
+.hero-muted { color: rgba(203, 213, 225, 0.85); }
+.hero-muted-soft { color: rgba(148, 163, 184, 0.9); }
+.hero-border { border-color: rgba(255, 255, 255, 0.12); }
+.hero-bg-glass { background-color: rgba(255, 255, 255, 0.05); backdrop-filter: blur(4px); }
+.hero-divider { color: rgba(100, 116, 139, 0.6); }

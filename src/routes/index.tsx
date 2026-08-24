@@ -186,38 +186,53 @@ function HomePage() {
       <SiteHeader />
 
       {/* ═══════════ Hero ═══════════ */}
-      <section className="relative overflow-hidden border-b border-rule">
-        <div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/f5976211c_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.15}}/>
-        <div className="container relative py-20 md:py-28">
+      <section className="relative isolate overflow-hidden">
+        {/* Background image — professional private office */}
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            backgroundImage: "url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/a99daa8e1_generated_image.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        {/* Navy-charcoal overlay for text legibility */}
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background: "linear-gradient(135deg, rgba(26,29,41,0.94) 0%, rgba(26,29,41,0.80) 45%, rgba(26,29,41,0.72) 100%)",
+          }}
+        />
+        <div className="container relative py-24 md:py-32">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             {/* Left: text */}
             <div className="max-w-xl">
-              <span className="postmark mb-6">Don't let the deadline pass</span>
+              <span className="postmark mb-6" style={{ borderColor: "rgba(180,83,9,0.5)", color: "rgba(217,180,120,0.9)" }}>Don't let the deadline pass</span>
               <h1
-                className="mt-6 text-4xl leading-tight text-ink md:text-5xl lg:text-6xl"
+                className="mt-6 text-4xl leading-tight hero-light md:text-5xl lg:text-6xl"
                 style={{ fontFamily: "var(--font-serif)" }}
               >
                 Understand the decision.<br />
                 Build the response.<br />
                 <span className="text-stamp">Send it with proof.</span>
               </h1>
-              <p className="mt-6 max-w-lg text-base leading-7 text-ink-soft sm:text-lg">
+              <p className="mt-6 max-w-lg text-base leading-7 hero-muted sm:text-lg">
                 Got a denial, suspension, or government decision you need to challenge?
                 Upload the document, let the analysis find the issues, build a supported response,
                 and mail it with proof of timely filing.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/workflows" className="btn-amber">
+                <Link to="/workflows" className="inline-flex items-center gap-2 rounded-full bg-stamp px-6 py-3 text-sm font-medium hero-light shadow-lg transition-transform hover:-translate-y-0.5">
                   Find your appeal type <ArrowRight size={16} />
                 </Link>
-                <Link to="/workflows/denied-claim" className="btn-outline">
+                <Link to="/workflows/denied-claim" className="inline-flex items-center gap-2 rounded-full border hero-border px-6 py-3 text-sm font-medium hero-light transition-colors hover:bg-white/10">
                   Start with a denied claim
                 </Link>
               </div>
-              <div className="mt-8 flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="mt-8 flex items-center gap-2 text-xs hero-muted-soft">
                 <Mail size={12} strokeWidth={2.5} />
                 <span className="font-mono uppercase tracking-widest">A MailMyPDF product</span>
-                <span className="mx-2 text-rule">·</span>
+                <span className="mx-2 hero-divider">·</span>
                 <span>{workflowCount} specialized workflows</span>
               </div>
             </div>

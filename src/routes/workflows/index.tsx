@@ -19,14 +19,29 @@ export const Route = createFileRoute("/workflows/")({
 function WorkflowDirectoryPage() {
   return (
     <main className="min-h-screen bg-cream">
-      <section className="relative overflow-hidden border-b border-rule/60"><div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/1b0b677ad_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.12}}/>
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
+      {/* Hero with background image */}
+      <section className="relative isolate overflow-hidden">
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            backgroundImage: "url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/348a016b8_generated_image.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background: "linear-gradient(135deg, rgba(26,29,41,0.94) 0%, rgba(26,29,41,0.80) 50%, rgba(26,29,41,0.85) 100%)",
+          }}
+        />
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="max-w-3xl">
-            <div className="postmark w-fit">Appeal Mail</div>
-            <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-5xl md:text-6xl">
+            <div className="postmark w-fit" style={{ borderColor: "rgba(180,83,9,0.5)", color: "rgba(217,180,120,0.9)" }}>Appeal Mail</div>
+            <h1 className="mt-5 font-serif text-4xl leading-tight hero-light sm:text-5xl md:text-6xl">
               Find the workflow that matches your situation.
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-ink-soft sm:text-lg">
+            <p className="mt-5 max-w-2xl text-base leading-7 hero-muted sm:text-lg">
               {appealWorkflowCount} specialized workflows. Start with the decision, denial, or notice you received.
               Upload it once — the system analyzes the document, builds the response, and keeps you in control before anything is mailed.
             </p>
