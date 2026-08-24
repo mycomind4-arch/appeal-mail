@@ -22,4 +22,4 @@ export const Route = createFileRoute("/api/workflows/denied-claim/checkout")({ s
     const session=await stripe.checkout.sessions.create({mode:"payment",payment_method_types:["card"],line_items:[{price_data:{currency:"usd",product_data:{name:"Insurance Claim Denial Appeal Packet",description:`Final approved packet — ${appeal.packet.pricing.mailingMethod} mailing`},unit_amount:Math.round(total*100)},quantity:1}],metadata:{appeal_id:appeal.id,workflow_id:"denied-claim",mailing_method:appeal.packet.pricing.mailingMethod,packet_total:String(total),owner_user_id:user.id},success_url:`${appUrl}/workflows/denied-claim?checkout=success&session_id={CHECKOUT_SESSION_ID}`,cancel_url:`${appUrl}/workflows/denied-claim?checkout=cancelled`});
     return Response.json({ok:true,sessionId:session.id,url:session.url,total});
   } catch(error){const message=error instanceof Error?error.message:"Unable to create checkout session.";return Response.json({error:message},{status:/authentication|required|token/i.test(message)?401:502});}
-}}}}});
+}}}});

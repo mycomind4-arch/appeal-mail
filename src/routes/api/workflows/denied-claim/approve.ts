@@ -37,4 +37,4 @@ export const Route = createFileRoute("/api/workflows/denied-claim/approve")({ se
     if(updateError) throw new Error(`Unable to approve appeal: ${updateError.message}`);
     return Response.json({ok:true,appealId,status:"ready",review,packet:{...packet,pricing}});
   } catch(error){const message=error instanceof Error?error.message:"Unable to approve appeal.";return Response.json({error:message},{status:/authentication|required|token/i.test(message)?401:502});}
-}}}}});
+}}}});

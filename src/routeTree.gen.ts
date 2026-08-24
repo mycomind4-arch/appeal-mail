@@ -28,6 +28,8 @@ import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
 import { Route as ResourcesSlugRouteImport } from './routes/resources/$slug'
 import { Route as WorkflowsIndexRouteImport } from './routes/workflows/index'
 import { Route as WorkflowsWorkflowIdRouteImport } from './routes/workflows/$workflowId'
+import { Route as WorkflowsAdministrativeDecisionRouteImport } from './routes/workflows/administrative-decision'
+import { Route as WorkflowsAdministrativeDecisionAppealRouteImport } from './routes/workflows/administrative-decision-appeal'
 import { Route as WorkflowsCarInsuranceAppealRouteImport } from './routes/workflows/car-insurance-appeal'
 import { Route as WorkflowsClaimDenialLetterRouteImport } from './routes/workflows/claim-denial-letter'
 import { Route as WorkflowsCourtRulingRouteImport } from './routes/workflows/court-ruling'
@@ -54,9 +56,11 @@ import { Route as WorkflowsMedicalNecessityAppealRouteImport } from './routes/wo
 import { Route as WorkflowsOutOfNetworkDenialRouteImport } from './routes/workflows/out-of-network-denial'
 import { Route as WorkflowsPriorAuthorizationDenialRouteImport } from './routes/workflows/prior-authorization-denial'
 import { Route as WorkflowsReconsiderationRouteImport } from './routes/workflows/reconsideration'
+import { Route as WorkflowsRegistrationSuspensionAppealRouteImport } from './routes/workflows/registration-suspension-appeal'
 import { Route as WorkflowsSapAppealRouteImport } from './routes/workflows/sap-appeal'
 import { Route as WorkflowsScholarshipAppealRouteImport } from './routes/workflows/scholarship-appeal'
 import { Route as WorkflowsSocialSecurityDenialRouteImport } from './routes/workflows/social-security-denial'
+import { Route as WorkflowsSsdiAppealRouteImport } from './routes/workflows/ssdi-appeal'
 import { Route as WorkflowsSsdiDenialRouteImport } from './routes/workflows/ssdi-denial'
 import { Route as WorkflowsUnemploymentDenialRouteImport } from './routes/workflows/unemployment-denial'
 import { Route as ApiAdminAppealsRouteImport } from './routes/api/admin/appeals'
@@ -65,6 +69,13 @@ import { Route as ApiAuthStatusRouteImport } from './routes/api/auth/status'
 import { Route as ApiControlPlaneAiRouteImport } from './routes/api/control-plane/ai'
 import { Route as ApiWorkflowsWorkflowIdAnalyzeRouteImport } from './routes/api/workflows/$workflowId/analyze'
 import { Route as ApiWorkflowsWorkflowIdDraftRouteImport } from './routes/api/workflows/$workflowId/draft'
+import { Route as ApiWorkflowsAdministrativeDecisionAppealAnalyzeRouteImport } from './routes/api/workflows/administrative-decision-appeal/analyze'
+import { Route as ApiWorkflowsAdministrativeDecisionAppealApproveRouteImport } from './routes/api/workflows/administrative-decision-appeal/approve'
+import { Route as ApiWorkflowsAdministrativeDecisionAppealCheckoutRouteImport } from './routes/api/workflows/administrative-decision-appeal/checkout'
+import { Route as ApiWorkflowsAdministrativeDecisionAppealDraftRouteImport } from './routes/api/workflows/administrative-decision-appeal/draft'
+import { Route as ApiWorkflowsAdministrativeDecisionAppealValidateRouteImport } from './routes/api/workflows/administrative-decision-appeal/validate'
+import { Route as ApiWorkflowsAdministrativeDecisionApproveRouteImport } from './routes/api/workflows/administrative-decision/approve'
+import { Route as ApiWorkflowsAdministrativeDecisionCheckoutRouteImport } from './routes/api/workflows/administrative-decision/checkout'
 import { Route as ApiWorkflowsCarInsuranceAppealAnalyzeRouteImport } from './routes/api/workflows/car-insurance-appeal/analyze'
 import { Route as ApiWorkflowsCarInsuranceAppealApproveRouteImport } from './routes/api/workflows/car-insurance-appeal/approve'
 import { Route as ApiWorkflowsCarInsuranceAppealCheckoutRouteImport } from './routes/api/workflows/car-insurance-appeal/checkout'
@@ -178,6 +189,11 @@ import { Route as ApiWorkflowsSocialSecurityDenialAnalyzeRouteImport } from './r
 import { Route as ApiWorkflowsSocialSecurityDenialApproveRouteImport } from './routes/api/workflows/social-security-denial/approve'
 import { Route as ApiWorkflowsSocialSecurityDenialCheckoutRouteImport } from './routes/api/workflows/social-security-denial/checkout'
 import { Route as ApiWorkflowsSocialSecurityDenialDraftRouteImport } from './routes/api/workflows/social-security-denial/draft'
+import { Route as ApiWorkflowsSsdiAppealAnalyzeRouteImport } from './routes/api/workflows/ssdi-appeal/analyze'
+import { Route as ApiWorkflowsSsdiAppealApproveRouteImport } from './routes/api/workflows/ssdi-appeal/approve'
+import { Route as ApiWorkflowsSsdiAppealCheckoutRouteImport } from './routes/api/workflows/ssdi-appeal/checkout'
+import { Route as ApiWorkflowsSsdiAppealDraftRouteImport } from './routes/api/workflows/ssdi-appeal/draft'
+import { Route as ApiWorkflowsSsdiAppealValidateRouteImport } from './routes/api/workflows/ssdi-appeal/validate'
 import { Route as ApiWorkflowsSsdiDenialAnalyzeRouteImport } from './routes/api/workflows/ssdi-denial/analyze'
 import { Route as ApiWorkflowsSsdiDenialApproveRouteImport } from './routes/api/workflows/ssdi-denial/approve'
 import { Route as ApiWorkflowsSsdiDenialCheckoutRouteImport } from './routes/api/workflows/ssdi-denial/checkout'
@@ -286,6 +302,18 @@ const WorkflowsWorkflowIdRoute = WorkflowsWorkflowIdRouteImport.update({
   path: '/$workflowId',
   getParentRoute: () => WorkflowsRoute,
 } as any)
+const WorkflowsAdministrativeDecisionRoute =
+  WorkflowsAdministrativeDecisionRouteImport.update({
+    id: '/administrative-decision',
+    path: '/administrative-decision',
+    getParentRoute: () => WorkflowsRoute,
+  } as any)
+const WorkflowsAdministrativeDecisionAppealRoute =
+  WorkflowsAdministrativeDecisionAppealRouteImport.update({
+    id: '/administrative-decision-appeal',
+    path: '/administrative-decision-appeal',
+    getParentRoute: () => WorkflowsRoute,
+  } as any)
 const WorkflowsCarInsuranceAppealRoute =
   WorkflowsCarInsuranceAppealRouteImport.update({
     id: '/car-insurance-appeal',
@@ -436,6 +464,12 @@ const WorkflowsReconsiderationRoute =
     path: '/reconsideration',
     getParentRoute: () => WorkflowsRoute,
   } as any)
+const WorkflowsRegistrationSuspensionAppealRoute =
+  WorkflowsRegistrationSuspensionAppealRouteImport.update({
+    id: '/registration-suspension-appeal',
+    path: '/registration-suspension-appeal',
+    getParentRoute: () => WorkflowsRoute,
+  } as any)
 const WorkflowsSapAppealRoute = WorkflowsSapAppealRouteImport.update({
   id: '/sap-appeal',
   path: '/sap-appeal',
@@ -453,6 +487,11 @@ const WorkflowsSocialSecurityDenialRoute =
     path: '/social-security-denial',
     getParentRoute: () => WorkflowsRoute,
   } as any)
+const WorkflowsSsdiAppealRoute = WorkflowsSsdiAppealRouteImport.update({
+  id: '/ssdi-appeal',
+  path: '/ssdi-appeal',
+  getParentRoute: () => WorkflowsRoute,
+} as any)
 const WorkflowsSsdiDenialRoute = WorkflowsSsdiDenialRouteImport.update({
   id: '/ssdi-denial',
   path: '/ssdi-denial',
@@ -494,6 +533,48 @@ const ApiWorkflowsWorkflowIdDraftRoute =
   ApiWorkflowsWorkflowIdDraftRouteImport.update({
     id: '/api/workflows/$workflowId/draft',
     path: '/api/workflows/$workflowId/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute =
+  ApiWorkflowsAdministrativeDecisionAppealAnalyzeRouteImport.update({
+    id: '/api/workflows/administrative-decision-appeal/analyze',
+    path: '/api/workflows/administrative-decision-appeal/analyze',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsAdministrativeDecisionAppealApproveRoute =
+  ApiWorkflowsAdministrativeDecisionAppealApproveRouteImport.update({
+    id: '/api/workflows/administrative-decision-appeal/approve',
+    path: '/api/workflows/administrative-decision-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsAdministrativeDecisionAppealCheckoutRoute =
+  ApiWorkflowsAdministrativeDecisionAppealCheckoutRouteImport.update({
+    id: '/api/workflows/administrative-decision-appeal/checkout',
+    path: '/api/workflows/administrative-decision-appeal/checkout',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsAdministrativeDecisionAppealDraftRoute =
+  ApiWorkflowsAdministrativeDecisionAppealDraftRouteImport.update({
+    id: '/api/workflows/administrative-decision-appeal/draft',
+    path: '/api/workflows/administrative-decision-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsAdministrativeDecisionAppealValidateRoute =
+  ApiWorkflowsAdministrativeDecisionAppealValidateRouteImport.update({
+    id: '/api/workflows/administrative-decision-appeal/validate',
+    path: '/api/workflows/administrative-decision-appeal/validate',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsAdministrativeDecisionApproveRoute =
+  ApiWorkflowsAdministrativeDecisionApproveRouteImport.update({
+    id: '/api/workflows/administrative-decision/approve',
+    path: '/api/workflows/administrative-decision/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsAdministrativeDecisionCheckoutRoute =
+  ApiWorkflowsAdministrativeDecisionCheckoutRouteImport.update({
+    id: '/api/workflows/administrative-decision/checkout',
+    path: '/api/workflows/administrative-decision/checkout',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiWorkflowsCarInsuranceAppealAnalyzeRoute =
@@ -1174,6 +1255,36 @@ const ApiWorkflowsSocialSecurityDenialDraftRoute =
     path: '/api/workflows/social-security-denial/draft',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiWorkflowsSsdiAppealAnalyzeRoute =
+  ApiWorkflowsSsdiAppealAnalyzeRouteImport.update({
+    id: '/api/workflows/ssdi-appeal/analyze',
+    path: '/api/workflows/ssdi-appeal/analyze',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSsdiAppealApproveRoute =
+  ApiWorkflowsSsdiAppealApproveRouteImport.update({
+    id: '/api/workflows/ssdi-appeal/approve',
+    path: '/api/workflows/ssdi-appeal/approve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSsdiAppealCheckoutRoute =
+  ApiWorkflowsSsdiAppealCheckoutRouteImport.update({
+    id: '/api/workflows/ssdi-appeal/checkout',
+    path: '/api/workflows/ssdi-appeal/checkout',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSsdiAppealDraftRoute =
+  ApiWorkflowsSsdiAppealDraftRouteImport.update({
+    id: '/api/workflows/ssdi-appeal/draft',
+    path: '/api/workflows/ssdi-appeal/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWorkflowsSsdiAppealValidateRoute =
+  ApiWorkflowsSsdiAppealValidateRouteImport.update({
+    id: '/api/workflows/ssdi-appeal/validate',
+    path: '/api/workflows/ssdi-appeal/validate',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiWorkflowsSsdiDenialAnalyzeRoute =
   ApiWorkflowsSsdiDenialAnalyzeRouteImport.update({
     id: '/api/workflows/ssdi-denial/analyze',
@@ -1265,6 +1376,8 @@ export interface FileRoutesByFullPath {
   '/appeal/$slug': typeof AppealSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/workflows/administrative-decision': typeof WorkflowsAdministrativeDecisionRoute
+  '/workflows/administrative-decision-appeal': typeof WorkflowsAdministrativeDecisionAppealRoute
   '/workflows/car-insurance-appeal': typeof WorkflowsCarInsuranceAppealRoute
   '/workflows/claim-denial-letter': typeof WorkflowsClaimDenialLetterRoute
   '/workflows/court-ruling': typeof WorkflowsCourtRulingRoute
@@ -1291,9 +1404,11 @@ export interface FileRoutesByFullPath {
   '/workflows/out-of-network-denial': typeof WorkflowsOutOfNetworkDenialRoute
   '/workflows/prior-authorization-denial': typeof WorkflowsPriorAuthorizationDenialRoute
   '/workflows/reconsideration': typeof WorkflowsReconsiderationRoute
+  '/workflows/registration-suspension-appeal': typeof WorkflowsRegistrationSuspensionAppealRoute
   '/workflows/sap-appeal': typeof WorkflowsSapAppealRoute
   '/workflows/scholarship-appeal': typeof WorkflowsScholarshipAppealRoute
   '/workflows/social-security-denial': typeof WorkflowsSocialSecurityDenialRoute
+  '/workflows/ssdi-appeal': typeof WorkflowsSsdiAppealRoute
   '/workflows/ssdi-denial': typeof WorkflowsSsdiDenialRoute
   '/workflows/unemployment-denial': typeof WorkflowsUnemploymentDenialRoute
   '/resources/': typeof ResourcesIndexRoute
@@ -1304,6 +1419,13 @@ export interface FileRoutesByFullPath {
   '/api/control-plane/ai': typeof ApiControlPlaneAiRoute
   '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
+  '/api/workflows/administrative-decision-appeal/analyze': typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
+  '/api/workflows/administrative-decision-appeal/approve': typeof ApiWorkflowsAdministrativeDecisionAppealApproveRoute
+  '/api/workflows/administrative-decision-appeal/checkout': typeof ApiWorkflowsAdministrativeDecisionAppealCheckoutRoute
+  '/api/workflows/administrative-decision-appeal/draft': typeof ApiWorkflowsAdministrativeDecisionAppealDraftRoute
+  '/api/workflows/administrative-decision-appeal/validate': typeof ApiWorkflowsAdministrativeDecisionAppealValidateRoute
+  '/api/workflows/administrative-decision/approve': typeof ApiWorkflowsAdministrativeDecisionApproveRoute
+  '/api/workflows/administrative-decision/checkout': typeof ApiWorkflowsAdministrativeDecisionCheckoutRoute
   '/api/workflows/car-insurance-appeal/analyze': typeof ApiWorkflowsCarInsuranceAppealAnalyzeRoute
   '/api/workflows/car-insurance-appeal/approve': typeof ApiWorkflowsCarInsuranceAppealApproveRoute
   '/api/workflows/car-insurance-appeal/checkout': typeof ApiWorkflowsCarInsuranceAppealCheckoutRoute
@@ -1417,6 +1539,11 @@ export interface FileRoutesByFullPath {
   '/api/workflows/social-security-denial/approve': typeof ApiWorkflowsSocialSecurityDenialApproveRoute
   '/api/workflows/social-security-denial/checkout': typeof ApiWorkflowsSocialSecurityDenialCheckoutRoute
   '/api/workflows/social-security-denial/draft': typeof ApiWorkflowsSocialSecurityDenialDraftRoute
+  '/api/workflows/ssdi-appeal/analyze': typeof ApiWorkflowsSsdiAppealAnalyzeRoute
+  '/api/workflows/ssdi-appeal/approve': typeof ApiWorkflowsSsdiAppealApproveRoute
+  '/api/workflows/ssdi-appeal/checkout': typeof ApiWorkflowsSsdiAppealCheckoutRoute
+  '/api/workflows/ssdi-appeal/draft': typeof ApiWorkflowsSsdiAppealDraftRoute
+  '/api/workflows/ssdi-appeal/validate': typeof ApiWorkflowsSsdiAppealValidateRoute
   '/api/workflows/ssdi-denial/analyze': typeof ApiWorkflowsSsdiDenialAnalyzeRoute
   '/api/workflows/ssdi-denial/approve': typeof ApiWorkflowsSsdiDenialApproveRoute
   '/api/workflows/ssdi-denial/checkout': typeof ApiWorkflowsSsdiDenialCheckoutRoute
@@ -1447,6 +1574,8 @@ export interface FileRoutesByTo {
   '/appeal/$slug': typeof AppealSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/workflows/administrative-decision': typeof WorkflowsAdministrativeDecisionRoute
+  '/workflows/administrative-decision-appeal': typeof WorkflowsAdministrativeDecisionAppealRoute
   '/workflows/car-insurance-appeal': typeof WorkflowsCarInsuranceAppealRoute
   '/workflows/claim-denial-letter': typeof WorkflowsClaimDenialLetterRoute
   '/workflows/court-ruling': typeof WorkflowsCourtRulingRoute
@@ -1473,9 +1602,11 @@ export interface FileRoutesByTo {
   '/workflows/out-of-network-denial': typeof WorkflowsOutOfNetworkDenialRoute
   '/workflows/prior-authorization-denial': typeof WorkflowsPriorAuthorizationDenialRoute
   '/workflows/reconsideration': typeof WorkflowsReconsiderationRoute
+  '/workflows/registration-suspension-appeal': typeof WorkflowsRegistrationSuspensionAppealRoute
   '/workflows/sap-appeal': typeof WorkflowsSapAppealRoute
   '/workflows/scholarship-appeal': typeof WorkflowsScholarshipAppealRoute
   '/workflows/social-security-denial': typeof WorkflowsSocialSecurityDenialRoute
+  '/workflows/ssdi-appeal': typeof WorkflowsSsdiAppealRoute
   '/workflows/ssdi-denial': typeof WorkflowsSsdiDenialRoute
   '/workflows/unemployment-denial': typeof WorkflowsUnemploymentDenialRoute
   '/resources': typeof ResourcesIndexRoute
@@ -1486,6 +1617,13 @@ export interface FileRoutesByTo {
   '/api/control-plane/ai': typeof ApiControlPlaneAiRoute
   '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
+  '/api/workflows/administrative-decision-appeal/analyze': typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
+  '/api/workflows/administrative-decision-appeal/approve': typeof ApiWorkflowsAdministrativeDecisionAppealApproveRoute
+  '/api/workflows/administrative-decision-appeal/checkout': typeof ApiWorkflowsAdministrativeDecisionAppealCheckoutRoute
+  '/api/workflows/administrative-decision-appeal/draft': typeof ApiWorkflowsAdministrativeDecisionAppealDraftRoute
+  '/api/workflows/administrative-decision-appeal/validate': typeof ApiWorkflowsAdministrativeDecisionAppealValidateRoute
+  '/api/workflows/administrative-decision/approve': typeof ApiWorkflowsAdministrativeDecisionApproveRoute
+  '/api/workflows/administrative-decision/checkout': typeof ApiWorkflowsAdministrativeDecisionCheckoutRoute
   '/api/workflows/car-insurance-appeal/analyze': typeof ApiWorkflowsCarInsuranceAppealAnalyzeRoute
   '/api/workflows/car-insurance-appeal/approve': typeof ApiWorkflowsCarInsuranceAppealApproveRoute
   '/api/workflows/car-insurance-appeal/checkout': typeof ApiWorkflowsCarInsuranceAppealCheckoutRoute
@@ -1599,6 +1737,11 @@ export interface FileRoutesByTo {
   '/api/workflows/social-security-denial/approve': typeof ApiWorkflowsSocialSecurityDenialApproveRoute
   '/api/workflows/social-security-denial/checkout': typeof ApiWorkflowsSocialSecurityDenialCheckoutRoute
   '/api/workflows/social-security-denial/draft': typeof ApiWorkflowsSocialSecurityDenialDraftRoute
+  '/api/workflows/ssdi-appeal/analyze': typeof ApiWorkflowsSsdiAppealAnalyzeRoute
+  '/api/workflows/ssdi-appeal/approve': typeof ApiWorkflowsSsdiAppealApproveRoute
+  '/api/workflows/ssdi-appeal/checkout': typeof ApiWorkflowsSsdiAppealCheckoutRoute
+  '/api/workflows/ssdi-appeal/draft': typeof ApiWorkflowsSsdiAppealDraftRoute
+  '/api/workflows/ssdi-appeal/validate': typeof ApiWorkflowsSsdiAppealValidateRoute
   '/api/workflows/ssdi-denial/analyze': typeof ApiWorkflowsSsdiDenialAnalyzeRoute
   '/api/workflows/ssdi-denial/approve': typeof ApiWorkflowsSsdiDenialApproveRoute
   '/api/workflows/ssdi-denial/checkout': typeof ApiWorkflowsSsdiDenialCheckoutRoute
@@ -1631,6 +1774,8 @@ export interface FileRoutesById {
   '/appeal/$slug': typeof AppealSlugRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/workflows/administrative-decision': typeof WorkflowsAdministrativeDecisionRoute
+  '/workflows/administrative-decision-appeal': typeof WorkflowsAdministrativeDecisionAppealRoute
   '/workflows/car-insurance-appeal': typeof WorkflowsCarInsuranceAppealRoute
   '/workflows/claim-denial-letter': typeof WorkflowsClaimDenialLetterRoute
   '/workflows/court-ruling': typeof WorkflowsCourtRulingRoute
@@ -1657,9 +1802,11 @@ export interface FileRoutesById {
   '/workflows/out-of-network-denial': typeof WorkflowsOutOfNetworkDenialRoute
   '/workflows/prior-authorization-denial': typeof WorkflowsPriorAuthorizationDenialRoute
   '/workflows/reconsideration': typeof WorkflowsReconsiderationRoute
+  '/workflows/registration-suspension-appeal': typeof WorkflowsRegistrationSuspensionAppealRoute
   '/workflows/sap-appeal': typeof WorkflowsSapAppealRoute
   '/workflows/scholarship-appeal': typeof WorkflowsScholarshipAppealRoute
   '/workflows/social-security-denial': typeof WorkflowsSocialSecurityDenialRoute
+  '/workflows/ssdi-appeal': typeof WorkflowsSsdiAppealRoute
   '/workflows/ssdi-denial': typeof WorkflowsSsdiDenialRoute
   '/workflows/unemployment-denial': typeof WorkflowsUnemploymentDenialRoute
   '/resources/': typeof ResourcesIndexRoute
@@ -1670,6 +1817,13 @@ export interface FileRoutesById {
   '/api/control-plane/ai': typeof ApiControlPlaneAiRoute
   '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
+  '/api/workflows/administrative-decision-appeal/analyze': typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
+  '/api/workflows/administrative-decision-appeal/approve': typeof ApiWorkflowsAdministrativeDecisionAppealApproveRoute
+  '/api/workflows/administrative-decision-appeal/checkout': typeof ApiWorkflowsAdministrativeDecisionAppealCheckoutRoute
+  '/api/workflows/administrative-decision-appeal/draft': typeof ApiWorkflowsAdministrativeDecisionAppealDraftRoute
+  '/api/workflows/administrative-decision-appeal/validate': typeof ApiWorkflowsAdministrativeDecisionAppealValidateRoute
+  '/api/workflows/administrative-decision/approve': typeof ApiWorkflowsAdministrativeDecisionApproveRoute
+  '/api/workflows/administrative-decision/checkout': typeof ApiWorkflowsAdministrativeDecisionCheckoutRoute
   '/api/workflows/car-insurance-appeal/analyze': typeof ApiWorkflowsCarInsuranceAppealAnalyzeRoute
   '/api/workflows/car-insurance-appeal/approve': typeof ApiWorkflowsCarInsuranceAppealApproveRoute
   '/api/workflows/car-insurance-appeal/checkout': typeof ApiWorkflowsCarInsuranceAppealCheckoutRoute
@@ -1783,6 +1937,11 @@ export interface FileRoutesById {
   '/api/workflows/social-security-denial/approve': typeof ApiWorkflowsSocialSecurityDenialApproveRoute
   '/api/workflows/social-security-denial/checkout': typeof ApiWorkflowsSocialSecurityDenialCheckoutRoute
   '/api/workflows/social-security-denial/draft': typeof ApiWorkflowsSocialSecurityDenialDraftRoute
+  '/api/workflows/ssdi-appeal/analyze': typeof ApiWorkflowsSsdiAppealAnalyzeRoute
+  '/api/workflows/ssdi-appeal/approve': typeof ApiWorkflowsSsdiAppealApproveRoute
+  '/api/workflows/ssdi-appeal/checkout': typeof ApiWorkflowsSsdiAppealCheckoutRoute
+  '/api/workflows/ssdi-appeal/draft': typeof ApiWorkflowsSsdiAppealDraftRoute
+  '/api/workflows/ssdi-appeal/validate': typeof ApiWorkflowsSsdiAppealValidateRoute
   '/api/workflows/ssdi-denial/analyze': typeof ApiWorkflowsSsdiDenialAnalyzeRoute
   '/api/workflows/ssdi-denial/approve': typeof ApiWorkflowsSsdiDenialApproveRoute
   '/api/workflows/ssdi-denial/checkout': typeof ApiWorkflowsSsdiDenialCheckoutRoute
@@ -1816,6 +1975,8 @@ export interface FileRouteTypes {
     | '/appeal/$slug'
     | '/resources/$slug'
     | '/workflows/$workflowId'
+    | '/workflows/administrative-decision'
+    | '/workflows/administrative-decision-appeal'
     | '/workflows/car-insurance-appeal'
     | '/workflows/claim-denial-letter'
     | '/workflows/court-ruling'
@@ -1842,9 +2003,11 @@ export interface FileRouteTypes {
     | '/workflows/out-of-network-denial'
     | '/workflows/prior-authorization-denial'
     | '/workflows/reconsideration'
+    | '/workflows/registration-suspension-appeal'
     | '/workflows/sap-appeal'
     | '/workflows/scholarship-appeal'
     | '/workflows/social-security-denial'
+    | '/workflows/ssdi-appeal'
     | '/workflows/ssdi-denial'
     | '/workflows/unemployment-denial'
     | '/resources/'
@@ -1855,6 +2018,13 @@ export interface FileRouteTypes {
     | '/api/control-plane/ai'
     | '/api/workflows/$workflowId/analyze'
     | '/api/workflows/$workflowId/draft'
+    | '/api/workflows/administrative-decision-appeal/analyze'
+    | '/api/workflows/administrative-decision-appeal/approve'
+    | '/api/workflows/administrative-decision-appeal/checkout'
+    | '/api/workflows/administrative-decision-appeal/draft'
+    | '/api/workflows/administrative-decision-appeal/validate'
+    | '/api/workflows/administrative-decision/approve'
+    | '/api/workflows/administrative-decision/checkout'
     | '/api/workflows/car-insurance-appeal/analyze'
     | '/api/workflows/car-insurance-appeal/approve'
     | '/api/workflows/car-insurance-appeal/checkout'
@@ -1968,6 +2138,11 @@ export interface FileRouteTypes {
     | '/api/workflows/social-security-denial/approve'
     | '/api/workflows/social-security-denial/checkout'
     | '/api/workflows/social-security-denial/draft'
+    | '/api/workflows/ssdi-appeal/analyze'
+    | '/api/workflows/ssdi-appeal/approve'
+    | '/api/workflows/ssdi-appeal/checkout'
+    | '/api/workflows/ssdi-appeal/draft'
+    | '/api/workflows/ssdi-appeal/validate'
     | '/api/workflows/ssdi-denial/analyze'
     | '/api/workflows/ssdi-denial/approve'
     | '/api/workflows/ssdi-denial/checkout'
@@ -1998,6 +2173,8 @@ export interface FileRouteTypes {
     | '/appeal/$slug'
     | '/resources/$slug'
     | '/workflows/$workflowId'
+    | '/workflows/administrative-decision'
+    | '/workflows/administrative-decision-appeal'
     | '/workflows/car-insurance-appeal'
     | '/workflows/claim-denial-letter'
     | '/workflows/court-ruling'
@@ -2024,9 +2201,11 @@ export interface FileRouteTypes {
     | '/workflows/out-of-network-denial'
     | '/workflows/prior-authorization-denial'
     | '/workflows/reconsideration'
+    | '/workflows/registration-suspension-appeal'
     | '/workflows/sap-appeal'
     | '/workflows/scholarship-appeal'
     | '/workflows/social-security-denial'
+    | '/workflows/ssdi-appeal'
     | '/workflows/ssdi-denial'
     | '/workflows/unemployment-denial'
     | '/resources'
@@ -2037,6 +2216,13 @@ export interface FileRouteTypes {
     | '/api/control-plane/ai'
     | '/api/workflows/$workflowId/analyze'
     | '/api/workflows/$workflowId/draft'
+    | '/api/workflows/administrative-decision-appeal/analyze'
+    | '/api/workflows/administrative-decision-appeal/approve'
+    | '/api/workflows/administrative-decision-appeal/checkout'
+    | '/api/workflows/administrative-decision-appeal/draft'
+    | '/api/workflows/administrative-decision-appeal/validate'
+    | '/api/workflows/administrative-decision/approve'
+    | '/api/workflows/administrative-decision/checkout'
     | '/api/workflows/car-insurance-appeal/analyze'
     | '/api/workflows/car-insurance-appeal/approve'
     | '/api/workflows/car-insurance-appeal/checkout'
@@ -2150,6 +2336,11 @@ export interface FileRouteTypes {
     | '/api/workflows/social-security-denial/approve'
     | '/api/workflows/social-security-denial/checkout'
     | '/api/workflows/social-security-denial/draft'
+    | '/api/workflows/ssdi-appeal/analyze'
+    | '/api/workflows/ssdi-appeal/approve'
+    | '/api/workflows/ssdi-appeal/checkout'
+    | '/api/workflows/ssdi-appeal/draft'
+    | '/api/workflows/ssdi-appeal/validate'
     | '/api/workflows/ssdi-denial/analyze'
     | '/api/workflows/ssdi-denial/approve'
     | '/api/workflows/ssdi-denial/checkout'
@@ -2181,6 +2372,8 @@ export interface FileRouteTypes {
     | '/appeal/$slug'
     | '/resources/$slug'
     | '/workflows/$workflowId'
+    | '/workflows/administrative-decision'
+    | '/workflows/administrative-decision-appeal'
     | '/workflows/car-insurance-appeal'
     | '/workflows/claim-denial-letter'
     | '/workflows/court-ruling'
@@ -2207,9 +2400,11 @@ export interface FileRouteTypes {
     | '/workflows/out-of-network-denial'
     | '/workflows/prior-authorization-denial'
     | '/workflows/reconsideration'
+    | '/workflows/registration-suspension-appeal'
     | '/workflows/sap-appeal'
     | '/workflows/scholarship-appeal'
     | '/workflows/social-security-denial'
+    | '/workflows/ssdi-appeal'
     | '/workflows/ssdi-denial'
     | '/workflows/unemployment-denial'
     | '/resources/'
@@ -2220,6 +2415,13 @@ export interface FileRouteTypes {
     | '/api/control-plane/ai'
     | '/api/workflows/$workflowId/analyze'
     | '/api/workflows/$workflowId/draft'
+    | '/api/workflows/administrative-decision-appeal/analyze'
+    | '/api/workflows/administrative-decision-appeal/approve'
+    | '/api/workflows/administrative-decision-appeal/checkout'
+    | '/api/workflows/administrative-decision-appeal/draft'
+    | '/api/workflows/administrative-decision-appeal/validate'
+    | '/api/workflows/administrative-decision/approve'
+    | '/api/workflows/administrative-decision/checkout'
     | '/api/workflows/car-insurance-appeal/analyze'
     | '/api/workflows/car-insurance-appeal/approve'
     | '/api/workflows/car-insurance-appeal/checkout'
@@ -2333,6 +2535,11 @@ export interface FileRouteTypes {
     | '/api/workflows/social-security-denial/approve'
     | '/api/workflows/social-security-denial/checkout'
     | '/api/workflows/social-security-denial/draft'
+    | '/api/workflows/ssdi-appeal/analyze'
+    | '/api/workflows/ssdi-appeal/approve'
+    | '/api/workflows/ssdi-appeal/checkout'
+    | '/api/workflows/ssdi-appeal/draft'
+    | '/api/workflows/ssdi-appeal/validate'
     | '/api/workflows/ssdi-denial/analyze'
     | '/api/workflows/ssdi-denial/approve'
     | '/api/workflows/ssdi-denial/checkout'
@@ -2371,6 +2578,13 @@ export interface RootRouteChildren {
   ApiControlPlaneAiRoute: typeof ApiControlPlaneAiRoute
   ApiWorkflowsWorkflowIdAnalyzeRoute: typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   ApiWorkflowsWorkflowIdDraftRoute: typeof ApiWorkflowsWorkflowIdDraftRoute
+  ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute: typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
+  ApiWorkflowsAdministrativeDecisionAppealApproveRoute: typeof ApiWorkflowsAdministrativeDecisionAppealApproveRoute
+  ApiWorkflowsAdministrativeDecisionAppealCheckoutRoute: typeof ApiWorkflowsAdministrativeDecisionAppealCheckoutRoute
+  ApiWorkflowsAdministrativeDecisionAppealDraftRoute: typeof ApiWorkflowsAdministrativeDecisionAppealDraftRoute
+  ApiWorkflowsAdministrativeDecisionAppealValidateRoute: typeof ApiWorkflowsAdministrativeDecisionAppealValidateRoute
+  ApiWorkflowsAdministrativeDecisionApproveRoute: typeof ApiWorkflowsAdministrativeDecisionApproveRoute
+  ApiWorkflowsAdministrativeDecisionCheckoutRoute: typeof ApiWorkflowsAdministrativeDecisionCheckoutRoute
   ApiWorkflowsCarInsuranceAppealAnalyzeRoute: typeof ApiWorkflowsCarInsuranceAppealAnalyzeRoute
   ApiWorkflowsCarInsuranceAppealApproveRoute: typeof ApiWorkflowsCarInsuranceAppealApproveRoute
   ApiWorkflowsCarInsuranceAppealCheckoutRoute: typeof ApiWorkflowsCarInsuranceAppealCheckoutRoute
@@ -2484,6 +2698,11 @@ export interface RootRouteChildren {
   ApiWorkflowsSocialSecurityDenialApproveRoute: typeof ApiWorkflowsSocialSecurityDenialApproveRoute
   ApiWorkflowsSocialSecurityDenialCheckoutRoute: typeof ApiWorkflowsSocialSecurityDenialCheckoutRoute
   ApiWorkflowsSocialSecurityDenialDraftRoute: typeof ApiWorkflowsSocialSecurityDenialDraftRoute
+  ApiWorkflowsSsdiAppealAnalyzeRoute: typeof ApiWorkflowsSsdiAppealAnalyzeRoute
+  ApiWorkflowsSsdiAppealApproveRoute: typeof ApiWorkflowsSsdiAppealApproveRoute
+  ApiWorkflowsSsdiAppealCheckoutRoute: typeof ApiWorkflowsSsdiAppealCheckoutRoute
+  ApiWorkflowsSsdiAppealDraftRoute: typeof ApiWorkflowsSsdiAppealDraftRoute
+  ApiWorkflowsSsdiAppealValidateRoute: typeof ApiWorkflowsSsdiAppealValidateRoute
   ApiWorkflowsSsdiDenialAnalyzeRoute: typeof ApiWorkflowsSsdiDenialAnalyzeRoute
   ApiWorkflowsSsdiDenialApproveRoute: typeof ApiWorkflowsSsdiDenialApproveRoute
   ApiWorkflowsSsdiDenialCheckoutRoute: typeof ApiWorkflowsSsdiDenialCheckoutRoute
@@ -2631,6 +2850,20 @@ declare module '@tanstack/react-router' {
       path: '/$workflowId'
       fullPath: '/workflows/$workflowId'
       preLoaderRoute: typeof WorkflowsWorkflowIdRouteImport
+      parentRoute: typeof WorkflowsRoute
+    }
+    '/workflows/administrative-decision': {
+      id: '/workflows/administrative-decision'
+      path: '/administrative-decision'
+      fullPath: '/workflows/administrative-decision'
+      preLoaderRoute: typeof WorkflowsAdministrativeDecisionRouteImport
+      parentRoute: typeof WorkflowsRoute
+    }
+    '/workflows/administrative-decision-appeal': {
+      id: '/workflows/administrative-decision-appeal'
+      path: '/administrative-decision-appeal'
+      fullPath: '/workflows/administrative-decision-appeal'
+      preLoaderRoute: typeof WorkflowsAdministrativeDecisionAppealRouteImport
       parentRoute: typeof WorkflowsRoute
     }
     '/workflows/car-insurance-appeal': {
@@ -2815,6 +3048,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsReconsiderationRouteImport
       parentRoute: typeof WorkflowsRoute
     }
+    '/workflows/registration-suspension-appeal': {
+      id: '/workflows/registration-suspension-appeal'
+      path: '/registration-suspension-appeal'
+      fullPath: '/workflows/registration-suspension-appeal'
+      preLoaderRoute: typeof WorkflowsRegistrationSuspensionAppealRouteImport
+      parentRoute: typeof WorkflowsRoute
+    }
     '/workflows/sap-appeal': {
       id: '/workflows/sap-appeal'
       path: '/sap-appeal'
@@ -2834,6 +3074,13 @@ declare module '@tanstack/react-router' {
       path: '/social-security-denial'
       fullPath: '/workflows/social-security-denial'
       preLoaderRoute: typeof WorkflowsSocialSecurityDenialRouteImport
+      parentRoute: typeof WorkflowsRoute
+    }
+    '/workflows/ssdi-appeal': {
+      id: '/workflows/ssdi-appeal'
+      path: '/ssdi-appeal'
+      fullPath: '/workflows/ssdi-appeal'
+      preLoaderRoute: typeof WorkflowsSsdiAppealRouteImport
       parentRoute: typeof WorkflowsRoute
     }
     '/workflows/ssdi-denial': {
@@ -2890,6 +3137,55 @@ declare module '@tanstack/react-router' {
       path: '/api/workflows/$workflowId/draft'
       fullPath: '/api/workflows/$workflowId/draft'
       preLoaderRoute: typeof ApiWorkflowsWorkflowIdDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/administrative-decision-appeal/analyze': {
+      id: '/api/workflows/administrative-decision-appeal/analyze'
+      path: '/api/workflows/administrative-decision-appeal/analyze'
+      fullPath: '/api/workflows/administrative-decision-appeal/analyze'
+      preLoaderRoute: typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/administrative-decision-appeal/approve': {
+      id: '/api/workflows/administrative-decision-appeal/approve'
+      path: '/api/workflows/administrative-decision-appeal/approve'
+      fullPath: '/api/workflows/administrative-decision-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsAdministrativeDecisionAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/administrative-decision-appeal/checkout': {
+      id: '/api/workflows/administrative-decision-appeal/checkout'
+      path: '/api/workflows/administrative-decision-appeal/checkout'
+      fullPath: '/api/workflows/administrative-decision-appeal/checkout'
+      preLoaderRoute: typeof ApiWorkflowsAdministrativeDecisionAppealCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/administrative-decision-appeal/draft': {
+      id: '/api/workflows/administrative-decision-appeal/draft'
+      path: '/api/workflows/administrative-decision-appeal/draft'
+      fullPath: '/api/workflows/administrative-decision-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsAdministrativeDecisionAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/administrative-decision-appeal/validate': {
+      id: '/api/workflows/administrative-decision-appeal/validate'
+      path: '/api/workflows/administrative-decision-appeal/validate'
+      fullPath: '/api/workflows/administrative-decision-appeal/validate'
+      preLoaderRoute: typeof ApiWorkflowsAdministrativeDecisionAppealValidateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/administrative-decision/approve': {
+      id: '/api/workflows/administrative-decision/approve'
+      path: '/api/workflows/administrative-decision/approve'
+      fullPath: '/api/workflows/administrative-decision/approve'
+      preLoaderRoute: typeof ApiWorkflowsAdministrativeDecisionApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/administrative-decision/checkout': {
+      id: '/api/workflows/administrative-decision/checkout'
+      path: '/api/workflows/administrative-decision/checkout'
+      fullPath: '/api/workflows/administrative-decision/checkout'
+      preLoaderRoute: typeof ApiWorkflowsAdministrativeDecisionCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/workflows/car-insurance-appeal/analyze': {
@@ -3683,6 +3979,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWorkflowsSocialSecurityDenialDraftRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/workflows/ssdi-appeal/analyze': {
+      id: '/api/workflows/ssdi-appeal/analyze'
+      path: '/api/workflows/ssdi-appeal/analyze'
+      fullPath: '/api/workflows/ssdi-appeal/analyze'
+      preLoaderRoute: typeof ApiWorkflowsSsdiAppealAnalyzeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/ssdi-appeal/approve': {
+      id: '/api/workflows/ssdi-appeal/approve'
+      path: '/api/workflows/ssdi-appeal/approve'
+      fullPath: '/api/workflows/ssdi-appeal/approve'
+      preLoaderRoute: typeof ApiWorkflowsSsdiAppealApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/ssdi-appeal/checkout': {
+      id: '/api/workflows/ssdi-appeal/checkout'
+      path: '/api/workflows/ssdi-appeal/checkout'
+      fullPath: '/api/workflows/ssdi-appeal/checkout'
+      preLoaderRoute: typeof ApiWorkflowsSsdiAppealCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/ssdi-appeal/draft': {
+      id: '/api/workflows/ssdi-appeal/draft'
+      path: '/api/workflows/ssdi-appeal/draft'
+      fullPath: '/api/workflows/ssdi-appeal/draft'
+      preLoaderRoute: typeof ApiWorkflowsSsdiAppealDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/ssdi-appeal/validate': {
+      id: '/api/workflows/ssdi-appeal/validate'
+      path: '/api/workflows/ssdi-appeal/validate'
+      fullPath: '/api/workflows/ssdi-appeal/validate'
+      preLoaderRoute: typeof ApiWorkflowsSsdiAppealValidateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/workflows/ssdi-denial/analyze': {
       id: '/api/workflows/ssdi-denial/analyze'
       path: '/api/workflows/ssdi-denial/analyze'
@@ -3772,6 +4103,8 @@ declare module '@tanstack/react-router' {
 
 interface WorkflowsRouteChildren {
   WorkflowsWorkflowIdRoute: typeof WorkflowsWorkflowIdRoute
+  WorkflowsAdministrativeDecisionRoute: typeof WorkflowsAdministrativeDecisionRoute
+  WorkflowsAdministrativeDecisionAppealRoute: typeof WorkflowsAdministrativeDecisionAppealRoute
   WorkflowsCarInsuranceAppealRoute: typeof WorkflowsCarInsuranceAppealRoute
   WorkflowsClaimDenialLetterRoute: typeof WorkflowsClaimDenialLetterRoute
   WorkflowsCourtRulingRoute: typeof WorkflowsCourtRulingRoute
@@ -3798,9 +4131,11 @@ interface WorkflowsRouteChildren {
   WorkflowsOutOfNetworkDenialRoute: typeof WorkflowsOutOfNetworkDenialRoute
   WorkflowsPriorAuthorizationDenialRoute: typeof WorkflowsPriorAuthorizationDenialRoute
   WorkflowsReconsiderationRoute: typeof WorkflowsReconsiderationRoute
+  WorkflowsRegistrationSuspensionAppealRoute: typeof WorkflowsRegistrationSuspensionAppealRoute
   WorkflowsSapAppealRoute: typeof WorkflowsSapAppealRoute
   WorkflowsScholarshipAppealRoute: typeof WorkflowsScholarshipAppealRoute
   WorkflowsSocialSecurityDenialRoute: typeof WorkflowsSocialSecurityDenialRoute
+  WorkflowsSsdiAppealRoute: typeof WorkflowsSsdiAppealRoute
   WorkflowsSsdiDenialRoute: typeof WorkflowsSsdiDenialRoute
   WorkflowsUnemploymentDenialRoute: typeof WorkflowsUnemploymentDenialRoute
   WorkflowsIndexRoute: typeof WorkflowsIndexRoute
@@ -3808,6 +4143,9 @@ interface WorkflowsRouteChildren {
 
 const WorkflowsRouteChildren: WorkflowsRouteChildren = {
   WorkflowsWorkflowIdRoute: WorkflowsWorkflowIdRoute,
+  WorkflowsAdministrativeDecisionRoute: WorkflowsAdministrativeDecisionRoute,
+  WorkflowsAdministrativeDecisionAppealRoute:
+    WorkflowsAdministrativeDecisionAppealRoute,
   WorkflowsCarInsuranceAppealRoute: WorkflowsCarInsuranceAppealRoute,
   WorkflowsClaimDenialLetterRoute: WorkflowsClaimDenialLetterRoute,
   WorkflowsCourtRulingRoute: WorkflowsCourtRulingRoute,
@@ -3839,9 +4177,12 @@ const WorkflowsRouteChildren: WorkflowsRouteChildren = {
   WorkflowsPriorAuthorizationDenialRoute:
     WorkflowsPriorAuthorizationDenialRoute,
   WorkflowsReconsiderationRoute: WorkflowsReconsiderationRoute,
+  WorkflowsRegistrationSuspensionAppealRoute:
+    WorkflowsRegistrationSuspensionAppealRoute,
   WorkflowsSapAppealRoute: WorkflowsSapAppealRoute,
   WorkflowsScholarshipAppealRoute: WorkflowsScholarshipAppealRoute,
   WorkflowsSocialSecurityDenialRoute: WorkflowsSocialSecurityDenialRoute,
+  WorkflowsSsdiAppealRoute: WorkflowsSsdiAppealRoute,
   WorkflowsSsdiDenialRoute: WorkflowsSsdiDenialRoute,
   WorkflowsUnemploymentDenialRoute: WorkflowsUnemploymentDenialRoute,
   WorkflowsIndexRoute: WorkflowsIndexRoute,
@@ -3875,6 +4216,20 @@ const rootRouteChildren: RootRouteChildren = {
   ApiControlPlaneAiRoute: ApiControlPlaneAiRoute,
   ApiWorkflowsWorkflowIdAnalyzeRoute: ApiWorkflowsWorkflowIdAnalyzeRoute,
   ApiWorkflowsWorkflowIdDraftRoute: ApiWorkflowsWorkflowIdDraftRoute,
+  ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute:
+    ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute,
+  ApiWorkflowsAdministrativeDecisionAppealApproveRoute:
+    ApiWorkflowsAdministrativeDecisionAppealApproveRoute,
+  ApiWorkflowsAdministrativeDecisionAppealCheckoutRoute:
+    ApiWorkflowsAdministrativeDecisionAppealCheckoutRoute,
+  ApiWorkflowsAdministrativeDecisionAppealDraftRoute:
+    ApiWorkflowsAdministrativeDecisionAppealDraftRoute,
+  ApiWorkflowsAdministrativeDecisionAppealValidateRoute:
+    ApiWorkflowsAdministrativeDecisionAppealValidateRoute,
+  ApiWorkflowsAdministrativeDecisionApproveRoute:
+    ApiWorkflowsAdministrativeDecisionApproveRoute,
+  ApiWorkflowsAdministrativeDecisionCheckoutRoute:
+    ApiWorkflowsAdministrativeDecisionCheckoutRoute,
   ApiWorkflowsCarInsuranceAppealAnalyzeRoute:
     ApiWorkflowsCarInsuranceAppealAnalyzeRoute,
   ApiWorkflowsCarInsuranceAppealApproveRoute:
@@ -4078,6 +4433,11 @@ const rootRouteChildren: RootRouteChildren = {
     ApiWorkflowsSocialSecurityDenialCheckoutRoute,
   ApiWorkflowsSocialSecurityDenialDraftRoute:
     ApiWorkflowsSocialSecurityDenialDraftRoute,
+  ApiWorkflowsSsdiAppealAnalyzeRoute: ApiWorkflowsSsdiAppealAnalyzeRoute,
+  ApiWorkflowsSsdiAppealApproveRoute: ApiWorkflowsSsdiAppealApproveRoute,
+  ApiWorkflowsSsdiAppealCheckoutRoute: ApiWorkflowsSsdiAppealCheckoutRoute,
+  ApiWorkflowsSsdiAppealDraftRoute: ApiWorkflowsSsdiAppealDraftRoute,
+  ApiWorkflowsSsdiAppealValidateRoute: ApiWorkflowsSsdiAppealValidateRoute,
   ApiWorkflowsSsdiDenialAnalyzeRoute: ApiWorkflowsSsdiDenialAnalyzeRoute,
   ApiWorkflowsSsdiDenialApproveRoute: ApiWorkflowsSsdiDenialApproveRoute,
   ApiWorkflowsSsdiDenialCheckoutRoute: ApiWorkflowsSsdiDenialCheckoutRoute,
