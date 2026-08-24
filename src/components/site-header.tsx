@@ -59,15 +59,15 @@ function WorkflowsDropdown({ transparent }: { transparent?: boolean }) {
         onClick={() => setOpen(!open)}
         className={`flex items-center gap-1 px-3 py-2 text-sm transition-colors ${transparent ? "text-white/80 hover:text-white" : "text-ink-soft hover:text-foreground"}`}
       >
-        Workflows
+        Products
         <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div className="absolute left-0 top-full z-50 mt-1.5 w-[520px] max-w-[calc(100vw-2rem)]">
           <div className="overflow-hidden rounded-xl border border-rule bg-card shadow-premium">
             <div className="border-b border-rule/60 px-5 py-3">
-              <div className="font-serif text-base">Workflows</div>
-              <p className="mt-0.5 text-xs text-muted-foreground">Purpose-built products for specific document problems.</p>
+              <div className="font-serif text-base">MailMyPDF Products</div>
+              <p className="mt-0.5 text-xs text-muted-foreground">Explore all MailMyPDF product verticals.</p>
             </div>
             <div className="grid gap-px bg-rule/20 sm:grid-cols-2">
               {ECOSYSTEM_PRODUCTS.map((p) => (
@@ -84,7 +84,7 @@ function WorkflowsDropdown({ transparent }: { transparent?: boolean }) {
             </div>
             <div className="flex items-center justify-between border-t border-rule bg-paper-deep/30 px-5 py-2.5">
               <a href={ECOSYSTEM_PAGE_URL} onClick={() => setOpen(false)} className="text-xs font-medium text-cobalt hover:text-cobalt/80">
-                Explore all workflows →
+                Explore all products →
               </a>
               <div className="text-[10px] text-muted-foreground">{ECOSYSTEM_PRODUCTS.length} product families</div>
             </div>
@@ -172,7 +172,7 @@ export function SiteHeader({ variant = "default" }: { variant?: "default" | "tra
         <div className="border-t border-rule bg-paper md:hidden">
           <div className="flex flex-col gap-1 px-4 py-3">
             <div className="mb-2">
-              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Workflows</div>
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Products</div>
               <div className="grid gap-0.5">
                 {ECOSYSTEM_PRODUCTS.map((p) => (
                   <a key={p.product} href={p.href} className="rounded-lg px-3 py-2.5 text-sm text-ink-soft transition-colors hover:bg-muted/50 hover:text-foreground" onClick={() => setOpen(false)}>
