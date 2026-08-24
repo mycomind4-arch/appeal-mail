@@ -187,7 +187,7 @@ function HomePage() {
 
       {/* ═══════════ Hero ═══════════ */}
       <section className="relative overflow-hidden border-b border-rule">
-        <div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/f5976211c_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.06}}/>
+        <div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/f5976211c_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.15}}/>
         <div className="container relative py-20 md:py-28">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             {/* Left: text */}

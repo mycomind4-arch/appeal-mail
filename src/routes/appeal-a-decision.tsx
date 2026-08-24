@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 export const Route=createFileRoute('/appeal-a-decision')({head:()=>({meta:[{title:'How to Appeal a Decision | Build and Send an Appeal | Appeal Mail'},{name:'description',content:'Organize a decision, deadline, evidence, and appeal grounds in one workflow. Draft, review, stress-test, and mail an appeal with a documented filing record.'}],links:[{rel:'canonical',href:'/appeal-a-decision'}]}),component:Page});
 function Page(){return <div className="min-h-screen"><SiteHeader/><main>
 <section className="relative overflow-hidden border-b border-rule/60">
-  <div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/5a2f48786_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.08}}/>
+  <div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/5a2f48786_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.20}}/>
   <div className="mx-auto max-w-5xl px-6 py-20 md:py-28">
     <div className="postmark w-fit">Appeal a decision</div>
     <h1 className="mt-6 max-w-4xl text-5xl leading-[1.02] md:text-7xl">Appeal a Decision Without Starting From a Blank Page</h1>
