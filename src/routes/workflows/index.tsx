@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppealWorkflowDirectory } from "@/components/appeal-workflow-directory";
 import { appealWorkflowCount } from "@/domain/workflows";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 
 export const Route = createFileRoute("/workflows/")({
   head: () => ({
@@ -21,7 +19,6 @@ export const Route = createFileRoute("/workflows/")({
 function WorkflowDirectoryPage() {
   return (
     <main className="min-h-screen bg-cream">
-      <SiteHeader />
       <section className="relative overflow-hidden border-b border-rule/60"><div className="absolute inset-0 -z-10" style={{backgroundImage:"url(https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/1b0b677ad_generated_image.png)",backgroundSize:"cover",backgroundPosition:"center",opacity:0.12}}/>
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
           <div className="max-w-3xl">
@@ -58,7 +55,6 @@ function WorkflowDirectoryPage() {
         </div>
       </section>
       <AppealWorkflowDirectory />
-      <SiteFooter />
     </main>
   );
 }
