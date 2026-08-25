@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { Stamp, ArrowRight, CheckCircle2, Loader2, AlertCircle, Mail } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -24,6 +24,7 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
+  const searchParams = useSearch({ from: "/auth" }) as { returnTo?: string };
   const { signUp, signIn, resetPassword, isConfigured } = useAuth();
 
   async function handleSubmit() {
@@ -39,12 +40,12 @@ function AuthPage() {
         if (needsConfirmation) {
           setSuccess(`We sent a confirmation link to ${email}. Click the link to complete your account.`);
         } else {
-          navigate({ to: "/dashboard" });
+          navigate({ to: (searchParams?.returnTo || "/dashboard") as "/dashboard" });
         }
       } else if (mode === "signin") {
         const { error } = await signIn(email, password);
         if (error) { setError(error); setLoading(false); return; }
-        navigate({ to: "/dashboard" });
+        navigate({ to: (searchParams?.returnTo || "/dashboard") as "/dashboard" });
       } else {
         const { error } = await resetPassword(email);
         if (error) { setError(error); setLoading(false); return; }
