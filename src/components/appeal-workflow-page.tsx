@@ -1,15 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { CheckCircle2, ArrowRight, FileText, Search, Lightbulb, FolderOpen, Send, ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowRight, FileText, Search, Lightbulb, FolderOpen, Send, ArrowLeft, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 import type { AppealWorkflowEntry } from "@/domain/appeal-catalog";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
-/**
- * Customer-facing workflow page.
- * Shows the catalog entry with full details and links to the actual
- * executable workflow route when the workflow is marked as implemented.
- */
+const PLACEHOLDER_IMAGE = "https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/06e033fed_generated_image.png";
+
 export function AppealWorkflowPage({ workflow }: { workflow: AppealWorkflowEntry }) {
   const isExecutable = workflow.executable === true;
   const startRoute = workflow.workflowRoute || "/workflows/denied-claim";
@@ -19,27 +16,25 @@ export function AppealWorkflowPage({ workflow }: { workflow: AppealWorkflowEntry
       <SiteHeader />
       <main>
         <section className="border-b border-rule/60 bg-paper-deep/20">
-          <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-20">
-            <Link to="/workflows" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
-              <ArrowLeft size={14} /> Appeal workflow directory
-            </Link>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <span className="rounded-full border border-rule bg-paper px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{workflow.category}</span>
-              {isExecutable ? (
-                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-stamp" style={{ background: "color-mix(in oklab, var(--stamp) 8%, transparent)" }}><CheckCircle2 size={10} /> Available now</span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-full border border-rule bg-paper px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground"><FileText size={10} /> Workflow catalog</span>
-              )}
-            </div>
-            <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-5xl md:text-6xl">{workflow.title}</h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-ink-soft sm:text-lg">{workflow.shortDescription}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {isExecutable ? (
-                <Link to={startRoute} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-stamp transition-transform hover:-translate-y-0.5">Start the workflow <ArrowRight size={16} /></Link>
-              ) : (
-                <Link to="/workflows" className="inline-flex items-center gap-2 rounded-full bg-paper-deep px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-paper">Explore the workflow directory <ArrowRight size={16} /></Link>
-              )}
-              <Link to="/workflows" className="inline-flex items-center gap-2 rounded-full border border-rule px-6 py-3 text-sm font-medium transition-colors hover:border-ink">Explore appeal types</Link>
+          <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
+            <Link to="/workflows" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"><ArrowLeft size={14} /> Appeal workflow directory</Link>
+            <div className="mt-7 grid gap-8 lg:grid-cols-[1.15fr_.85fr] lg:items-center">
+              <div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="rounded-full border border-rule bg-paper px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{workflow.category}</span>
+                  {isExecutable ? <span className="inline-flex items-center gap-1 rounded-full border border-rule bg-card px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-stamp"><ShieldCheck size={10} /> Available</span> : <span className="rounded-full border border-rule bg-paper px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Workflow guide</span>}
+                </div>
+                <h1 className="mt-5 max-w-4xl font-serif text-4xl leading-[1.06] tracking-[-0.02em] sm:text-5xl md:text-6xl">{workflow.title}</h1>
+                <p className="mt-5 max-w-2xl text-base leading-7 text-ink-soft sm:text-lg">{workflow.shortDescription}</p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  {isExecutable ? <Link to={startRoute} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-stamp transition-transform hover:-translate-y-0.5">Start this workflow <ArrowRight size={16} /></Link> : <Link to="/workflows" className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-card">Explore workflows <ArrowRight size={16} /></Link>}
+                  <Link to="/workflows" className="inline-flex items-center gap-2 rounded-full border border-rule px-6 py-3 text-sm font-medium transition-colors hover:border-ink">Browse appeal types</Link>
+                </div>
+              </div>
+              <div className="overflow-hidden rounded-2xl border border-rule/70 bg-card shadow-card">
+                <div className="relative aspect-[16/9]"><img src={PLACEHOLDER_IMAGE} alt="" aria-hidden="true" className="h-full w-full object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-ink/10 to-transparent" /><div className="absolute bottom-4 left-4 rounded-full border border-paper/30 bg-ink/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur-sm">Workflow image placeholder</div></div>
+                <div className="p-5 sm:p-6"><div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Simple on the surface</div><p className="mt-2 text-sm leading-6 text-muted-foreground">AI handles the analysis and organization underneath. You review the result before anything is sent.</p></div>
+              </div>
             </div>
           </div>
         </section>
@@ -59,15 +54,17 @@ export function AppealWorkflowPage({ workflow }: { workflow: AppealWorkflowEntry
 
         <section className="border-b border-rule/60"><div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16"><div className="grid gap-8 md:grid-cols-2"><div><div className="font-mono text-xs uppercase tracking-[0.18em] text-stamp">Who this is for</div><p className="mt-2 text-base leading-7 text-ink-soft">{workflow.intendedUser}</p></div><div><div className="font-mono text-xs uppercase tracking-[0.18em] text-stamp">The problem it solves</div><p className="mt-2 text-base leading-7 text-ink-soft">{workflow.problemSolved}</p></div></div></div></section>
 
-        <section className="border-b border-rule/60 bg-paper-deep/15"><div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16"><div className="grid gap-5 md:grid-cols-3"><ValueCard title="Understand" text="Turn the decision and supporting documents into a clear case picture." /><ValueCard title="Prepare" text="Organize supported grounds, evidence, and the material needed for review." /><ValueCard title="Mail & prove" text="When the workflow is ready, transition naturally into MailMyPDF for physical mailing, tracking, and proof." /></div></div></section>
+        <section className="border-b border-rule/60 bg-paper-deep/15"><div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16"><div className="grid gap-5 md:grid-cols-3"><ValueCard title="Understand" text="Turn the decision and supporting documents into a clear picture of what happened." /><ValueCard title="Build" text="Organize supported grounds, evidence, and a response you can review." /><ValueCard title="Send & prove" text="Approve the exact correspondence, then transition into MailMyPDF for mailing, tracking, and proof." /></div></div></section>
 
         <section className="border-t border-rule/60 bg-paper-deep/30">
           <div className="mx-auto max-w-4xl px-4 py-12 text-center sm:px-6 sm:py-20">
-            {isExecutable ? (
-              <><div className="postmark mx-auto w-fit">Ready to start</div><h2 className="mt-4 font-serif text-3xl sm:text-4xl">Start your {workflow.title.toLowerCase()}.</h2><p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">Upload the decision and supporting documents. Appeal Mail will take you through analysis, evidence, preparation, review, and the MailMyPDF fulfillment path.</p><Link to={startRoute} className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-stamp transition-transform hover:-translate-y-0.5"><Send size={16} /> Start an Appeal <ArrowRight size={16} /></Link></>
-            ) : (
-              <><div className="postmark mx-auto w-fit">Appeal workflow</div><h2 className="mt-4 font-serif text-3xl sm:text-4xl">Understand the path before you act.</h2><p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">This page describes the intended workflow and the documents, issues, evidence, and response structure associated with this appeal type.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><Link to="/workflows" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-stamp">Browse executable workflows <ArrowRight size={16} /></Link><Link to="/workflows" className="inline-flex items-center gap-2 rounded-full border border-rule px-6 py-3 text-sm font-medium transition-colors hover:border-ink">Browse appeal types</Link></div></>
-            )}
+            <div className="postmark mx-auto w-fit">AI assistance. Human approval.</div>
+            <h2 className="mt-4 font-serif text-3xl sm:text-4xl">The system does the heavy lifting. You approve the result.</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">Appeal Mail can analyze the decision, organize evidence, surface gaps, and prepare a draft. You remain responsible for your facts and approve the exact correspondence before mailing.</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {isExecutable && <Link to={startRoute} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-stamp transition-transform hover:-translate-y-0.5"><Send size={16} /> Start this workflow <ArrowRight size={16} /></Link>}
+              <Link to="/workflows" className="inline-flex items-center gap-2 rounded-full border border-rule px-6 py-3 text-sm font-medium transition-colors hover:border-ink">Browse workflows</Link>
+            </div>
           </div>
         </section>
       </main>
@@ -77,9 +74,9 @@ export function AppealWorkflowPage({ workflow }: { workflow: AppealWorkflowEntry
 }
 
 function InfoCard({ icon, title, items }: { icon: ReactNode; title: string; items: string[] }) {
-  return <div className="rounded-xl border border-rule bg-card p-6"><div className="flex items-center gap-2 text-stamp">{icon}<h2 className="font-serif text-xl text-foreground">{title}</h2></div><ul className="mt-4 space-y-2.5">{items.map((item, i) => <li key={i} className="flex items-start gap-2 text-sm leading-6 text-muted-foreground"><span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-stamp" />{item}</li>)}</ul></div>;
+  return <div className="rounded-2xl border border-rule bg-card p-6 shadow-card"><div className="flex items-center gap-2 text-stamp">{icon}<h2 className="font-serif text-xl text-foreground">{title}</h2></div><ul className="mt-4 space-y-2.5">{items.map((item, i) => <li key={i} className="flex items-start gap-2 text-sm leading-6 text-muted-foreground"><span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-stamp" />{item}</li>)}</ul></div>;
 }
 
 function ValueCard({ title, text }: { title: string; text: string }) {
-  return <div className="rounded-xl border border-rule bg-card p-5"><div className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-stamp"><ShieldCheck size={14} /> {title}</div><p className="mt-3 text-sm leading-6 text-muted-foreground">{text}</p></div>;
+  return <div className="rounded-2xl border border-rule bg-card p-5 shadow-card"><div className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-stamp"><ShieldCheck size={14} /> {title}</div><p className="mt-3 text-sm leading-6 text-muted-foreground">{text}</p></div>;
 }
