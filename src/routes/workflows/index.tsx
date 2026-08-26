@@ -1,17 +1,56 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppealWorkflowDirectory } from "@/components/appeal-workflow-directory";
 import { appealWorkflowCount } from "@/domain/workflows";
+import { workflows } from "@/domain/workflows";
+
+const SITE_ORIGIN = "https://mycomind4-arch-appeal-mail.pages.dev";
 
 export const Route = createFileRoute("/workflows/")({
   head: () => ({
     meta: [
-      { title: "Appeal Workflows — Appeal Mail" },
-      { name: "description", content: "Browse 33 problem-specific Appeal Mail workflows. Upload the decision or denial, let Gemini analyze it, build the response, review it, and prepare it for mailing." },
-      { property: "og:title", content: "Appeal Workflows — Appeal Mail" },
-      { property: "og:description", content: "Problem-specific appeal workflows with document upload, Gemini analysis, response drafting, review, and MailMyPDF fulfillment." },
+      { title: "Appeal Workflows — Insurance, Financial Aid & Government Appeals | Appeal Mail" },
+      { name: "description", content: "Browse all Appeal Mail workflows for insurance denials, financial aid appeals, government decisions, license suspensions, and more. Upload the decision, let AI analyze it, and build your response." },
+      { property: "og:title", content: "Appeal Workflows | Appeal Mail" },
+      { property: "og:description", content: "Problem-specific appeal workflows with document upload, AI analysis, response drafting, review, and MailMyPDF fulfillment." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Appeal Mail" },
+      { property: "og:url", content: SITE_ORIGIN + "/workflows" },
+      { property: "og:image", content: "https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/a99daa8e1_generated_image.png" },
+      { property: "og:image:width", content: "1024" },
+      { property: "og:image:height", content: "1024" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Appeal Workflows | Appeal Mail" },
+      { name: "twitter:description", content: "Problem-specific appeal workflows with document upload, AI analysis, response drafting, review, and mailing." },
+      { name: "twitter:image", content: "https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/a99daa8e1_generated_image.png" },
     ],
-    links: [{ rel: "canonical", href: "/workflows" }],
+    links: [{ rel: "canonical", href: SITE_ORIGIN + "/workflows" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Appeal Mail Workflows",
+          itemListElement: Object.values(workflows).map((w, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: w.title,
+            url: SITE_ORIGIN + "/workflows/" + w.id,
+          })),
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: SITE_ORIGIN + "/" },
+            { "@type": "ListItem", position: 2, name: "Workflows", item: SITE_ORIGIN + "/workflows" },
+          ],
+        }),
+      },
+    ],
   }),
   component: WorkflowDirectoryPage,
 });

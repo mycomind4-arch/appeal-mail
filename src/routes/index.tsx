@@ -5,6 +5,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { workflows } from "@/domain/workflows";
 import { APPEAL_CATALOG, CATEGORY_ORDER } from "@/domain/appeal-catalog";
 
+const SITE_ORIGIN = "https://mycomind4-arch-appeal-mail.pages.dev";
+
 export const Route = createFileRoute("/")({
   component: HomePage,
   head: () => ({
@@ -15,8 +17,43 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Appeal Mail — Understand the Decision. Build the Appeal. Mail It." },
       { property: "og:description", content: "Analyze decisions, organize evidence, build supported appeals, and send with proof of delivery. A MailMyPDF product." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Appeal Mail" },
+      { property: "og:url", content: SITE_ORIGIN + "/" },
+      { property: "og:image", content: "https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/a99daa8e1_generated_image.png" },
+      { property: "og:image:width", content: "1024" },
+      { property: "og:image:height", content: "1024" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Appeal Mail — Understand the Decision. Build the Appeal. Mail It." },
+      { name: "twitter:description", content: "Analyze decisions, organize evidence, build supported appeals, and send with proof of delivery." },
+      { name: "twitter:image", content: "https://media.base44.com/images/public/6a8bd310dfdf9ad92cf26415/a99daa8e1_generated_image.png" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: SITE_ORIGIN + "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Appeal Mail",
+          description: "Specialized workflows for understanding adverse decisions, organizing evidence, and building supported appeals with proof of delivery.",
+          url: SITE_ORIGIN,
+          publisher: { "@type": "Organization", name: "MailMyPDF" },
+          hasPart: Object.values(workflows).map((workflow) => ({ "@type": "WebPage", name: workflow.title, url: SITE_ORIGIN + "/workflows/" + workflow.id, about: workflow.primaryKeyword || workflow.title })),
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Appeal Mail",
+          serviceType: "Appeal letter preparation and mailing",
+          provider: { "@type": "Organization", name: "MailMyPDF" },
+          description: "Upload a denial or decision letter. The system analyzes it, identifies issues, organizes evidence, drafts the response, and mails it with proof of delivery.",
+          areaServed: { "@type": "Country", name: "United States" },
+        }),
+      },
+    ],
   }),
 });
 
