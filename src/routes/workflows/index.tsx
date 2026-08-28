@@ -3,7 +3,7 @@ import { AppealWorkflowDirectory } from "@/components/appeal-workflow-directory"
 import { appealWorkflowCount } from "@/domain/workflows";
 import { workflows } from "@/domain/workflows";
 
-const SITE_ORIGIN = "https://mycomind4-arch-appeal-mail.pages.dev";
+const SITE_ORIGIN = "https://appeal-mail.pages.dev";
 
 export const Route = createFileRoute("/workflows/")({
   head: () => ({

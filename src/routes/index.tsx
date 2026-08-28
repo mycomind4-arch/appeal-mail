@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { workflows } from "@/domain/workflows";
 import { APPEAL_CATALOG, CATEGORY_ORDER } from "@/domain/appeal-catalog";
 
-const SITE_ORIGIN = "https://mycomind4-arch-appeal-mail.pages.dev";
+const SITE_ORIGIN = "https://appeal-mail.pages.dev";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
