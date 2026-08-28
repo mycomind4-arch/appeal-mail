@@ -2,11 +2,11 @@ export const ADMINISTRATIVE_DECISION_PRICING = {
   preparationFee: 24.99,
   includedResponsePages: 3,
   responsePagePrice: 0.40,
-  supportingPagePrice: 0.25,
-  standardMail: 5.49,
-  certifiedMail: 12.49,
-  registeredMail: 29.99,
-  flatEnvelopeFee: 2.50,
+  supportingPagePrice: (_p.supportingPageCents || 0) / 100,
+  standardMail: PRICES.standard / 100,
+  certifiedMail: PRICES.certified / 100,
+  registeredMail: PRICES.registered / 100,
+  flatEnvelopeFee: 0,
 } as const;
 
 export function calculateAdministrativeDecisionTotal(input: {

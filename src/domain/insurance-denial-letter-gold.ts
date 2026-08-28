@@ -1,4 +1,17 @@
-export const INSURANCE_DENIAL_LETTER_PRICING={preparationFee:19.99,includedResponsePages:3,responsePagePrice:0.45,supportingPagePrice:0.25,standardMail:5.49,certifiedMail:12.49,registeredMail:29.99,largePacketFee:2.5,largePacketThresholdSheets:7} as const;
+import { getWorkflowPricingProfile, PRICES } from "@mailmypdf/pricing";
+const _p = getWorkflowPricingProfile("insurance-denial-letter")!;
+export const INSURANCE_DENIAL_LETTER_PRICING = {
+  preparationFee: (_p.basePriceCents / 100),
+  includedResponsePages: _p.includedPages,
+  responsePagePrice: ((_p.extraPageCents || 0) / 100),
+  supportingPagePrice: ((_p.supportingPageCents || 0) / 100),
+  standardMail: (PRICES.standard / 100),
+  certifiedMail: (PRICES.certified / 100),
+  registeredMail: (PRICES.registered / 100),
+  flatEnvelopeFee: 0,
+  largePacketFee: 0,
+  largePacketThresholdSheets: 0,
+} as const;
 export const INSURANCE_DENIAL_LETTER_AUTHORITY_RULES=[
 "Use the actual denial letter, policy/plan materials supplied by the customer, issuer instructions, applicable regulator guidance, and current official sources as the controlling record.",
 "Never invent coverage terms, exclusions, claim facts, deadlines, appeal rights, filing methods, or outcomes.",

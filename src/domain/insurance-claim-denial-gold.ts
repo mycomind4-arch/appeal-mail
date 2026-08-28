@@ -12,17 +12,16 @@ export const INSURANCE_CLAIM_DENIAL_AUTHORITY_SOURCES = [
   { title:"Healthcare.gov — Appeal a health plan decision", url:"https://www.healthcare.gov/marketplace-appeals/", freshnessRule:"verify-before-use" },
   { title:"NAIC — Consumer Insurance Information", url:"https://content.naic.org/consumer", freshnessRule:"verify-before-use" },
 ] as const;
+import { getWorkflowPricingProfile, PRICES } from "@mailmypdf/pricing";
+const _p = getWorkflowPricingProfile("denied-claim")!;
 export const INSURANCE_CLAIM_DENIAL_PRICING = {
-  preparationFee: 24.99,
-  includedResponsePages: 3,
-  responsePagePrice: 0.45,
-  supportingPagePrice: 0.25,
-  standardMail: 5.49,
-  certifiedMail: 12.49,
-  certifiedReturnReceipt: 14.99,
-  registeredMail: 29.99,
-  largePacketFee: 2.50,
-  largePacketThresholdSheets: 7,
+  preparationFee: (_p.basePriceCents / 100),
+  includedResponsePages: _p.includedPages,
+  responsePagePrice: ((_p.extraPageCents || 0) / 100),
+  supportingPagePrice: ((_p.supportingPageCents || 0) / 100),
+  standardMail: (PRICES.standard / 100),
+  certifiedMail: (PRICES.certified / 100),
+  registeredMail: (PRICES.registered / 100),
 } as const;
 export const INSURANCE_CLAIM_DENIAL_GOLD = {
   workflowId:"denied-claim",

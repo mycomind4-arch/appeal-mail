@@ -1,14 +1,15 @@
+import { getWorkflowPricingProfile, PRICES } from "@mailmypdf/pricing";
+const _p = getWorkflowPricingProfile("reconsideration")!;
 export const RECONSIDERATION_PRICING = {
-  preparationFee: 19.99,
-  includedResponsePages: 3,
-  responsePagePrice: 0.40,
-  supportingPagePrice: 0.25,
-  standardMail: 5.49,
-  certifiedMail: 12.49,
-  certifiedReturnReceipt: 14.99,
-  registeredMail: 29.99,
-  flatEnvelopeFee: 2.50,
-  largePacketThresholdSheets: 7,
+  preparationFee: _p.basePriceCents / 100,
+  includedResponsePages: _p.includedPages,
+  responsePagePrice: (_p.extraPageCents || 0) / 100,
+  supportingPagePrice: (_p.supportingPageCents || 0) / 100,
+  standardMail: PRICES.standard / 100,
+  certifiedMail: PRICES.certified / 100,
+  registeredMail: PRICES.registered / 100,
+  flatEnvelopeFee: 0,
+  largePacketThresholdSheets: 0,
 } as const;
 
 export function calculateReconsiderationTotal(input: { responseSheets: number; supportingSheets: number; mailingMethod: "standard" | "certified" | "registered"; envelopeSurcharge?: boolean }) {
