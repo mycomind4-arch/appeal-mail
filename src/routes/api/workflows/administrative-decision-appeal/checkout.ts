@@ -1,1 +1,77 @@
-import {createFileRoute}from"@tanstack/react-router";import Stripe from"stripe";import{requireAuthenticatedUser,getSupabaseServer}from"@/platform/supabase";export const Route=createFileRoute("/api/workflows/administrative-decision-appeal/checkout")({server:{handlers:{POST:async({request})=>{try{const user=await requireAuthenticatedUser(request);const{appealId}=await request.json();if(!appealId)return Response.json({error:"Appeal id is required."},{status:400});const s=await getSupabaseServer();const{data:a,error}=await s.from("appeals").select("*").eq("id",appealId).single();if(error||!a)return Response.json({error:"Appeal case not found."},{status:404});if(a.user_id!==user.id)return Response.json({error:"You do not own this appeal."},{status:403});if(a.status!=="ready"||!a.packet?.total)return Response.json({error:"Approved packet is not ready for payment."},{status:409});const key=process.env.STRIPE_SECRET_KEY;if(!key)throw new Error("Stripe is not configured.");const stripe=new Stripe(key,{apiVersion:"2024-06-20" as Stripe.LatestApiVersion});const session=await stripe.checkout.sessions.create({mode:"payment",line_items:[{price_data:{currency:"usd",product_data:{name:"Administrative Decision Appeal — preparation and mailing"},unit_amount:Math.round(Number(a.packet.total)*100)},quantity:1}],success_url:`${new URL(request.url).origin}/workflows/administrative-decision-appeal/success?appealId=${encodeURIComponent(appealId)}`,cancel_url:`${new URL(request.url).origin}/workflows/administrative-decision-appeal?cancelled=1`,metadata:{appeal_id:appealId,workflow_id:"administrative-decision-appeal",mailing_method:a.packet.mailingMethod,recipient_name:a.packet.recipientName},client_reference_id:appealId});return Response.json({ok:true,checkoutUrl:session.url})}catch(e){const m=e instanceof Error?e.message:"Unable to create checkout.";return Response.json({error:m},{status:/authentication|required/i.test(m)?401:502})}}}}});
+import { createFileRoute } from "@tanstack/react-router";
+import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
+import { calculateQuote, PRICES, LABELS, type MailClass } from "@mailmypdf/pricing";
+
+export const Route = createFileRoute("/api/workflows/administrative-decision-appeal/checkout")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        try {
+          const user = await requireAuthenticatedUser(request);
+          const input = await request.json() as any;
+          if (!input.appealId?.trim()) return Response.json({ error: "Appeal id is required." }, { status: 400 });
+
+          const s = await getSupabaseServer();
+          const { data: a, error } = await s.from("appeals").select("*").eq("id", input.appealId).single();
+          if (error || !a) return Response.json({ error: "Appeal case not found." }, { status: 404 });
+          if (a.user_id !== user.id) return Response.json({ error: "You do not own this appeal case." }, { status: 403 });
+          if (a.workflow_id !== "administrative-decision-appeal") return Response.json({ error: "Appeal workflow mismatch." }, { status: 409 });
+          if (a.status !== "ready" || !a.review || !a.packet) return Response.json({ error: "Appeal is not approved and ready for payment." }, { status: 409 });
+
+          const method = a.packet.mailingMethod;
+          if (!PRICES[method]) return Response.json({ error: "Invalid mailing method." }, { status: 409 });
+
+          // ── Canonical pricing — server-authoritative quote ──────────
+          const responsePages = Math.max(1, Number(a.packet.responsePageCount || a.packet.responseSheets || a.packet.pageCount || 3));
+          const supportingPages = Math.max(0, Number(a.packet.supportingPageCount || a.packet.supportingSheets || 0));
+          const quote = calculateQuote({
+            workflowId: "administrative-decision-appeal",
+            verticalId: "appeal-mail",
+            actualPages: responsePages,
+            supportingPages,
+            mailClass: method as MailClass,
+          });
+
+          const { default: Stripe } = await import("stripe");
+          const key = process.env.STRIPE_SECRET_KEY;
+          if (!key) return Response.json({ error: "Stripe is not configured." }, { status: 503 });
+          const stripe = new Stripe(key, { apiVersion: "2024-06-20" as Stripe.LatestApiVersion });
+          const appUrl = process.env.APP_URL || "https://appeal-mail.pages.dev";
+
+          const session = await stripe.checkout.sessions.create({
+            mode: "payment",
+            payment_method_types: ["card"],
+            line_items: [{
+              price_data: {
+                currency: "usd",
+                product_data: {
+                  name: "Administrative Decision Appeal Packet",
+                  description: `${responsePages} response pages + ${supportingPages} supporting pages + ${LABELS[method]}`,
+                },
+                unit_amount: quote.totalCents,
+              },
+              quantity: 1,
+            }],
+            metadata: {
+              appeal_id: a.id,
+              workflow_id: "administrative-decision-appeal",
+              mailing_method: method,
+              response_pages: String(responsePages),
+              supporting_pages: String(supportingPages),
+              owner_user_id: user.id,
+              pricing_source: "canonical",
+              quote_total_cents: String(quote.totalCents),
+            },
+            success_url: `${appUrl}/workflows/administrative-decision-appeal?checkout=success&session_id=${encodeURIComponent("{CHECKOUT_SESSION_ID}")}`,
+            cancel_url: `${appUrl}/workflows/administrative-decision-appeal?checkout=cancelled`,
+          });
+
+          return Response.json({ ok: true, sessionId: session.id, url: session.url });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Unable to create checkout session.";
+          return Response.json({ error: message }, { status: /authentication|required|token/i.test(message) ? 401 : 502 });
+        }
+      },
+    },
+  },
+});

@@ -72,7 +72,7 @@ const lifecycleSteps = [
 /* ── Stats ── */
 const stats = [
   { value: "3–5", label: "Business day delivery" },
-  { value: `${(PRICES.standard / 100).toFixed(2)}`, label: "Starting price per mailing" },
+  { value: `${(PRICES.standard / 100).toFixed(2)}`, label: "Mailing (standard)" },
   { value: "100%", label: "You control the facts" },
   { value: "0", label: "Printers needed" },
 ];
@@ -91,7 +91,7 @@ const faqItems = [
   { q: "What types of decisions can I appeal?", a: "Insurance claim denials, health insurance decisions, SSI and SSDI denials, unemployment determinations, Medicaid denials, licensing and DMV decisions, and more. Browse the full directory on the Workflows page." },
   { q: "How does the mailing work?", a: "Your final document is printed, placed in an envelope, and mailed via USPS by MailMyPDF. You can choose first-class, certified, or certified with return receipt for proof of delivery." },
   { q: "Is my data secure?", a: "All documents are stored with encryption, never shared with third parties, and never used for marketing. You can request full deletion at any time." },
-  { q: "What does it cost?", a: "Mailing costs start at $4.99 per mailing, including printing, paper, envelope, and postage. Certified starts at $14.94. No subscription required." },
+  { q: "What does it cost?", a: "Mailing starts at $4.99 standard (includes printing, paper, envelope, and postage). Certified is $14.94. Workflow preparation is separate and starts at $14.99. No subscription required." },
   { q: "Do I need a MailMyPDF account?", a: "Yes. A free MailMyPDF Account lets you save your work, track mailings, and keep proof of delivery. One account works across all MailMyPDF products." },
 ];
 

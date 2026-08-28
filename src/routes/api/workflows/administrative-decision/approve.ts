@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
-import { calculateAdministrativeDecisionTotal } from "@/domain/administrative-decision-pricing";
+import { calculateQuote } from "@mailmypdf/pricing";
 
 export const Route = createFileRoute("/api/workflows/administrative-decision/approve")({ server: { handlers: { POST: async ({ request }) => {
   try {

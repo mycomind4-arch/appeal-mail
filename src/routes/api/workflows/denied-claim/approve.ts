@@ -2,15 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { runReadinessReview } from "@/domain/review";
 import { assemblePacket } from "@/domain/packet";
-import { INSURANCE_CLAIM_DENIAL_PRICING as P } from "@/domain/insurance-claim-denial-gold";
+import { calculateQuote } from "@mailmypdf/pricing";
 
 function calculatePricing(supportingSheets:number, mailingMethod:"standard"|"certified"|"registered") {
   const responseSheets = P.includedResponsePages;
   const extraResponseSheets = 0;
   const mailing = mailingMethod === "standard" ? P.standardMail : mailingMethod === "certified" ? P.certifiedMail : P.registeredMail;
   const largePacket = supportingSheets + responseSheets >= P.largePacketThresholdSheets ? P.largePacketFee : 0;
-  const total = P.preparationFee + supportingSheets * P.supportingPagePrice + mailing + largePacket;
-  return { preparationFee:P.preparationFee, includedResponseSheets:responseSheets, responseSheets, extraResponseSheets, supportingSheets, mailingMethod, mailingFee:mailing, largePacketFee:largePacket, total:Number(total.toFixed(2)) };
+  const quote=calculateQuote({workflowId:"denied-claim",verticalId:"appeal-mail",actualPages:responseSheets,supportingPages:supportingSheets,mailClass:mailingMethod});return {preparationFee:quote.basePriceCents/100,includedResponseSheets:responseSheets,responseSheets,extraResponseSheets:Math.max(0,responseSheets-8),supportingSheets,mailingMethod,mailingFee:quote.mailCents/100,largePacketFee:0,total:quote.totalCents/100};
 }
 
 export const Route = createFileRoute("/api/workflows/denied-claim/approve")({ server: { handlers: { POST: async ({ request }) => {
