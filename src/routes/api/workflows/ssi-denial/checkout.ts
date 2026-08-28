@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
-const PRICES = { standard: 499, certified: 1494, registered: 3249 } as const; const LABELS = { standard: "Standard Mailing", certified: "Certified Mailing", registered: "Registered Mailing" } as const;
+import { PRICES, LABELS } from "@mailmypdf/pricing"; 
 export const Route = createFileRoute("/api/workflows/ssi-denial/checkout")({server:{handlers:{POST: async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request); const input = await request.json() as { appealId?: string }; if (!input.appealId?.trim()) return Response.json({ error: "Appeal id is required." }, { status: 400 });

@@ -1,3 +1,4 @@
+import { PRICES } from "@mailmypdf/pricing";
 import { AppShell, StatusBadge, DeadlineCard, ReadinessScore, EmptyState, SourceReference, ConfidenceBadge, IssueCard, AIActionBar, ActivityFeed, NAV_ICONS, NAV_LABELS, type WorkspaceNav } from "@/components/workspace/app-shell";
 import { AIDraftHelper } from "@/components/ai-draft-helper";
 import { Link } from "@tanstack/react-router";
@@ -28,9 +29,9 @@ import { buildTimeline, type TimelineResult, type TimelineConflict, type Timelin
 import { explainConflict as explainConflictFn } from "@/domain/timeline";
 
 const mailOptions = [
-  { id: "standard" as const, label: "Standard", price: "$4.99", desc: "3–7 business days · Tracking included", icon: Mail },
-  { id: "certified" as const, label: "Certified", price: "$14.94", desc: "Delivery tracking + confirmation · 3–7 days", icon: PackageCheck },
-  { id: "registered" as const, label: "Registered", price: "$32.49", desc: "Secure handling + tracking · 5–10 days", icon: Stamp },
+  { id: "standard" as const, label: "Standard", price: `${(PRICES.standard / 100).toFixed(2)}`, desc: "3–7 business days · Tracking included", icon: Mail },
+  { id: "certified" as const, label: "Certified", price: `${(PRICES.certified / 100).toFixed(2)}`, desc: "Delivery tracking + confirmation · 3–7 days", icon: PackageCheck },
+  { id: "registered" as const, label: "Registered", price: `${(PRICES.registered / 100).toFixed(2)}`, desc: "Secure handling + tracking · 5–10 days", icon: Stamp },
 ];
 
 interface WorkflowWizardProps {

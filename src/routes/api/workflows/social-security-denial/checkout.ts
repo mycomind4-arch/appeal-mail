@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 
-const PRICES = { standard: 499, certified: 1494, registered: 3249 } as const;
-const LABELS = { standard: "Standard Mailing", certified: "Certified Mailing", registered: "Registered Mailing" } as const;
+import { PRICES, LABELS } from "@mailmypdf/pricing";
+
 
 export const Route = createFileRoute("/api/workflows/social-security-denial/checkout")({
   server: {
