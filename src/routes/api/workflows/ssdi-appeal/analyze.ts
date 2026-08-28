@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
+import { callLLMDocument, callLLMText } from "@/platform/llm-bridge";
 
 export const Route = createFileRoute("/api/workflows/ssdi-appeal/analyze")({ server: { handlers: { POST: async ({ request }) => {
   try {
@@ -21,9 +22,7 @@ export const Route = createFileRoute("/api/workflows/ssdi-appeal/analyze")({ ser
       "Use empty strings and arrays for unknown values.",
     ].join("\n");
     const bytes = Buffer.from(await file.arrayBuffer()).toString("base64");
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(cfg.model)}:generateContent?key=${encodeURIComponent(cfg.apiKey)}`, { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({contents:[{role:"user",parts:[{inlineData:{mimeType:file.type,data:bytes}},{text:prompt}]}],generationConfig:{responseMimeType:"application/json",temperature:0.1}}) });
-    const body = await response.json().catch(()=>null) as any; if(!response.ok) throw new Error(body?.error?.message || `Gemini analysis failed (${response.status}).`);
-    const text=body?.candidates?.[0]?.content?.parts?.map((p:{text?:string})=>p.text||"").join("").trim(); if(!text)throw new Error("Gemini returned no analysis."); const analysis=JSON.parse(text) as Record<string,unknown>;
+    const { text: text } = await callLLMDocument(gemini, mediaType(file), bytes, gemini.promptOverride || prompt); const analysis=JSON.parse(text) as Record<string,unknown>;
     const sourceDocument=await uploadDocument(file); const appealId=crypto.randomUUID(); const now=new Date().toISOString();
     const decision={id:crypto.randomUUID(),type:"ssdi_decision",documentId:sourceDocument.id,documentFilename:file.name,agency:analysis.issuer||"",jurisdiction:analysis.jurisdiction||"",referenceNumber:analysis.referenceNumber||"",decisionDate:analysis.decisionDate||"",deadline:analysis.deadline?{date:analysis.deadline,status:analysis.deadlineStatus||"unverified",source:"extracted"}:undefined,findings:Array.isArray(analysis.findings)?analysis.findings:[],medicalEvidenceMentioned:Array.isArray(analysis.medicalEvidenceMentioned)?analysis.medicalEvidenceMentioned:[],workEvidenceMentioned:Array.isArray(analysis.workEvidenceMentioned)?analysis.workEvidenceMentioned:[],disputedFacts:Array.isArray(analysis.disputedFacts)?analysis.disputedFacts:[],evidenceGaps:Array.isArray(analysis.evidenceGaps)?analysis.evidenceGaps:[],contradictions:Array.isArray(analysis.contradictions)?analysis.contradictions:[],citedAuthority:Array.isArray(analysis.citedAuthority)?analysis.citedAuthority:[],authoritySources:Array.isArray(analysis.authoritySources)?analysis.authoritySources:[],uncertainties:Array.isArray(analysis.uncertainties)?analysis.uncertainties:[],appealInstructions:analysis.appealInstructions||"",extractedAt:now};
     const supabase=await getSupabaseServer(); const {error}=await supabase.from("appeals").insert({id:appealId,user_id:user.id,workflow_id:"ssdi-appeal",status:"in_progress",decision,grounds:[],evidence:[{id:crypto.randomUUID(),type:"document",label:file.name,documentId:sourceDocument.id,uploadedAt:now}],arguments:[],draft:"",review:null,packet:null,proof:null,timeline:[],version:1,created_at:now,updated_at:now}); if(error)throw new Error(`Unable to save appeal: ${error.message}`);

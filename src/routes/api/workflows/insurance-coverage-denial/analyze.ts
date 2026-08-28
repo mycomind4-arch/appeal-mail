@@ -6,6 +6,7 @@ import { createAppeal } from "@/domain/appeal";
 import { createGround } from "@/domain/ground";
 import { createEvidence } from "@/domain/evidence";
 import { getWorkflow } from "@/domain/workflows";
+import { callLLMDocument, callLLMText } from "@/platform/llm-bridge";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (file.type === "application/pdf") return "application/pdf";
@@ -54,14 +55,7 @@ export const Route = createFileRoute("/api/workflows/insurance-coverage-denial/a
         "Return strict JSON only.",
         '{"summary":"","decision":"","decisionType":"insurance_coverage_denial","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","reasons":[],"keyFacts":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"evidenceMentioned":[],"uncertainties":[],"confidence":"high|medium|low"}',
       ].join("\n\n");
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gemini.model)}:generateContent?key=${encodeURIComponent(gemini.apiKey)}`, {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ contents: [{ role: "user", parts: [{ inlineData: { mimeType: mediaType(file), data: bytes } }, { text: gemini.promptOverride || prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }),
-      });
-      const body = await response.json().catch(() => null) as any;
-      if (!response.ok) throw new Error(body?.error?.message || `Gemini analysis failed (${response.status}).`);
-      const text = body?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("").trim();
-      if (!text) throw new Error("Gemini returned no analysis.");
+      const { text: text } = await callLLMDocument(gemini, mediaType(file), bytes, gemini.promptOverride || prompt);
       const analysis = JSON.parse(text) as { summary?: string; decision?: string; issuer?: string; referenceNumber?: string; decisionDate?: string; deadline?: string; reasons?: string[]; keyFacts?: string[]; issues?: Array<{ issue?: string; whyItMatters?: string; evidenceNeeded?: string[] }>; evidenceMentioned?: string[]; uncertainties?: string[]; confidence?: string };
 
       const decision = createDecision("claim_denial", {

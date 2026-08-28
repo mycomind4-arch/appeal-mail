@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { validateAppealDraft } from "@/domain/draft-validator";
+import { callLLMDocument, callLLMText } from "@/platform/llm-bridge";
 
 type ProviderConfig = { provider: "anthropic" | "openai" | "gemini"; apiKey: string; apiBaseUrl?: string | null; model: string; promptOverride?: string | null };
 
@@ -14,19 +15,7 @@ async function resolveProvider(task: "draft" | "validation") {
   return payload as ProviderConfig;
 }
 
-async function callGemini(config: ProviderConfig, system: string, user: string) {
-  if (config.provider !== "gemini") throw new Error(`Denied Claim currently requires Gemini; control plane returned ${config.provider}.`);
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent?key=${encodeURIComponent(config.apiKey)}`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ contents: [{ parts: [{ text: `${config.promptOverride || system}\n\n${user}` }] }], generationConfig: { temperature: 0.2 } }),
-  });
-  const body = await response.json().catch(() => null);
-  if (!response.ok) throw new Error(body?.error?.message || `Gemini request failed (${response.status}).`);
-  const text = body?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("") || "";
-  if (!text) throw new Error("Gemini returned no response.");
-  return text;
-}
+async function callGemini(config: ProviderConfig, system: string, user: string){return (await callLLMText(config, system)).text;}
 
 export const Route = createFileRoute("/api/workflows/denied-claim/draft")({
   server: {

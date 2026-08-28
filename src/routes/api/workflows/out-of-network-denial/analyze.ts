@@ -6,6 +6,7 @@ import { createAppeal } from "@/domain/appeal";
 import { createGround } from "@/domain/ground";
 import { createEvidence } from "@/domain/evidence";
 import { getWorkflow } from "@/domain/workflows";
+import { callLLMDocument, callLLMText } from "@/platform/llm-bridge";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (file.type === "application/pdf" || file.type === "image/png" || file.type === "image/jpeg") return file.type;
@@ -56,15 +57,7 @@ export const Route = createFileRoute("/api/workflows/out-of-network-denial/analy
         '{"summary":"","decision":"","decisionType":"out_of_network_denial","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","service":"","provider":"","networkFinding":"","denialReasons":[],"planTermsMentioned":[],"exceptionsMentioned":[],"evidenceMentioned":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"uncertainties":[],"confidence":"high|medium|low"}'
       ].join("\n\n");
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gemini.model)}:generateContent?key=${encodeURIComponent(gemini.apiKey)}`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ contents: [{ role: "user", parts: [{ inlineData: { mimeType: mediaType(file), data } }, { text: gemini.promptOverride || prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }),
-      });
-      const body = await response.json().catch(() => null) as any;
-      if (!response.ok) throw new Error(body?.error?.message || `Gemini analysis failed (${response.status}).`);
-      const text = body?.candidates?.[0]?.content?.parts?.map((part: any) => part.text || "").join("").trim();
-      if (!text) throw new Error("Gemini returned no analysis.");
+      const { text: text } = await callLLMDocument(gemini, mediaType(file), data, gemini.promptOverride || prompt);
       const analysis = JSON.parse(text) as any;
 
       const decision = createDecision("claim_denial", {
