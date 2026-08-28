@@ -181,7 +181,7 @@ export function loadCapabilities(def: WorkflowDefinition, packs?: DomainPackSet)
     caps.add("fact-extraction");
   }
   if (packs?.deadline) caps.add("deadline-analysis");
-  if (packs?.evidence) { caps.add("evidence-analysis"); caps.add("contradiction-analysis"); }
+  if (packs?.evidence) caps.add("evidence-analysis");
   if (packs?.analysis?.capabilities) {
     for (const cap of packs.analysis.capabilities) caps.add(cap);
   }
