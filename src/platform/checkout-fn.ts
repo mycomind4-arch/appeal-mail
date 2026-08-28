@@ -1,25 +1,32 @@
 import { createServerFn } from "@tanstack/react-start";
 import { isReadyToMail } from "@/domain/appeal";
 import { loadAppeal } from "./appeal-repository";
+import {
+  calculateQuote,
+  getWorkflowPricingProfile,
+  serializeQuote,
+  PRICES,
+  LABELS,
+  isValidPricingKey,
+  type PricingKey,
+  type MailClass,
+} from "@mailmypdf/pricing";
 
-/* ─────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────
    Stripe checkout integration.
    Creates a checkout session only after the
    owner-scoped appeal passes the canonical
    readiness gate.
-   ───────────────────────────────────────────── */
 
-const MAILING_PRICES: Record<string, number> = {
-  standard: 499,
-  certified: 1494,
-  registered: 3249,
-};
+   PRICING: Uses canonical @mailmypdf/pricing engine.
+   The server resolves the workflow and calculates the
+   full quote (preparation + mailing + extra pages).
+   The client never controls price.
+   ───────────────────────────────────────────────────── */
 
-const MAILING_LABELS: Record<string, string> = {
-  standard: "Standard Mailing",
-  certified: "Certified Mailing",
-  registered: "Registered Mailing",
-};
+function estimatePageCount(draft: string): number {
+  return Math.max(1, Math.ceil(draft.length / 3000));
+}
 
 async function getStripe() {
   const { default: Stripe } = await import("stripe");
@@ -37,8 +44,9 @@ export const createCheckoutSession = createServerFn()
     recipientName: string;
     workflowId: string;
     userId: string;
+    draftContent?: string;
   }) => {
-    if (!input.mailingMethod || !MAILING_PRICES[input.mailingMethod]) {
+    if (!input.mailingMethod || !isValidPricingKey(input.mailingMethod)) {
       throw new Error("Invalid mailing method");
     }
     if (!input.appealId.trim()) {
@@ -66,9 +74,44 @@ export const createCheckoutSession = createServerFn()
       throw new Error("Appeal is not approved and readiness-validated for mailing");
     }
 
+    const method = data.mailingMethod as PricingKey;
+    const mailClass: MailClass = method as MailClass;
+    const draftContent = data.draftContent || (appeal as any).draft || (appeal as any).packet?.draft || "";
+
+    // ── Canonical pricing — server-authoritative quote ─────────
+    const profile = getWorkflowPricingProfile(data.workflowId);
+    let quoteTotalCents: number;
+    let quoteSnapshot: string | null = null;
+    let stripeLineItemName: string;
+    let stripeLineItemDescription: string;
+
+    if (profile && profile.commercialStatus === "production") {
+      const actualPages = estimatePageCount(draftContent);
+      const quote = calculateQuote({
+        workflowId: data.workflowId,
+        verticalId: profile.verticalId,
+        actualPages,
+        mailClass,
+      });
+      quoteTotalCents = quote.totalCents;
+      quoteSnapshot = serializeQuote(quote);
+      stripeLineItemName = `${data.recipientName} — ${LABELS[method]}`;
+      stripeLineItemDescription = `Workflow preparation (${profile.band}: $${(quote.basePriceCents / 100).toFixed(2)}) + ${LABELS[method]}${quote.extraPageCost > 0 ? ` + ${Math.max(0, actualPages - profile.includedPages)} extra pages` : ""}`;
+    } else {
+      // Fallback: use the appeal's packet pricing if available (appeal-mail has its own pricing)
+      const packetTotal = (appeal as any)?.packet?.pricing?.total;
+      if (packetTotal && Number.isFinite(packetTotal) && packetTotal > 0) {
+        quoteTotalCents = Math.round(packetTotal * 100);
+        stripeLineItemName = `Appeal Mail — ${LABELS[method]} for ${data.recipientName}`;
+        stripeLineItemDescription = `Final approved packet — ${method} mailing`;
+      } else {
+        quoteTotalCents = PRICES[method];
+        stripeLineItemName = LABELS[method];
+        stripeLineItemDescription = `Appeal Mail — ${LABELS[method]} for ${data.recipientName}`;
+      }
+    }
+
     const stripe = await getStripe();
-    const price = MAILING_PRICES[data.mailingMethod];
-    const label = MAILING_LABELS[data.mailingMethod];
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -78,15 +121,16 @@ export const createCheckoutSession = createServerFn()
           price_data: {
             currency: "usd",
             product_data: {
-              name: label,
-              description: `Appeal Mail — ${label} for ${data.recipientName}`,
+              name: stripeLineItemName,
+              description: stripeLineItemDescription,
               metadata: {
                 workflow_id: data.workflowId,
                 appeal_id: data.appealId,
                 mailing_method: data.mailingMethod,
+                pricing_source: profile ? "canonical" : "packet",
               },
             },
-            unit_amount: price,
+            unit_amount: quoteTotalCents,
           },
           quantity: 1,
         },
@@ -97,6 +141,8 @@ export const createCheckoutSession = createServerFn()
         mailing_method: data.mailingMethod,
         recipient_name: data.recipientName,
         owner_user_id: data.userId,
+        quote_total_cents: String(quoteTotalCents),
+        quote_snapshot: quoteSnapshot || "",
       },
       success_url: `${process.env.APP_URL || "https://appeal-mail.pages.dev"}/workflows/${data.workflowId}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.APP_URL || "https://appeal-mail.pages.dev"}/workflows/${data.workflowId}?checkout=cancelled`,
