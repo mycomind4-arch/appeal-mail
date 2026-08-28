@@ -1,2 +1,27 @@
-export function SsdiDenialPricing(){return <section className="rounded-2xl border border-rule bg-paper-deep p-7"><div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Transparent packet pricing</div><h2 className="mt-2 font-serif text-2xl">You pay for the work and the physical packet—not a mystery bundle.</h2><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Price label="Preparation" value="$24.99"/><Price label="Response" value="3 sheets included"/><Price label="Extra response sheet" value="$0.40"/><Price label="Supporting sheet" value="$0.25"/></div><p className="mt-5 text-sm leading-6 text-muted-foreground">Mailing is added at the final approved packet: Standard $5.49, Certified $12.49, or Registered $29.99. Your exact total is calculated after the response and supporting documents are assembled.</p></section>}
-function Price({label,value}:{label:string;value:string}){return <div className="rounded-xl border border-rule bg-paper p-4"><div className="text-xs text-muted-foreground">{label}</div><div className="mt-1 font-semibold">{value}</div></div>}
+import { getWorkflowPricingProfile, PRICES } from "@mailmypdf/pricing";
+
+export function SsdiDenialPricing() {
+  const profile = getWorkflowPricingProfile("ssdi-denial");
+  if (!profile) return null;
+  const base = profile.basePriceCents / 100;
+  const standard = PRICES.standard / 100;
+  const certified = PRICES.certified / 100;
+  const registered = PRICES.registered / 100;
+  const example = base + certified;
+
+  return <section className="mx-auto max-w-6xl px-6 py-10">
+    <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <div><p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Transparent pricing</p><h2 className="mt-2 text-3xl font-bold tracking-tight">Pay for the work and the physical packet—not a mystery flat fee.</h2></div>
+        <p className="text-sm text-slate-500">Starting at ${base.toFixed(2)} before mailing and extra pages</p>
+      </div>
+      <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[["Preparation", `$${base.toFixed(2)}`],["Included pages", `${profile.includedPages} pages`],["Standard mail", `$${standard.toFixed(2)}`],["Certified mail", `$${certified.toFixed(2)}`],["Registered mail", `$${registered.toFixed(2)}`]].map(([label,value])=><div key={label} className="rounded-2xl bg-slate-50 p-4"><div className="text-sm text-slate-500">{label}</div><div className="mt-1 font-semibold">{value}</div></div>)}
+      </div>
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm leading-6 text-slate-700">
+        <p><strong>Example:</strong> a typical response with Certified Mail starts at ${example.toFixed(2)} before any additional supporting-document pages.</p>
+        <p className="mt-2">The exact total is calculated from the approved physical packet before payment.</p>
+      </div>
+    </div>
+  </section>;
+}
