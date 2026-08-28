@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
-import { callLLMDocument, callLLMText } from "@/platform/llm-bridge";
 
 type ProviderConfig = {
   provider: "anthropic" | "openai" | "gemini";
@@ -52,7 +51,31 @@ export const Route = createFileRoute("/api/workflows/denied-claim/analyze")({
 
           const sourceDocument = await uploadDocument(file);
           const bytes = Buffer.from(await file.arrayBuffer()).toString("base64");
-          const { text: text } = await callLLMDocument(gemini, mediaType(file), bytes, gemini.promptOverride || prompt);
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(provider.model)}:generateContent?key=${encodeURIComponent(provider.apiKey)}`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              contents: [{
+                role: "user",
+                parts: [
+                  { inlineData: { mimeType: mediaType(file), data: bytes } },
+                  { text: provider.promptOverride || [
+                    "You are the document-intelligence analyst for a denied-claim appeal workflow.",
+                    "Analyze the supplied denial document and return strict JSON only.",
+                    "Extract only information supported by the document. Never invent facts, dates, policy language, diagnoses, amounts, deadlines, or outcomes.",
+                    "Return this shape:",
+                    '{"summary":"","decision":"","decisionType":"","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","denialReasons":[],"keyFacts":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"evidenceMentioned":[],"sourceCitations":[{"page":0,"claim":""}],"uncertainties":[],"confidence":"high|medium|low"}',
+                    "Use empty strings or arrays when the document does not provide a value.",
+                  ].join("\\n") },
+                ],
+              }],
+              generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
+            }),
+          });
+          const body = await response.json().catch(() => null) as any;
+          if (!response.ok) throw new Error(body?.error?.message || `Gemini analysis failed (${response.status}).`);
+          const text = body?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("").trim();
+          if (!text) throw new Error("Gemini returned no analysis.");
 
           const analysis = JSON.parse(text) as Record<string, unknown>;
           const now = new Date().toISOString();

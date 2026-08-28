@@ -6,7 +6,6 @@ import { createAppeal } from "@/domain/appeal";
 import { createGround } from "@/domain/ground";
 import { createEvidence } from "@/domain/evidence";
 import { getWorkflow } from "@/domain/workflows";
-import { callLLMDocument, callLLMText } from "@/platform/llm-bridge";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (["application/pdf", "image/png", "image/jpeg"].includes(file.type)) return file.type as never;
@@ -53,7 +52,15 @@ export const Route = createFileRoute("/api/workflows/car-insurance-appeal/analyz
             "Return strict JSON only.",
             '{"summary":"","decision":"","decisionType":"car_insurance_claim","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","accidentDate":"","liabilityFinding":"","coverageFinding":"","damageFinding":"","denialReasons":[],"keyFacts":[],"evidenceMentioned":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"uncertainties":[],"confidence":"high|medium|low"}',
           ].join("\n\n");
-          const { text: text } = await callLLMDocument(gemini, mediaType(file), bytes, gemini.promptOverride || prompt);
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gemini.model)}:generateContent?key=${encodeURIComponent(gemini.apiKey)}`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ contents: [{ role: "user", parts: [{ inlineData: { mimeType: mediaType(file), data: bytes } }, { text: gemini.promptOverride || prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }),
+          });
+          const body = await response.json().catch(() => null) as any;
+          if (!response.ok) throw new Error(body?.error?.message || `Gemini analysis failed (${response.status}).`);
+          const text = body?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("").trim();
+          if (!text) throw new Error("Gemini returned no analysis.");
           const analysis = JSON.parse(text) as any;
           const decision = createDecision("claim_denial", {
             id: crypto.randomUUID(), documentId: document.id, documentFilename: document.filename,

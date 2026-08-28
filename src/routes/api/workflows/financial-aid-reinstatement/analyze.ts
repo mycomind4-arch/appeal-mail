@@ -6,7 +6,6 @@ import { createAppeal } from "@/domain/appeal";
 import { createGround } from "@/domain/ground";
 import { createEvidence } from "@/domain/evidence";
 import { getWorkflow } from "@/domain/workflows";
-import { callLLMDocument, callLLMText } from "@/platform/llm-bridge";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (["application/pdf", "image/png", "image/jpeg"].includes(file.type)) return file.type as never;
@@ -36,7 +35,9 @@ export const Route = createFileRoute("/api/workflows/financial-aid-reinstatement
       "Do not invent school policy, eligibility rules, deadlines, grades, income figures, or legal authority.", "Return strict JSON only.",
       '{"summary":"","decision":"","decisionType":"financial_aid_reinstatement","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","priorStatus":"","reinstatementReason":"","requirements":[],"findings":[],"evidenceMentioned":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"uncertainties":[],"confidence":"high|medium|low"}'
     ].join("\n\n");
-    const { text: text } = await callLLMDocument(gemini, mediaType(file), bytes, gemini.promptOverride || prompt);
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gemini.model)}:generateContent?key=${encodeURIComponent(gemini.apiKey)}`, {method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:[{role:"user",parts:[{inlineData:{mimeType:mediaType(file),data:bytes}},{text:gemini.promptOverride||prompt}]}],generationConfig:{responseMimeType:"application/json",temperature:.1}})});
+    const body=await r.json().catch(()=>null) as any; if(!r.ok) throw new Error(body?.error?.message||`Gemini analysis failed (${r.status}).`);
+    const text=body?.candidates?.[0]?.content?.parts?.map((x:any)=>x.text||"").join("").trim(); if(!text) throw new Error("Gemini returned no analysis.");
     const analysis=JSON.parse(text) as any;
     const decision=createDecision("claim_denial",{id:crypto.randomUUID(),documentId:document.id,documentFilename:document.filename,agency:analysis.issuer||undefined,referenceNumber:analysis.referenceNumber||undefined,decisionDate:analysis.decisionDate||undefined,decisionTypeLabel:analysis.decision||"Financial-aid decision",deadline:analysis.deadline?{date:analysis.deadline,type:"appeal",source:"extracted"}:undefined,facts:[...(analysis.findings||[]),analysis.priorStatus,analysis.reinstatementReason].filter(Boolean).map((value:string,i:number)=>({id:`${i}-${crypto.randomUUID()}`,label:`Fact ${i+1}`,value,source:"extracted",confidence:.8})),reasons:(analysis.issues||[]).map((x:any,i:number)=>({id:`${i}-${crypto.randomUUID()}`,text:x.issue||"Reinstatement issue",confidence:.9})),issues:(analysis.issues||[]).map((x:any,i:number)=>({id:`${i}-${crypto.randomUUID()}`,description:x.issue||"Financial-aid reinstatement issue",type:"factual_dispute",severity:"medium",sourceExcerpt:x.whyItMatters})),rawText:JSON.stringify(analysis),extractedAt:new Date().toISOString(),extractionConfidence:analysis.confidence==="high"?.9:analysis.confidence==="medium"?.7:.5});
     const grounds=(analysis.issues||[]).map((x:any,i:number)=>createGround("factual_error",{id:`ground-${i}-${crypto.randomUUID()}`,claim:x.issue||"Review the prior aid decision",source:x.whyItMatters||"Identified by document analysis",confidence:.65,unresolvedIssue:(x.evidenceNeeded||[]).join(", ")}));

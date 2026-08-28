@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { getWorkflow } from "@/domain/workflows";
 import { validateAppealDraft } from "@/domain/draft-validator";
-import { callLLMDocument, callLLMText } from "@/platform/llm-bridge";
 
 async function resolveGemini(task: "draft" | "validation") {
   const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
@@ -13,7 +12,14 @@ async function resolveGemini(task: "draft" | "validation") {
   if (!r.ok || !p?.apiKey || !p.model || p.provider !== "gemini") throw new Error("Gemini configuration is unavailable for this workflow.");
   return p;
 }
-async function callGemini(c: any, prompt: string){return (await callLLMText(c, prompt)).text;}
+async function callGemini(c: any, prompt: string) {
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(c.model)}:generateContent?key=${encodeURIComponent(c.apiKey)}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: c.promptOverride || prompt }] }], generationConfig: { temperature: 0.2 } }) });
+  const b = await r.json().catch(() => null) as any;
+  if (!r.ok) throw new Error(b?.error?.message || `Gemini request failed (${r.status}).`);
+  const t = b?.candidates?.[0]?.content?.parts?.map((x: any) => x.text || "").join("").trim();
+  if (!t) throw new Error("Gemini returned no response.");
+  return t;
+}
 export const Route = createFileRoute("/api/workflows/sap-appeal/draft")({server:{handlers:{ POST: async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request);
