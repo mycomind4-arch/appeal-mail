@@ -116,6 +116,40 @@ export const Route = createFileRoute("/appeal/$slug")({
             ],
           }),
         },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "What does this workflow do?",
+                acceptedAnswer: { "@type": "Answer", text: "Appeal Mail analyzes your " + workflow.category.toLowerCase() + " decision, identifies the stated reasons, organizes your evidence, and helps you prepare a structured appeal. You review and approve the draft before anything is mailed." },
+              },
+              {
+                "@type": "Question",
+                name: "What documents should I provide?",
+                acceptedAnswer: { "@type": "Answer", text: workflow.whatYouNeed.join("; ") },
+              },
+              {
+                "@type": "Question",
+                name: "Can I change the draft?",
+                acceptedAnswer: { "@type": "Answer", text: "Yes. You review the draft before anything is sent. You can edit the content, add or remove sections, and approve only when you're satisfied with the result." },
+              },
+              {
+                "@type": "Question",
+                name: "Do I have to mail it?",
+                acceptedAnswer: { "@type": "Answer", text: "No. Mailing is optional. You can download the prepared document and submit it yourself, or choose Standard, Certified, or Registered mail through MailMyPDF for tracking and proof of delivery." },
+              },
+              {
+                "@type": "Question",
+                name: "Is this legal advice?",
+                acceptedAnswer: { "@type": "Answer", text: "No. Appeal Mail is a correspondence tool, not a law firm. We help you organize your documents and prepare a written appeal — we do not provide legal advice or guarantee any outcome." },
+              },
+            ],
+          }),
+        },
       ],
     };
   },
@@ -138,7 +172,12 @@ function AppealSlugPage() {
     throw redirect({ to: "/workflows" });
   }
 
-  return <AppealWorkflowPage workflow={workflow} />;
+  const related = getWorkflowsByCategory(workflow.category)
+    .filter((w) => w.slug !== workflow.slug)
+    .slice(0, 3)
+    .map((w) => ({ slug: w.slug, title: w.title, shortDescription: w.shortDescription }));
+
+  return <AppealWorkflowPage workflow={workflow} productName="Appeal Mail" productHomePath="/" relatedWorkflows={related} />;
 }
 
 function CategoryPage({ category }: { category: AppealCategory }) {
