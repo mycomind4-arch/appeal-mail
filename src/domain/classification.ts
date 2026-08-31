@@ -28,6 +28,7 @@ export type DocumentClass =
   | "appeal_form"
   | "court_order"
   | "agency_notice"
+  | "irs_notice"
   | "supporting_document"
   | "unknown";
 
@@ -41,6 +42,7 @@ export const DOCUMENT_CLASS_LABELS: Record<DocumentClass, string> = {
   appeal_form: "Appeal Form",
   court_order: "Court Order / Judgment",
   agency_notice: "Agency Notice",
+  irs_notice: "IRS Notice",
   supporting_document: "Supporting Document",
   unknown: "Unknown Document Type",
 };
@@ -82,6 +84,20 @@ const CLASSIFICATION_PATTERNS: ClassPattern[] = [
       /\b(explanation of benefits|EOB)\b/i,
       /\b(benefit.{0,10}determination|remittance advice)\b/i,
       /\b(determination:\s*(not covered|denied|approved))\b/i,
+    ],
+    isPrimary: true,
+  },
+    {
+    class: "irs_notice" as DocumentClass,
+    patterns: [
+      /\bCP\s*2000\b/i,
+      /\bCP\s*14\b/i,
+      /\bCP\s*504\b/i,
+      /\bCP\s*523\b/i,
+      /\bInternal Revenue Service\b/i,
+      /\bnotice of underreported income\b/i,
+      /\bintent to levy\b/i,
+      /\binstallment agreement default\b/i,
     ],
     isPrimary: true,
   },

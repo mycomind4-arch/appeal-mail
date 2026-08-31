@@ -11,7 +11,8 @@ export type AppealCategory =
   | "Government Benefits"
   | "Workers' Compensation"
   | "Veterans"
-  | "Administrative";
+  | "Administrative"
+  | "Tax & IRS";
 
 export type WorkflowStatus = "IMPLEMENTED" | "COMING_SOON";
 
@@ -70,9 +71,11 @@ export const CATEGORY_ORDER: AppealCategory[] = [
   "Workers' Compensation",
   "Veterans",
   "Administrative",
+  "Tax & IRS",
 ];
 
 export const CATEGORY_DESCRIPTIONS: Record<AppealCategory, string> = {
+  "Tax & IRS": "IRS notice responses — CP2000, CP14, CP504, and CP523 — with document-intelligence parsing, deadline tracking, and evidence-grounded response drafting.",
   "Insurance":
     "Denied insurance claims, health coverage, prior authorizations, out-of-network, timely filing, Medicare, and dental appeals.",
   "Disability & Social Security":
@@ -1400,6 +1403,101 @@ export const APPEAL_CATALOG: AppealWorkflowEntry[] = [
     workflowRoute: "/workflows/registration-suspension-appeal",
     cta: "Start Appeal",
   },
+
+  // ── Tax & IRS (Wave 2 — Document Intelligence Anchor) ──
+  {
+    slug: "irs-cp2000-response",
+    title: "Respond to CP2000 Notice",
+    category: "Tax & IRS",
+    shortDescription: "Verify income discrepancies and build an item-by-item response to the IRS underreporter notice.",
+    longDescription: "The CP2000 is the IRS's Automated Underreporter (AUR) program notice. It proposes changes to your tax return based on income the IRS believes was underreported — typically because a 1099 or W-2 doesn't match your return. You have 30 days to respond. This workflow parses the notice, extracts each discrepancy, matches it against your income documents, and builds an item-by-item response that agrees, disputes with evidence, or requests further review for each line item.",
+    intendedUser: "Taxpayers who received a CP2000 Notice of Underreported Income and need to respond within 30 days.",
+    problemSolved: "The CP2000 is not a bill — it is a proposal. But ignoring it turns it into an assessment. This workflow helps you verify each discrepancy against your actual income documents, agree where the IRS is right, dispute where the IRS is wrong, and produce a response that the IRS can process efficiently.",
+    whatWeAnalyze: ["Notice number and date", "Tax year", "Each income discrepancy (reported vs. IRS amount)", "Response deadline (30 days from notice)", "Whether a corrected return (1040X) is needed", "Evidence gaps for disputed items"],
+    whatYouNeed: ["The CP2000 notice (mailed or PDF)", "Tax return for the disputed year", "All W-2s, 1099s, K-1s for the year", "Brokerage statements (if investment income is disputed)", "Prior IRS correspondence about this tax year"],
+    whatWeIdentify: ["Notice number and exact deadline", "Each income discrepancy with its source", "Which items you agree with", "Which items you disagree with and why", "Missing evidence for disputed items", "Whether an amended return is needed"],
+    whatAppealAddresses: ["Agreement with IRS adjustments (sign and pay)", "Disagreement with specific items (attach evidence)", "Partial agreement (agree on some, dispute others)", "Request for audit reconsideration", "Corrected return (1040X) if needed"],
+    seoTitle: "Respond to IRS CP2000 Notice — Underreported Income Response",
+    seoDescription: "Upload your CP2000 notice, verify each income discrepancy against your tax documents, and build a source-grounded response. 30-day deadline.",
+    primaryKeyword: "cp2000 response letter",
+    relatedKeywords: ["irs cp2000 notice", "underreported income notice", "cp2000 response", "irs notice response letter", "automated underreporter notice"],
+    route: "/appeal/irs-cp2000-response",
+    status: "IMPLEMENTED",
+    engine: "IRS Notice Response Engine",
+    executable: true,
+    workflowRoute: "/workflows/irs-cp2000-response",
+    cta: "Start Response",
+  },
+  {
+    slug: "irs-cp14-response",
+    title: "Respond to CP14 Balance Due Notice",
+    category: "Tax & IRS",
+    shortDescription: "Verify the amount owed and build a response to pay, dispute, or request a payment plan.",
+    longDescription: "The CP14 is the IRS's first balance-due notice. It tells you that you owe taxes, shows the amount with penalties and interest, and asks for payment. This workflow parses the notice, verifies the balance against your records, and helps you decide whether to pay in full, set up an installment agreement, or dispute the amount — with a response letter that includes the right forms and documentation.",
+    intendedUser: "Taxpayers who received a CP14 Balance Due notice and need to pay, set up a payment plan, or dispute the amount.",
+    problemSolved: "A CP14 starts the collection process. Ignoring it escalates to CP501, CP503, and eventually CP504 (levy notice). This workflow helps you verify the balance, choose the right response, and produce documentation — whether that's a payment, an installment agreement request (Form 9465), or a dispute with evidence.",
+    whatWeAnalyze: ["Notice number and date", "Tax period", "Amount owed with penalty and interest breakdown", "Whether the balance is correct", "Payment plan eligibility", "Dispute evidence"],
+    whatYouNeed: ["The CP14 notice", "Tax return for the period shown", "IRS account transcript (Form 4506-T)", "Payment records if any payments were made", "Financial information for payment plan (Form 433-F)"],
+    whatWeIdentify: ["Notice number and exact amount owed", "Whether the balance matches your records", "Penalty and interest breakdown", "Payment plan eligibility and proposed monthly payment", "Dispute grounds if the amount is incorrect"],
+    whatAppealAddresses: ["Payment in full", "Installment agreement request (Form 9465)", "Offer in Compromise (Form 656)", "Currently Not Collectible status", "Dispute of the balance with evidence"],
+    seoTitle: "Respond to IRS CP14 Balance Due — Payment Plan or Dispute",
+    seoDescription: "Upload your CP14 notice, verify the amount owed, and build a response to pay, request an installment agreement, or dispute the balance.",
+    primaryKeyword: "cp14 irs notice response",
+    relatedKeywords: ["irs cp14 notice", "balance due notice", "cp14 response", "irs payment plan request", "irs balance due response"],
+    route: "/appeal/irs-cp14-response",
+    status: "IMPLEMENTED",
+    engine: "IRS Notice Response Engine",
+    executable: true,
+    workflowRoute: "/workflows/irs-cp14-response",
+    cta: "Start Response",
+  },
+  {
+    slug: "irs-cp504-response",
+    title: "Respond to CP504 Levy Notice",
+    category: "Tax & IRS",
+    shortDescription: "Request a Collection Due Process hearing or pay — within the critical 30-day deadline before levy.",
+    longDescription: "The CP504 is the IRS's Final Notice of Intent to Levy. It gives you 30 days to act before the IRS can seize your bank accounts, wages, and other assets. This is a critical deadline — missing it forfeits your right to a Collection Due Process (CDP) hearing permanently. This workflow parses the notice, computes the exact CDP deadline, assesses your options, and helps you prepare a Form 12153 CDP hearing request or negotiate a collection alternative.",
+    intendedUser: "Taxpayers who received a CP504 Final Notice of Intent to Levy and need to act within 30 days to preserve their rights.",
+    problemSolved: "The CP504 is the last notice before levy. After 30 days, the IRS can seize assets without further notice. This workflow ensures you understand the deadline, know your CDP hearing rights, and produce either a hearing request (Form 12153), a payment, or a collection alternative proposal — before the window closes.",
+    whatWeAnalyze: ["Notice number and date", "Exact 30-day CDP hearing deadline", "Balance owed", "CDP hearing eligibility", "Collection alternatives (installment, OIC, CNC)", "Levy risk assessment"],
+    whatYouNeed: ["The CP504 notice", "IRS account transcript", "Prior IRS notices (CP14, CP501, CP503)", "Financial statement (Form 433-F)", "Documentation of hardship or dispute"],
+    whatWeIdentify: ["Notice number and exact CDP deadline", "Whether the deadline has passed", "CDP hearing eligibility and grounds", "Collection alternative options", "Levy risk level"],
+    whatAppealAddresses: ["Collection Due Process hearing request (Form 12153)", "Payment in full", "Installment agreement (Form 9465)", "Offer in Compromise (Form 656)", "Currently Not Collectible (Form 433-F)"],
+    seoTitle: "Respond to IRS CP504 Levy Notice — CDP Hearing Request",
+    seoDescription: "Upload your CP504 notice, compute the 30-day CDP hearing deadline, and prepare a response to stop the levy. Critical deadline.",
+    primaryKeyword: "cp504 levy notice response",
+    relatedKeywords: ["irs cp504 notice", "intent to levy notice", "cdp hearing request", "form 12153", "irs levy response", "collection due process"],
+    route: "/appeal/irs-cp504-response",
+    status: "IMPLEMENTED",
+    engine: "IRS Notice Response Engine",
+    executable: true,
+    workflowRoute: "/workflows/irs-cp504-response",
+    cta: "Start Response — Critical Deadline",
+  },
+  {
+    slug: "irs-cp523-response",
+    title: "Respond to CP523 Installment Agreement Default",
+    category: "Tax & IRS",
+    shortDescription: "Reinstate, renegotiate, or request a hearing — within 30 days of the installment agreement default notice.",
+    longDescription: "The CP523 tells you that your IRS installment agreement has defaulted — usually because of a missed payment or new tax debt. You have 30 days to reinstate the agreement, request a new one, or request a hearing. This workflow parses the notice, identifies the default reason, assesses reinstatement eligibility, and helps you prepare a response with the right forms and financial documentation.",
+    intendedUser: "Taxpayers who received a CP523 Notice of Default on their installment agreement and need to act within 30 days.",
+    problemSolved: "If the installment agreement terminates, the full balance becomes immediately due and the IRS can levy. This workflow helps you understand why the agreement defaulted, whether reinstatement is possible, and what documentation you need to either reinstate, propose new terms, or request a CDP hearing.",
+    whatWeAnalyze: ["Notice number and date", "30-day reinstatement deadline", "Default reason (missed payment, new debt, etc.)", "Defaulted amount and remaining balance", "Reinstatement eligibility", "Updated financial situation"],
+    whatYouNeed: ["The CP523 notice", "Original installment agreement terms", "Payment history showing missed payments", "Current financial statement (Form 433-F)", "Documentation of changed circumstances"],
+    whatWeIdentify: ["Notice number and exact reinstatement deadline", "Default reason and missed amount", "Reinstatement eligibility (generally allowed once)", "Proposed new terms if renegotiating", "CDP hearing eligibility if disputing the default"],
+    whatAppealAddresses: ["Reinstatement of the agreement (bring current)", "New installment agreement (Form 9465)", "Offer in Compromise (Form 656)", "Currently Not Collectible (Form 433-F)", "CDP hearing if disputing the default (Form 12153)"],
+    seoTitle: "Respond to IRS CP523 Installment Agreement Default",
+    seoDescription: "Upload your CP523 notice, determine why your installment agreement defaulted, and build a response to reinstate or renegotiate within 30 days.",
+    primaryKeyword: "cp523 installment agreement default response",
+    relatedKeywords: ["irs cp523 notice", "installment agreement default", "cp523 response", "irs payment plan default", "form 9465", "irs installment agreement reinstatement"],
+    route: "/appeal/irs-cp523-response",
+    status: "IMPLEMENTED",
+    engine: "IRS Notice Response Engine",
+    executable: true,
+    workflowRoute: "/workflows/irs-cp523-response",
+    cta: "Start Response",
+  },
+
 ];
 
 /* ── Helper functions ── */
@@ -1507,6 +1605,7 @@ export const CATEGORY_SLUGS: Record<AppealCategory, string> = {
   "Workers' Compensation": "workers-comp",
   "Veterans": "veterans",
   "Administrative": "administrative",
+  "Tax & IRS": "tax-irs",
 };
 
 export const SLUG_TO_CATEGORY: Record<string, AppealCategory> = Object.fromEntries(

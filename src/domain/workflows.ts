@@ -73,7 +73,49 @@ export const workflows: Record<string, WorkflowDefinition> = {
   "license-suspension-appeal": makeWorkflow("license-suspension-appeal","Appeal a License Suspension","Upload the suspension notice and prepare the response.","license suspension appeal",140,27.394478,["License status","Suspension reason","Agency","Deadline"],"Analyze the license suspension notice, stated reasons, agency instructions, deadlines, and relevant records."),
   "drivers-license-suspension": makeWorkflow("drivers-license-suspension","Appeal a Driver's License Suspension","Upload your DMV suspension and prepare the response.","appeal driver's license suspension",20,32.52366,["DMV notice","Suspension reason","Hearing/appeal instructions","Deadline"],"Analyze the driver's license suspension notice for grounds, deadlines, hearing instructions, and supporting records."),
   "license-revocation-appeal": makeWorkflow("license-revocation-appeal","Appeal a License Revocation","Upload the revocation decision and build the response.","license revoked appeal",10,0,["Revocation reason","Agency","Deadline","Evidence"],"Analyze the license revocation decision and identify response grounds and procedural requirements."),
-  "dmv-suspension-appeal": makeWorkflow("dmv-suspension-appeal","Appeal a DMV Suspension","Upload the DMV notice and prepare the response.","dmv license suspension appeal",20,0.94125,["DMV decision","Suspension basis","Deadline","Records"],"Analyze the DMV suspension and identify the stated basis, response path, deadlines, and records."),
+
+  // ── IRS Notice Workflows (Wave 2 — Document Intelligence Anchor) ──
+  "irs-cp2000-response": makeWorkflow(
+    "irs-cp2000-response",
+    "Respond to IRS CP2000 Notice",
+    "Upload your CP2000 Notice of Underreported Income, verify each income discrepancy against your tax documents, and build a source-grounded response that disputes or agrees with specific items — without inventing facts.",
+    "cp2000 response letter",
+    210,
+    12.0,
+    ["Notice number and date","Tax year","Income discrepancies","Reported vs. IRS amounts","Response deadline","Evidence documents","Disputed items","Agreed items","Corrected return need","IRS response address"],
+    "Analyze the uploaded CP2000 notice and extract the notice number, tax year, notice date, response deadline, and each income discrepancy with reported amount, IRS amount, and the difference. Match each discrepancy against the taxpayer's actual income documents (W-2s, 1099s, K-1s, brokerage statements). Separate agreed items from disputed items. Do not invent income amounts, cost basis, or document references. Identify evidence gaps for disputed items. Build an item-by-item response that either agrees, disagrees with evidence, or requests further review for each discrepancy. Determine whether an amended return (1040X) is needed or whether a response letter is sufficient. Validate that all disputed items have evidence references, the notice number is correct, and the deadline has not passed before human approval."
+  ),
+  "irs-cp14-response": makeWorkflow(
+    "irs-cp14-response",
+    "Respond to IRS CP14 Balance Due Notice",
+    "Upload your CP14 Balance Due notice, verify the amount owed against your tax records, and build a response that either pays, disputes, or requests a payment plan — with documentation.",
+    "cp14 irs notice response",
+    170,
+    9.0,
+    ["Notice number and date","Tax period","Amount owed","Penalty breakdown","Interest calculation","Response deadline","Payment plan eligibility","Dispute evidence","IRS payment address"],
+    "Analyze the uploaded CP14 notice and extract the notice number, tax period, amount owed, penalty amount, interest amount, and total balance. Verify the balance against the taxpayer's tax return and IRS account transcript. Identify whether the amount is correct, partially correct, or incorrect. If correct, determine payment options (full pay, installment agreement, offer in compromise). If incorrect, identify the specific error and supporting evidence. Do not fabricate amounts, dates, or account information. Build a response that clearly states the taxpayer's position with evidence references. For installment agreement requests, assess eligibility and compute proposed monthly payment. Validate that the notice number, tax period, and amount match the uploaded document before human approval."
+  ),
+  "irs-cp504-response": makeWorkflow(
+    "irs-cp504-response",
+    "Respond to IRS CP504 Levy Notice",
+    "Upload your CP504 Final Notice of Intent to Levy, assess levy risk, and build a response that either pays, requests a Collection Due Process hearing, or negotiates a payment plan — within the 30-day deadline.",
+    "cp504 levy notice response",
+    90,
+    15.0,
+    ["Notice number and date","Levy deadline (30 days)","Balance owed","CDP hearing eligibility","Collection Due Process rights","Financial statement (433-F)","Payment options","Levy risk assessment","IRS levy address"],
+    "Analyze the uploaded CP504 notice and extract the notice number, notice date, 30-day deadline for CDP hearing, balance owed, and levy warning. Compute the exact CDP hearing deadline from the notice date. Assess whether a CDP hearing is appropriate (dispute of underlying tax, collection alternatives, hardship). If requesting a CDP hearing, prepare Form 12153 with required information. If paying, verify the balance and payment method. If requesting collection alternative, assess installment agreement or offer in compromise eligibility. Do not fabricate deadlines, amounts, or hearing rights. This is a CRITICAL deadline — missing it forfeits CDP hearing rights permanently. Validate that the 30-day deadline has not passed, the notice number is correct, and the requested action is available for CP504 before human approval."
+  ),
+  "irs-cp523-response": makeWorkflow(
+    "irs-cp523-response",
+    "Respond to IRS CP523 Installment Agreement Default",
+    "Upload your CP523 Notice of Default on your installment agreement, determine why the agreement defaulted, and build a response to reinstate, renegotiate, or request a hearing — within the 30-day window.",
+    "cp523 installment agreement default response",
+    70,
+    10.0,
+    ["Notice number and date","Default reason","Defaulted amount","Remaining balance","Reinstatement deadline (30 days)","Original agreement terms","Missed payments","Financial statement (433-F)","Reinstatement eligibility","IRS response address"],
+    "Analyze the uploaded CP523 notice and extract the notice number, notice date, 30-day reinstatement deadline, defaulted amount, remaining balance, and default reason. Identify whether the default was due to missed payments, new tax debt, or other causes. Assess reinstatement eligibility (generally allowed once). If requesting reinstatement, determine the missed payment amount and bring-current strategy. If requesting a new agreement, assess updated financial situation and proposed terms. If disputing the default, identify the specific error. Do not fabricate payment history, agreement terms, or financial information. Build a response that clearly states the taxpayer's position and requested action with evidence references. Validate that the 30-day deadline has not passed, the notice number matches, and the requested action is available for CP523 before human approval."
+  ),
+    "dmv-suspension-appeal": makeWorkflow("dmv-suspension-appeal","Appeal a DMV Suspension","Upload the DMV notice and prepare the response.","dmv license suspension appeal",20,0.94125,["DMV decision","Suspension basis","Deadline","Records"],"Analyze the DMV suspension and identify the stated basis, response path, deadlines, and records."),
   "registration-suspension-appeal": makeWorkflow("registration-suspension-appeal","Appeal a Registration Suspension","Upload the registration suspension notice and build the response.","penndot registration suspension appeal",10,0,["Registration","Agency notice","Reason","Deadline"],"Analyze the registration suspension notice and identify the agency decision, reason, and response requirements."),
 };
 

@@ -13,7 +13,7 @@
     "verify:launch": "npm test && npm run build"
   },
   "dependencies": {
-    "@mailmypdf/pricing": "https://github.com/mycomind4-arch/mailmypdf-platform/releases/download/pricing-v0.2.2/mailmypdf-pricing-0.2.1.tgz",
+    "@mailmypdf/pricing": "https://github.com/mycomind4-arch/mailmypdf-platform/releases/download/pricing-v0.2.3/mailmypdf-pricing-0.2.3.tgz",
     "@mailmypdf/runtime": "https://github.com/mycomind4-arch/mailmypdf-platform/releases/download/runtime-v0.1.0/mailmypdf-runtime-0.1.0.tgz",
     "@supabase/supabase-js": "^2.110.0",
     "@tailwindcss/vite": "^4.2.1",
