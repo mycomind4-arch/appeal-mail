@@ -7,8 +7,8 @@ import { mapMailMyPDFStatus } from "../src/platform/mailmypdf-provider";
 test("Phase F: representative Gold contracts expose authority, pricing, and safety rules", () => {
   assert.ok(COURT_RULING_AUTHORITY_SOURCES.length >= 3);
   assert.ok(COURT_RULING_AUTHORITY_RULES.length >= 3);
-  assert.equal(COURT_RULING_PRICING.preparationFee, 29.99);
-  assert.equal(COURT_RULING_PRICING.includedResponsePages, 4);
+  assert.equal(COURT_RULING_PRICING.preparationFee, 69.99);
+  assert.equal(COURT_RULING_PRICING.includedResponsePages, 8);
   assert.equal(COURT_RULING_PRICING.largePacketThresholdSheets, 7);
   assert.ok(ADMINISTRATIVE_DECISION_APPEAL_GOLD.capabilities.includes("validation"));
   assert.ok(ADMINISTRATIVE_DECISION_APPEAL_GOLD.capabilities.includes("proof"));

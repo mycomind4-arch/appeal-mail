@@ -6,8 +6,8 @@ import { ADMINISTRATIVE_DECISION_PRICING, calculateAdministrativeDecisionTotal }
 test("administrative-decision uses transparent Gold packet pricing", () => {
   assert.equal(ADMINISTRATIVE_DECISION_PRICING.preparationFee, 24.99);
   assert.equal(ADMINISTRATIVE_DECISION_PRICING.includedResponsePages, 3);
-  assert.equal(calculateAdministrativeDecisionTotal({ responseSheets: 3, supportingSheets: 0, mailingMethod: "certified" }).total, 37.48);
-  assert.equal(calculateAdministrativeDecisionTotal({ responseSheets: 5, supportingSheets: 8, mailingMethod: "certified" }).total, 40.68);
+  assert.equal(calculateAdministrativeDecisionTotal({ responseSheets: 3, supportingSheets: 0, mailingMethod: "certified" }).total, 39.93);
+  assert.equal(calculateAdministrativeDecisionTotal({ responseSheets: 5, supportingSheets: 8, mailingMethod: "certified" }).total, 40.73);
 });
 
 test("administrative-decision landing, approval, and checkout use the same pricing model", async () => {
@@ -16,9 +16,9 @@ test("administrative-decision landing, approval, and checkout use the same prici
   const approval = await readFile("src/routes/api/workflows/administrative-decision/approve.ts", "utf8");
   const checkout = await readFile("src/routes/api/workflows/administrative-decision/checkout.ts", "utf8");
   assert.match(route, /AdministrativeDecisionPricing/);
-  assert.match(pricing, /\$24\.99/);
-  assert.match(pricing, /\$0\.40/);
-  assert.match(pricing, /\$0\.25/);
+  assert.match(pricing, /getWorkflowPricingProfile/);
+  assert.match(pricing, /PRICES/);
+  assert.match(pricing, /certified/);
   assert.match(approval, /calculateAdministrativeDecisionTotal/);
-  assert.match(checkout, /pricing\.total/);
+  assert.match(checkout, /totalCents/);
 });

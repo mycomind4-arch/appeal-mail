@@ -20,7 +20,7 @@ describe("Dynamic $workflowId API routes — Phase 2B regression", () => {
     });
 
     test("uses createFileRoute from @tanstack/react-router", () => {
-      assert.match(source, /import \{ createFileRoute \} from "@tanstack\/react-router"/);
+      assert.match(source, /import \{\s*createFileRoute\s*\} from "@tanstack\/react-router"/);
       assert.doesNotMatch(source, /createAPIFileRoute/);
     });
 
@@ -89,7 +89,7 @@ describe("Dynamic $workflowId API routes — Phase 2B regression", () => {
     });
 
     test("uses createFileRoute from @tanstack/react-router", () => {
-      assert.match(source, /import \{ createFileRoute \} from "@tanstack\/react-router"/);
+      assert.match(source, /import \{\s*createFileRoute\s*\} from "@tanstack\/react-router"/);
       assert.doesNotMatch(source, /createAPIFileRoute/);
     });
 

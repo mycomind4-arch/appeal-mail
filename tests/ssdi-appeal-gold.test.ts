@@ -9,8 +9,8 @@ test("SSDI Gold contract includes intelligence, validation, approval, pricing, m
   assert.ok(SSDI_APPEAL_GOLD.capabilities.includes("pricing"));
   assert.ok(SSDI_APPEAL_GOLD.capabilities.includes("proof"));
   assert.ok(SSDI_APPEAL_GOLD.authorityRules.includes("Never invent medical facts."));
-  assert.equal(SSDI_APPEAL_PRICING.includedResponsePages, 4);
-  assert.equal(SSDI_APPEAL_PRICING.preparationFee, 29.99);
+  assert.equal(SSDI_APPEAL_PRICING.includedResponsePages, 8);
+  assert.equal(SSDI_APPEAL_PRICING.preparationFee, 69.99);
 });
 
 test("SSDI executable boundaries are wired", async () => {
@@ -29,7 +29,7 @@ test("SSDI executable boundaries are wired", async () => {
   assert.match(source, /Gemini/);
   assert.match(source, /MailMyPDF/);
   assert.match(source, /proof/);
-  assert.match(source, /29\.99/);
-  assert.match(source, /0\.25/);
+  assert.match(source, /69\.99/);
+  assert.match(source, /Transparent pricing/);
   assert.match(source, /validation/);
 });

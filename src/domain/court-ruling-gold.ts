@@ -8,6 +8,8 @@ export const COURT_RULING_PRICING = {
   standardMail: (PRICES.standard / 100),
   certifiedMail: (PRICES.certified / 100),
   registeredMail: (PRICES.registered / 100),
+  largePacketFee: 5.00,
+  largePacketThresholdSheets: 7,
 } as const;
 
 export const COURT_RULING_AUTHORITY_SOURCES = [

@@ -1,3 +1,6 @@
+import { getWorkflowPricingProfile, PRICES } from "@mailmypdf/pricing";
+const _p = getWorkflowPricingProfile("administrative-decision-appeal")!;
+
 export const ADMINISTRATIVE_DECISION_PRICING = {
   preparationFee: 24.99,
   includedResponsePages: 3,

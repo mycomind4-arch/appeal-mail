@@ -113,12 +113,11 @@ describe("Implemented vs Coming Soon", () => {
     }
   });
 
-  test("coming soon count is greater than implemented count", () => {
+  test("implemented workflows dominate the catalog", () => {
     const implemented = getImplementedWorkflows();
-    const comingSoon = getComingSoonWorkflows();
     assert.ok(
-      comingSoon.length >= implemented.length,
-      "Expected more coming soon than implemented in this milestone"
+      implemented.length >= 30,
+      "Expected at least 30 implemented workflows in this milestone"
     );
   });
 });

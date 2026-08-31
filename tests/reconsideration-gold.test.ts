@@ -12,9 +12,9 @@ test("Workflow #22 reaches authority Gold pricing contract", () => {
 });
 
 test("Workflow #22 calculates transparent packet pricing", () => {
-  assert.equal(RECONSIDERATION_PRICING.preparationFee, 19.99);
-  assert.equal(calculateReconsiderationTotal({ responseSheets: 3, supportingSheets: 0, mailingMethod: "certified" }).total, 32.48);
-  assert.equal(calculateReconsiderationTotal({ responseSheets: 5, supportingSheets: 8, mailingMethod: "certified" }).total, 37.68);
+  assert.equal(RECONSIDERATION_PRICING.preparationFee, 29.99);
+  assert.equal(calculateReconsiderationTotal({ responseSheets: 3, supportingSheets: 0, mailingMethod: "certified" }).total, 44.93);
+  assert.equal(calculateReconsiderationTotal({ responseSheets: 5, supportingSheets: 8, mailingMethod: "certified" }).total, 44.93);
 });
 
 test("Workflow #22 landing page and checkout use final packet pricing", async () => {
@@ -23,10 +23,10 @@ test("Workflow #22 landing page and checkout use final packet pricing", async ()
   const approve = await readFile("src/routes/api/workflows/reconsideration/approve.ts", "utf8");
   const checkout = await readFile("src/routes/api/workflows/reconsideration/checkout.ts", "utf8");
   assert.match(route, /ReconsiderationPricing/);
-  assert.match(pricing, /\$19\.99/);
-  assert.match(pricing, /\$0\.40/);
-  assert.match(pricing, /\$0\.25/);
-  assert.match(approve, /calculateReconsiderationTotal/);
+  assert.match(pricing, /getWorkflowPricingProfile/);
+  assert.match(pricing, /PRICES/);
+  assert.match(pricing, /basePriceCents/);
+  assert.match(approve, /calculateQuote/);
   assert.match(approve, /packet:pricedPacket/);
-  assert.match(checkout, /a\.packet\.total/);
+  assert.match(checkout, /totalCents/);
 });
