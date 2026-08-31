@@ -1,3 +1,4 @@
+import{canApprove}from"@/platform/runtime";
 import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { runReadinessReview } from "@/domain/review";

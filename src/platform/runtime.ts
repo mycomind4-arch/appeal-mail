@@ -98,3 +98,33 @@ export { signWebhook, verifyWebhook, processFulfillmentWebhook };
 /* ── Document Integrity ── */
 
 export { attestDocument, verifyDocumentIntegrity };
+
+/* ── Approval Gate Enforcement ──
+ * Maps appeal-mail's status strings to the runtime's CaseState
+ * and enforces the state machine before approval transitions.
+ */
+
+const STATUS_TO_CASE_STATE: Record<string, CaseState> = {
+  created: "draft",
+  analyzed: "validated",
+  drafted: "review",
+  reviewed: "review",
+  ready: "approved",
+  paid: "queued",
+  mailed: "submitted",
+  in_transit: "tracking",
+  delivered: "completed",
+  failed: "failed",
+  cancelled: "cancelled",
+};
+
+/** Map an appeal's status string to the runtime's CaseState. */
+export function toCaseState(status: string): CaseState {
+  return STATUS_TO_CASE_STATE[status] ?? "draft";
+}
+
+/** Check whether transitioning from the current status to "ready" (approved) is valid. */
+export function canApprove(currentStatus: string): boolean {
+  const from = toCaseState(currentStatus);
+  return canTransition(from, "approved");
+}
