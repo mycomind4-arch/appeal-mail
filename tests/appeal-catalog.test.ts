@@ -123,8 +123,8 @@ describe("Implemented vs Coming Soon", () => {
 });
 
 describe("Category Structure", () => {
-  test("CATEGORY_ORDER has 7 categories", () => {
-    assert.equal(CATEGORY_ORDER.length, 7);
+  test("CATEGORY_ORDER has 8 categories", () => {
+    assert.equal(CATEGORY_ORDER.length, 8);
   });
 
   test("each category has at least one workflow", () => {

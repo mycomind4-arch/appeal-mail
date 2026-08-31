@@ -54,9 +54,9 @@ describe("Registry count integrity", () => {
     );
   });
 
-  test("registry contains exactly 33 workflows (snapshot)", () => {
+  test("registry contains exactly 37 workflows (snapshot)", () => {
     const count = Object.keys(workflows).length;
-    assert.equal(count, 33, `Expected 33 workflow entries, got ${count}. Update this snapshot if the registry changed intentionally.`);
+    assert.equal(count, 37, `Expected 37 workflow entries, got ${count}. Update this snapshot if the registry changed intentionally.`);
   });
 
   test("every workflow ID is unique", () => {
