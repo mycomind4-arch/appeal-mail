@@ -13,6 +13,12 @@ import {
   type AuditEvent,
   type AuditEventType,
 } from "@/lib/platform/intelligence";
+import {
+  createTamperEvidentAuditEntry,
+  GENESIS_HASH,
+  verifyAuditChain,
+  type AuditChainEntry,
+} from "@/platform/runtime";
 
 /* ─────────────────────────────────────────────
    Appeal Repository — server functions for
@@ -375,6 +381,28 @@ export const readAuditTrail = createServerFn()
       throw new NotFoundError(`Failed to read audit trail: ${error.message}`);
     }
 
+    // Reconstruct the audit chain entries from the stored metadata
+    const chainEntries: AuditChainEntry[] = (rows || [])
+      .map((row) => {
+        const meta = (row.metadata as Record<string, unknown>) ?? {};
+        return {
+          id: row.id as any,
+          caseId: row.subject_id as any,
+          sequence: (meta.sequence as number) ?? 0,
+          eventType: row.event_type,
+          actor: row.actor as "user" | "system" | "ai" | "external",
+          actorId: row.owner_id,
+          payload: meta,
+          eventHash: (meta.eventHash as string) ?? "",
+          previousHash: (meta.previousHash as string) ?? GENESIS_HASH,
+          occurredAt: row.occurred_at,
+        };
+      })
+      .sort((a, b) => a.sequence - b.sequence);
+
+    // Verify the tamper-evident chain
+    const chainValid = await verifyAuditChain(chainEntries);
+
     return {
       events: (rows || []).map((row) => ({
         id: row.id,
@@ -385,6 +413,7 @@ export const readAuditTrail = createServerFn()
         ownerId: row.owner_id,
         metadata: row.metadata,
       })) as AuditEvent[],
+      chainValid,
     };
   });
 
@@ -400,21 +429,49 @@ async function recordAuditEvent(
     metadata?: Record<string, unknown>;
   },
 ): Promise<void> {
-  const event = createAuditEvent(input);
-  // Best-effort audit recording — failures here don't block the primary operation
-  // but are logged so they're never silently swallowed
+  // Fetch the latest audit entry for this subject to continue the chain
+  const { data: latest } = await supabase
+    .from("audit_events")
+    .select("metadata")
+    .eq("subject_id", input.subjectId)
+    .eq("owner_id", input.ownerId)
+    .order("occurred_at", { ascending: false })
+    .limit(1);
+
+  const previousHash: string =
+    (latest?.[0]?.metadata as any)?.eventHash ?? GENESIS_HASH;
+  const sequence: number =
+    (latest?.[0]?.metadata as any)?.sequence ?? 0;
+
+  // Create a tamper-evident audit entry using the runtime's audit chain
+  const chainEntry = await createTamperEvidentAuditEntry({
+    caseId: input.subjectId,
+    sequence: sequence + 1,
+    eventType: input.type,
+    actor: input.actor,
+    actorId: input.ownerId,
+    payload: input.metadata ?? {},
+    previousHash,
+  });
+
+  // Store with the chain fields embedded in metadata
   const { error } = await supabase.from("audit_events").insert({
-    id: event.id,
-    event_type: event.type,
-    occurred_at: event.occurredAt,
-    actor: event.actor,
-    subject_id: event.subjectId,
-    owner_id: event.ownerId,
-    metadata: event.metadata,
+    id: chainEntry.id,
+    event_type: input.type,
+    occurred_at: chainEntry.occurredAt,
+    actor: input.actor,
+    subject_id: input.subjectId,
+    owner_id: input.ownerId,
+    metadata: {
+      ...input.metadata,
+      eventHash: chainEntry.eventHash,
+      previousHash: chainEntry.previousHash,
+      sequence: chainEntry.sequence,
+    },
   });
 
   if (error) {
-    console.error(`[AUDIT] Failed to record audit event: ${error.message}`, { event });
+    console.error(`[AUDIT] Failed to record audit event: ${error.message}`, { event: chainEntry });
   }
 }
 
