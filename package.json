@@ -9,8 +9,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test": "node --import tsx --test tests/*.test.ts",
-    "verify:launch": "npm test && npm run build"
+    "test": "npm run test:legacy && npm run test:unit",
+    "verify:launch": "npm test && npm run build",
+    "test:legacy": "node --import tsx --test tests/*.test.ts",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@mailmypdf/pricing": "https://github.com/mycomind4-arch/mailmypdf-platform/releases/download/pricing-v0.2.3/mailmypdf-pricing-0.2.3.tgz",
