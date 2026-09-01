@@ -22,6 +22,11 @@ export const Route = createFileRoute("/api/packets/build")({ server: { handlers:
     if (!Array.isArray(pageOps)) return Response.json({ error: "pageOps must be an array." }, { status: 400 });
     if (partInputs.filter((part) => part.type === "ai_response").length !== 1) return Response.json({ error: "Packet must contain exactly one final AI response part." }, { status: 400 });
 
+    const inputIds = new Set(partInputs.map((part) => part.id));
+    if (pageOps.some((op) => !op || typeof op.partId !== "string" || !inputIds.has(op.partId) || !Number.isInteger(op.sourcePageIndex) || op.sourcePageIndex < 0)) {
+      return Response.json({ error: "Packet page operations contain an invalid part or page index." }, { status: 400 });
+    }
+
     const supabase = await getSupabaseServer();
     const { data: appeal, error: appealError } = await supabase.from("appeals").select("id,user_id,workflow_id,packet").eq("id", appealId).eq("user_id", user.id).single();
     if (appealError || !appeal) return Response.json({ error: "Appeal not found." }, { status: 404 });
