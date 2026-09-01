@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getSupabaseServer } from "@/platform/supabase";
-import { requireAuthenticatedUser } from "@/platform/supabase";
+import { getSupabaseServer, requireAuthenticatedUser } from "@/platform/supabase";
 
 export type AIHistoryEvent = {
   caseId: string;
@@ -22,7 +21,9 @@ async function sha256(value: string) {
 export const appendAIHistory = createServerFn()
   .validator((input: { accessToken: string; caseId: string; task: AIHistoryEvent["task"]; provider: string; model: string; input: string; output: string }) => input)
   .handler(async ({ data }) => {
-    const user = await requireAuthenticatedUser(new Request("https://appeal-mail.internal/auth", { headers: { authorization: `Bearer ${data.accessToken}` } }));
+    const user = await requireAuthenticatedUser(new Request("https://appeal-mail.internal/auth", {
+      headers: { authorization: `Bearer ${data.accessToken}` },
+    }));
     const db = await getSupabaseServer();
     const event: AIHistoryEvent = {
       caseId: data.caseId,
