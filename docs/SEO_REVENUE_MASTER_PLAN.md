@@ -2,7 +2,7 @@
 
 **Created:** 2026-08-21
 **Repository:** https://github.com/mycomind4-arch/appeal-mail
-**Production:** https://mycomind4-arch-appeal-mail.pages.dev
+**Production:** https://appeal-mail.pages.dev
 **Phase:** Commercial Optimization (post-infrastructure)
 **Status:** Phase 1 checkpoint complete — 750/750 tests, 33 workflows verified
 

@@ -10,7 +10,7 @@
 
 | Service | URL | Status |
 |---------|-----|--------|
-| Appeal Mail (vertical app) | https://mycomind4-arch-appeal-mail.pages.dev | LIVE |
+| Appeal Mail (vertical app) | https://appeal-mail.pages.dev | LIVE |
 | MailMyPDF Application (platform) | https://mycomind4-arch-mailmypdf.mycomind4.workers.dev | LIVE |
 
 ## 2. GitHub Repositories
@@ -126,7 +126,7 @@ Breakdown:
 
 ## 12. Gemini / Control-Plane Status
 
-- **Control plane:** Self-hosted at `https://mycomind4-arch-appeal-mail.pages.dev/api/control-plane/ai`
+- **Control plane:** Self-hosted at `https://appeal-mail.pages.dev/api/control-plane/ai`
 - **Auth:** Bearer token (`MAILMYPDF_CONTROL_PLANE_TOKEN`)
 - **Model:** `gemini-3.6-flash` (current; `gemini-2.0-flash` is deprecated)
 - **Tasks configured:** `analysis`, `extraction`, `draft`, `validation`

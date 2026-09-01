@@ -44,7 +44,7 @@ export const ECOSYSTEM_PRODUCTS: EcosystemProduct[] = [
   { name: "MailMyPDF", slug: "mailmypdf", href: "https://mailmypdf.pages.dev", description: "Core document and letter mailing workflows", category: "Core", status: "live" },
   { name: "Notice Respond", slug: "notice-respond", href: "https://notice-respond.pages.dev", description: "Official notices, agency actions, and formal responses", category: "Government / Official", status: "live" },
   { name: "Immigration Mail", slug: "immigration-mail", href: "https://immigration-mail.pages.dev", description: "Immigration notices, evidence packages, and explanation letters", category: "Immigration", status: "live" },
-  { name: "Appeal Mail", slug: "appeal-mail", href: "https://mycomind4-arch-appeal-mail.pages.dev", description: "Appeals, reconsiderations, denials, and adverse decisions", category: "Appeals / Claims", status: "live" },
+  { name: "Appeal Mail", slug: "appeal-mail", href: "https://appeal-mail.pages.dev", description: "Appeals, reconsiderations, denials, and adverse decisions", category: "Appeals / Claims", status: "live" },
   { name: "Dispute Mail", slug: "dispute-mail", href: "https://dispute-mail.pages.dev", description: "Debt, credit, billing, collections, and consumer disputes", category: "Disputes", status: "live" },
   { name: "Tenant Reply", slug: "tenant-reply", href: "https://tenant-reply.pages.dev", description: "Tenant notices, repair correspondence, and housing responses", category: "Housing", status: "live" },
   { name: "Benefits Appeal", slug: "benefits-appeal", href: "https://benefits-appeal.pages.dev", description: "Benefits denials, reconsideration, and review preparation", category: "Appeals / Claims", status: "planned" },
