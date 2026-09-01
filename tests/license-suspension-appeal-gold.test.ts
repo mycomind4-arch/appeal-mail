@@ -30,10 +30,10 @@ test("license suspension Gold endpoints are present and wired to Gemini/server g
   const approve = await fs.readFile(files[2], "utf8");
   const checkout = await fs.readFile(files[3], "utf8");
   const workspace = await fs.readFile(files[4], "utf8");
-  assert.match(analyze, /control-plane\/ai/);
+  assert.match(analyze, /resolveAI/);
   assert.match(analyze, /generateContent/);
   assert.match(analyze, /from\("appeals"\)\.insert/);
-  assert.match(draft, /task\}\)/);
+  assert.match(draft, /resolveAI.*"draft"/);
   assert.match(draft, /draft|validation/);
   assert.match(approve, /runReadinessReview/);
   assert.match(approve, /assemblePacket/);

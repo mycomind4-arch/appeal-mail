@@ -2,16 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { getWorkflow } from "@/domain/workflows";
 import { validateAppealDraft } from "@/domain/draft-validator";
+import { resolveAI } from "@/platform/control-plane-ai";
 
-async function resolveGemini(task: "draft" | "validation") {
-  const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
-  const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const response = await fetch(`${base.replace(/\/$/, "")}/api/control-plane/ai`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify({ verticalSlug: "appeal-mail", workflowSlug: "out-of-network-denial", task }) });
-  const payload = await response.json().catch(() => null) as any;
-  if (!response.ok || !payload?.apiKey || !payload?.model || payload.provider !== "gemini") throw new Error("Gemini configuration is unavailable for this workflow.");
-  return payload;
-}
 async function callGemini(config: any, prompt: string) {
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent?key=${encodeURIComponent(config.apiKey)}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: config.promptOverride || prompt }] }], generationConfig: { temperature: 0.2 } }) });
   const body = await response.json().catch(() => null) as any;
@@ -31,7 +23,7 @@ export const Route = createFileRoute("/api/workflows/out-of-network-denial/draft
     if (appeal.user_id !== user.id) return Response.json({ error: "You do not own this appeal case." }, { status: 403 });
     if (appeal.workflow_id !== "out-of-network-denial") return Response.json({ error: "Appeal workflow mismatch." }, { status: 409 });
     const workflow = getWorkflow("out-of-network-denial");
-    const draftConfig = await resolveGemini("draft"); const validationConfig = await resolveGemini("validation");
+    const draftConfig = await resolveAI("out-of-network-denial", "draft"); const validationConfig = await resolveAI("out-of-network-denial", "validation");
     const analysis = input.analysis || appeal.decision;
     const draft = input.draftOverride?.trim() || await callGemini(draftConfig, [
       `Create a response for ${workflow.title}.`, workflow.workflowPrompt, `Focus on: ${workflow.focusAreas.join(", ")}.`,

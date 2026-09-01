@@ -6,19 +6,11 @@ import { createAppeal } from "@/domain/appeal";
 import { createGround } from "@/domain/ground";
 import { createEvidence } from "@/domain/evidence";
 import { getWorkflow } from "@/domain/workflows";
+import { resolveAI } from "@/platform/control-plane-ai";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (["application/pdf", "image/png", "image/jpeg"].includes(file.type)) return file.type as never;
   throw new Error("Please upload a PDF, PNG, or JPEG document.");
-}
-async function resolveGemini() {
-  const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
-  const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const r = await fetch(`${base.replace(/\/$/, "")}/api/control-plane/ai`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify({ verticalSlug: "appeal-mail", workflowSlug: "life-insurance-denial", task: "analysis" }) });
-  const p = await r.json().catch(() => null) as { provider?: string; apiKey?: string; model?: string; promptOverride?: string } | null;
-  if (!r.ok || !p?.apiKey || !p.model || p.provider !== "gemini") throw new Error("Gemini configuration is unavailable for this workflow.");
-  return p;
 }
 export const Route = createFileRoute("/api/workflows/life-insurance-denial/analyze")({server:{handlers:{POST:async ({ request }) => {
   try {
@@ -26,7 +18,7 @@ export const Route = createFileRoute("/api/workflows/life-insurance-denial/analy
     if (!(file instanceof File)) return Response.json({ error: "A life insurance denial is required." }, { status: 400 });
     if (!file.size) return Response.json({ error: "The source document is empty." }, { status: 400 });
     if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
-    const document = await uploadDocument(file); const gemini = await resolveGemini(); const bytes = Buffer.from(await file.arrayBuffer()).toString("base64");
+    const document = await uploadDocument(file); const gemini = await resolveAI("life-insurance-denial", "analysis"); const bytes = Buffer.from(await file.arrayBuffer()).toString("base64");
     const prompt = [
       `Workflow: ${workflow.title}`, workflow.description, workflow.workflowPrompt, `Focus areas: ${workflow.focusAreas.join(", ")}.`,
       "Analyze the actual life-insurance denial. Extract only supported facts and clearly distinguish insurer statements, policy text, and missing evidence.",

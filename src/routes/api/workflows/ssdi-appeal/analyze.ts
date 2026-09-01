@@ -2,16 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { uploadDocument } from "@/platform/mailmypdf";
 
-export const Route = createFileRoute("/api/workflows/ssdi-appeal/analyze")({ server: { handlers: { POST: async ({ request }) => {
+import { resolveAI } from "@/platform/control-plane-ai";;export const Route = createFileRoute("/api/workflows/ssdi-appeal/analyze")({ server: { handlers: { POST: async ({ request }) => {
   try {
     const user = await requireAuthenticatedUser(request); const form = await request.formData(); const file = form.get("document");
     if (!(file instanceof File)) return Response.json({ error: "An SSDI decision is required." }, { status: 400 });
     if (file.size === 0) return Response.json({ error: "The source document is empty." }, { status: 400 });
     if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
     if (!["application/pdf","image/png","image/jpeg"].includes(file.type)) return Response.json({ error: "SSDI Appeal accepts PDF, PNG, and JPEG source documents." }, { status: 415 });
-    const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN; const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com"; if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-    const cfgRes = await fetch(`${base.replace(/\/$/,"")}/api/control-plane/ai`, { method:"POST", headers:{"content-type":"application/json",authorization:`Bearer ${token}`}, body:JSON.stringify({verticalSlug:"appeal-mail",workflowSlug:"ssdi-appeal",task:"analysis"}) });
-    const cfg = await cfgRes.json().catch(()=>null) as any; if (!cfgRes.ok) throw new Error(cfg?.error || `Control plane error (${cfgRes.status}).`); if (cfg.provider !== "gemini") throw new Error("SSDI Appeal is currently configured for Gemini.");
+    const cfg=await resolveAI("ssdi-appeal","analysis");
     const prompt = cfg.promptOverride || [
       "You are the authority-first analyst for an SSDI appeal workflow.",
       "Return strict JSON only. Extract only information supported by the decision notice.",

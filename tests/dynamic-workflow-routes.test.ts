@@ -58,7 +58,7 @@ describe("Dynamic $workflowId API routes — Phase 2B regression", () => {
     });
 
     test("preserves Gemini / control-plane integration", () => {
-      assert.match(source, /api\/control-plane\/ai/);
+      assert.match(source, /resolveAI/);
       assert.match(source, /generateContent/);
     });
 
@@ -122,8 +122,8 @@ describe("Dynamic $workflowId API routes — Phase 2B regression", () => {
     });
 
     test("preserves draft + validation Gemini calls", () => {
-      assert.match(source, /resolveGemini\("draft"\)/);
-      assert.match(source, /resolveGemini\("validation"\)/);
+      assert.match(source, /resolveAI.*"draft"/);
+      assert.match(source, /resolveAI.*"validation"/);
     });
 
     test("preserves validation response shape", () => {

@@ -1,20 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getWorkflow } from "@/domain/workflows";
 import { requireAuthenticatedUser } from "@/platform/supabase";
+import { resolveAI } from "@/platform/control-plane-ai";
 
-async function resolveGemini(task: "draft" | "validation") {
-  const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
-  const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const response = await fetch(`${base.replace(/\/$/, "")}/api/control-plane/ai`, {
-    method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-    body: JSON.stringify({ task }),
-  });
-  const payload = await response.json().catch(() => null) as { provider?: string; apiKey?: string; model?: string; promptOverride?: string } | null;
-  if (!response.ok || !payload?.apiKey || !payload.model) throw new Error("Gemini configuration is unavailable.");
-  if (payload.provider !== "gemini") throw new Error("Appeal Mail is currently configured for Gemini.");
-  return payload;
-}
 
 async function callGemini(config: { apiKey: string; model: string; promptOverride?: string }, prompt: string) {
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent?key=${encodeURIComponent(config.apiKey)}`, {
@@ -37,8 +25,8 @@ export const Route = createFileRoute("/api/workflows/$workflowId/draft")({
           const workflow = getWorkflow(params.workflowId);
           const payload = await request.json() as { analysis?: unknown };
           if (!payload.analysis) return Response.json({ error: "Analysis results are required." }, { status: 400 });
-          const draftConfig = await resolveGemini("draft");
-          const validationConfig = await resolveGemini("validation");
+          const draftConfig = await resolveAI(params.workflowId, "draft");
+          const validationConfig = await resolveAI(params.workflowId, "validation");
           const draft = await callGemini(draftConfig, [
             `Create the response for workflow: ${workflow.title}.`,
             workflow.workflowPrompt,

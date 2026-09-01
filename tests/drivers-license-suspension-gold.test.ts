@@ -26,13 +26,13 @@ test("drivers-license-suspension is Gold-standard configured", async () => {
 
   const analyze = await fs.readFile(required[0], "utf8");
   assert.match(analyze, /uploadDocument/);
-  assert.match(analyze, /control-plane\/ai/);
+  assert.match(analyze, /resolveAI/);
   assert.match(analyze, /generateContent/);
   assert.match(analyze, /from\("appeals"\)/);
   assert.match(analyze, /user_id:user\.id/);
 
   const draft = await fs.readFile(required[1], "utf8");
-  assert.match(draft, /task\}\)/);
+  assert.match(draft, /resolveAI.*"draft"/);
   assert.match(draft, /draftModel/);
   assert.match(draft, /validationModel/);
   assert.match(draft, /eq\("user_id",user\.id\)/);

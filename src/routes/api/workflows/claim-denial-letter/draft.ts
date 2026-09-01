@@ -2,16 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { getWorkflow } from "@/domain/workflows";
 import { validateAppealDraft } from "@/domain/draft-validator";
+import { resolveAI } from "@/platform/control-plane-ai";
 
-async function resolveGemini(task: "draft" | "validation") {
-  const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
-  const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const response = await fetch(`${base.replace(/\/$/, "")}/api/control-plane/ai`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify({ verticalSlug: "appeal-mail", workflowSlug: "claim-denial-letter", task }) });
-  const payload = await response.json().catch(() => null) as { provider?: string; apiKey?: string; model?: string; promptOverride?: string } | null;
-  if (!response.ok || !payload?.apiKey || !payload.model || payload.provider !== "gemini") throw new Error("Gemini configuration is unavailable for this workflow.");
-  return payload;
-}
 async function callGemini(config: { apiKey: string; model: string; promptOverride?: string }, prompt: string) {
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent?key=${encodeURIComponent(config.apiKey)}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: config.promptOverride || prompt }] }], generationConfig: { temperature: 0.2 } }) });
   const body = await response.json().catch(() => null) as any;
@@ -34,7 +26,7 @@ export const Route = createFileRoute("/api/workflows/claim-denial-letter/draft")
       if (appeal.user_id !== user.id) return Response.json({ error: "You do not own this appeal case." }, { status: 403 });
       if (appeal.workflow_id !== "claim-denial-letter") return Response.json({ error: "Appeal workflow mismatch." }, { status: 409 });
       const workflow = getWorkflow("claim-denial-letter");
-      const draftConfig = await resolveGemini("draft"); const validationConfig = await resolveGemini("validation");
+      const draftConfig = await resolveAI("claim-denial-letter", "draft"); const validationConfig = await resolveAI("claim-denial-letter", "validation");
       const analysis = input.analysis || appeal.decision;
       const draft = input.draftOverride?.trim() || await callGemini(draftConfig, [`Create a response for the workflow: ${workflow.title}.`, workflow.workflowPrompt, `Focus on: ${workflow.focusAreas.join(", ")}.`, "Use only supplied facts. Do not invent law, policy language, facts, dates, amounts, deadlines, or outcomes.", "Write a concise, professional claim-denial response that a human can review and edit.", `CASE ANALYSIS:\n${JSON.stringify(analysis)}`].join("\n\n"));
       const validation = await callGemini(validationConfig, [`Audit this claim-denial response for: ${workflow.title}.`, "Return strict JSON with valid, issues, unsupportedClaims, missingEvidence, suggestions.", "Flag unsupported claims, invented authority, missing evidence, contradictions, deadline problems, and factual uncertainty.", `CASE ANALYSIS:\n${JSON.stringify(analysis)}`, `DRAFT:\n${draft}`].join("\n\n"));

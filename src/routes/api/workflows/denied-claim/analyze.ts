@@ -10,19 +10,6 @@ type ProviderConfig = {
   promptOverride?: string | null;
 };
 
-async function resolveProvider(task: "analysis" | "extraction" | "draft" | "validation") {
-  const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
-  const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const response = await fetch(`${base.replace(/\/$/, "")}/api/control-plane/ai`, {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-    body: JSON.stringify({ verticalSlug: "appeal-mail", workflowSlug: "denied-claim", task }),
-  });
-  const payload = await response.json().catch(() => null);
-  if (!response.ok) throw new Error(payload?.error || `Control plane error (${response.status}).`);
-  return payload as ProviderConfig;
-}
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (file.type === "application/pdf") return "application/pdf";
@@ -33,7 +20,7 @@ function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
 
 function asString(value: unknown): string { return typeof value === "string" ? value : ""; }
 
-export const Route = createFileRoute("/api/workflows/denied-claim/analyze")({
+import { resolveAI } from "@/platform/control-plane-ai";;export const Route = createFileRoute("/api/workflows/denied-claim/analyze")({
   server: {
     handlers: {
       POST: async ({ request }) => {
@@ -46,7 +33,7 @@ export const Route = createFileRoute("/api/workflows/denied-claim/analyze")({
           if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
           if (!["application/pdf", "image/png", "image/jpeg"].includes(file.type)) return Response.json({ error: "Denied Claim currently accepts PDF, PNG, and JPEG source documents." }, { status: 415 });
 
-          const provider = await resolveProvider("analysis");
+          const provider = await resolveAI("denied-claim", "analysis");
           if (provider.provider !== "gemini") throw new Error("Denied Claim is currently configured for Gemini. Add another provider in the MailMyPDF admin control plane when ready.");
 
           const sourceDocument = await uploadDocument(file);

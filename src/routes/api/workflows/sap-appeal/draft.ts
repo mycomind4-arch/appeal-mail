@@ -2,16 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { requireAuthenticatedUser, getSupabaseServer } from "@/platform/supabase";
 import { getWorkflow } from "@/domain/workflows";
 import { validateAppealDraft } from "@/domain/draft-validator";
+import { resolveAI } from "@/platform/control-plane-ai";
 
-async function resolveGemini(task: "draft" | "validation") {
-  const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
-  const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const r = await fetch(`${base.replace(/\/$/, "")}/api/control-plane/ai`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify({ verticalSlug: "appeal-mail", workflowSlug: "sap-appeal", task }) });
-  const p = await r.json().catch(() => null) as any;
-  if (!r.ok || !p?.apiKey || !p.model || p.provider !== "gemini") throw new Error("Gemini configuration is unavailable for this workflow.");
-  return p;
-}
 async function callGemini(c: any, prompt: string) {
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(c.model)}:generateContent?key=${encodeURIComponent(c.apiKey)}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: c.promptOverride || prompt }] }], generationConfig: { temperature: 0.2 } }) });
   const b = await r.json().catch(() => null) as any;
@@ -31,8 +23,8 @@ export const Route = createFileRoute("/api/workflows/sap-appeal/draft")({server:
     if (a.user_id !== user.id) return Response.json({ error: "You do not own this appeal case." }, { status: 403 });
     if (a.workflow_id !== "sap-appeal") return Response.json({ error: "Appeal workflow mismatch." }, { status: 409 });
     const wf = getWorkflow("sap-appeal");
-    const d = await resolveGemini("draft");
-    const v = await resolveGemini("validation");
+    const d = await resolveAI("sap-appeal", "draft");
+    const v = await resolveAI("sap-appeal", "validation");
     const analysis = input.analysis || a.decision;
     const draft = input.draftOverride?.trim() || await callGemini(d, [
       `Create a response for ${wf.title}.`, wf.workflowPrompt,

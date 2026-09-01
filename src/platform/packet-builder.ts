@@ -1,5 +1,5 @@
 import { PDFDocument, StandardFonts, rgb, degrees } from "pdf-lib";
-import { scanPdfForDangerousTokens, sanitizeFilename, validateFile } from "@/lib/platform/documents";
+import { scanPdfForDangerousTokens, sanitizeFilename, validateFile } from "../lib/platform/documents";
 
 export interface PacketPageOp { partId: string; sourcePageIndex: number; rotation?: number; removed?: boolean; }
 export type PacketPart =

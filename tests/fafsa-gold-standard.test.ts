@@ -33,10 +33,10 @@ test("FAFSA upload path is document-first and authenticated", () => {
 
 test("FAFSA analysis uses centralized Gemini configuration and persists the case", () => {
   const source = read("src/routes/api/workflows/fafsa-appeal/analyze.ts");
-  assert.match(source, /api\/control-plane\/ai/);
-  assert.match(source, /workflowSlug:\s*"fafsa-appeal"/);
-  assert.match(source, /task:\s*"analysis"/);
-  assert.match(source, /provider\s*!==\s*"gemini"/);
+  assert.match(source, /resolveAI/);
+  assert.match(source, /resolveAI\("fafsa-appeal"/);
+  assert.match(source, /resolveAI\("fafsa-appeal",\s*"analysis"\)/);
+  
   assert.match(source, /generateContent/);
   assert.match(source, /JSON\.parse\(text\)/);
   assert.match(source, /from\("appeals"\)\.insert/);
@@ -46,9 +46,9 @@ test("FAFSA analysis uses centralized Gemini configuration and persists the case
 
 test("FAFSA draft path has independent Gemini validation and optimistic concurrency", () => {
   const source = read("src/routes/api/workflows/fafsa-appeal/draft.ts");
-  assert.match(source, /task\}\)/);
-  assert.match(source, /resolveGemini\("draft"\)/);
-  assert.match(source, /resolveGemini\("validation"\)/);
+  
+  assert.match(source, /resolveAI\("fafsa-appeal",\s*"draft"\)/);
+  assert.match(source, /resolveAI\("fafsa-appeal",\s*"validation"\)/);
   assert.match(source, /DRAFT:/);
   assert.match(source, /unsupportedClaims/);
   assert.match(source, /missingEvidence/);

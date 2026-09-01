@@ -27,7 +27,7 @@ test("SSDI executable boundaries are wired", async () => {
   const source = files.join("\n");
   assert.match(source, /ssdi-appeal/);
   assert.match(source, /Gemini/);
-  assert.match(source, /MailMyPDF/);
+  assert.match(source, /resolveAI/);
   assert.match(source, /proof/);
   assert.match(source, /69\.99/);
   assert.match(source, /Transparent pricing/);

@@ -6,22 +6,16 @@ import { createAppeal } from "@/domain/appeal";
 import { createGround } from "@/domain/ground";
 import { createEvidence } from "@/domain/evidence";
 import { getWorkflow } from "@/domain/workflows";
+import { resolveAI } from "@/platform/control-plane-ai";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (["application/pdf", "image/png", "image/jpeg"].includes(file.type)) return file.type as never;
   throw new Error("Please upload a PDF, PNG, or JPEG document.");
 }
-async function resolveGemini() {
-  const base=process.env.MAILMYPDF_CONTROL_PLANE_URL||"https://mailmypdf.com"; const token=process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if(!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const r=await fetch(`${base.replace(/\/$/,"")}/api/control-plane/ai`,{method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${token}`},body:JSON.stringify({verticalSlug:"appeal-mail",workflowSlug:"prior-authorization-denial",task:"analysis"})});
-  const p=await r.json().catch(()=>null) as {provider?:string;apiKey?:string;model?:string;promptOverride?:string}|null;
-  if(!r.ok||!p?.apiKey||!p.model||p.provider!=="gemini") throw new Error("Gemini configuration is unavailable for this workflow."); return p;
-}
 export const Route=createFileRoute("/api/workflows/prior-authorization-denial/analyze")({server:{handlers:{POST:async({request})=>{try{
   const user=await requireAuthenticatedUser(request); const workflow=getWorkflow("prior-authorization-denial"); const form=await request.formData(); const file=form.get("document");
   if(!(file instanceof File)) return Response.json({error:"A prior-authorization denial is required."},{status:400}); if(!file.size)return Response.json({error:"The source document is empty."},{status:400}); if(file.size>20*1024*1024)return Response.json({error:"Source documents must be 20 MB or smaller."},{status:413});
-  const document=await uploadDocument(file); const gemini=await resolveGemini(); const bytes=Buffer.from(await file.arrayBuffer()).toString("base64");
+  const document=await uploadDocument(file); const gemini=await resolveAI("prior-authorization-denial", "analysis"); const bytes=Buffer.from(await file.arrayBuffer()).toString("base64");
   const prompt=[`Workflow: ${workflow.title}`,workflow.description,workflow.workflowPrompt,`Focus areas: ${workflow.focusAreas.join(", ")}.`,`Analyze the actual prior-authorization denial. Extract only supported facts and distinguish payer statements from documented clinical evidence.`,`Identify the requested service/treatment, authorization decision, denial rationale, criteria cited, clinical facts actually present, prior treatments or alternatives mentioned, records referenced, evidence gaps, appeal instructions, and deadline.`,`Do not diagnose, invent medical facts, clinical conclusions, payer policy language, or legal authority.`,`Return strict JSON only.`,'{"summary":"","decision":"","decisionType":"prior_authorization_denial","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","requestedService":"","denialReasons":[],"criteriaCited":[],"clinicalFactsSupported":[],"alternativesMentioned":[],"evidenceMentioned":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"uncertainties":[],"confidence":"high|medium|low"}'].join("\n\n");
   const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gemini.model)}:generateContent?key=${encodeURIComponent(gemini.apiKey)}`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:[{role:"user",parts:[{inlineData:{mimeType:mediaType(file),data:bytes}},{text:gemini.promptOverride||prompt}]}],generationConfig:{responseMimeType:"application/json",temperature:.1}})});
   const body=await r.json().catch(()=>null) as any; if(!r.ok)throw new Error(body?.error?.message||`Gemini analysis failed (${r.status}).`); const text=body?.candidates?.[0]?.content?.parts?.map((x:{text?:string})=>x.text||"").join("").trim(); if(!text)throw new Error("Gemini returned no analysis."); const analysis=JSON.parse(text) as any;

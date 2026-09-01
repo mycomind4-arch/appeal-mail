@@ -6,6 +6,7 @@ import { createAppeal } from "@/domain/appeal";
 import { createGround } from "@/domain/ground";
 import { createEvidence } from "@/domain/evidence";
 import { getWorkflow } from "@/domain/workflows";
+import { resolveAI } from "@/platform/control-plane-ai";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (file.type === "application/pdf") return "application/pdf";
@@ -14,20 +15,6 @@ function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   throw new Error("Please upload a PDF, PNG, or JPEG document.");
 }
 
-async function resolveGemini(task: "analysis") {
-  const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
-  const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const response = await fetch(`${base.replace(/\/$/, "")}/api/control-plane/ai`, {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-    body: JSON.stringify({ verticalSlug: "appeal-mail", workflowSlug: "insurance-claim-denial", task }),
-  });
-  const payload = await response.json().catch(() => null) as { provider?: string; apiKey?: string; model?: string; promptOverride?: string } | null;
-  if (!response.ok || !payload?.apiKey || !payload.model) throw new Error("Gemini configuration is unavailable.");
-  if (payload.provider !== "gemini") throw new Error("Insurance Claim Denial is currently configured for Gemini.");
-  return payload;
-}
 
 export const Route = createFileRoute("/api/workflows/insurance-claim-denial/analyze")({
   server: {
@@ -43,7 +30,7 @@ export const Route = createFileRoute("/api/workflows/insurance-claim-denial/anal
       if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
 
       const document = await uploadDocument(file);
-      const gemini = await resolveGemini("analysis");
+      const gemini = await resolveAI("insurance-claim-denial", "analysis");
       const bytes = Buffer.from(await file.arrayBuffer()).toString("base64");
       const prompt = [
         `Workflow: ${workflow.title}`,

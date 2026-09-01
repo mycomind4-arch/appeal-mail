@@ -6,19 +6,11 @@ import { createAppeal } from "@/domain/appeal";
 import { createGround } from "@/domain/ground";
 import { createEvidence } from "@/domain/evidence";
 import { getWorkflow } from "@/domain/workflows";
+import { resolveAI } from "@/platform/control-plane-ai";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (["application/pdf", "image/png", "image/jpeg"].includes(file.type)) return file.type as "application/pdf" | "image/png" | "image/jpeg";
   throw new Error("Please upload a PDF, PNG, or JPEG revocation decision.");
-}
-async function resolveGemini() {
-  const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
-  const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const response = await fetch(`${base.replace(/\/$/, "")}/api/control-plane/ai`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify({ verticalSlug: "appeal-mail", workflowSlug: "license-revocation-appeal", task: "analysis" }) });
-  const payload = await response.json().catch(() => null) as any;
-  if (!response.ok || !payload?.apiKey || !payload.model || payload.provider !== "gemini") throw new Error("Gemini configuration is unavailable for this workflow.");
-  return payload;
 }
 export const Route = createFileRoute("/api/workflows/license-revocation-appeal/analyze")({server:{handlers:{POST:async ({ request }) => {
   try {
@@ -30,7 +22,7 @@ export const Route = createFileRoute("/api/workflows/license-revocation-appeal/a
     if (!file.size) return Response.json({ error: "The source document is empty." }, { status: 400 });
     if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
     const document = await uploadDocument(file);
-    const gemini = await resolveGemini();
+    const gemini = await resolveAI("license-revocation-appeal", "analysis");
     const bytes = Buffer.from(await file.arrayBuffer()).toString("base64");
     const prompt = [`Workflow: ${workflow.title}`, workflow.description, workflow.workflowPrompt, `Focus areas: ${workflow.focusAreas.join(", ")}.`, "Analyze the actual license revocation decision. Extract only supported facts and distinguish agency findings from uncertain or user-supplied facts.", "Identify the issuing agency, license or case reference, revocation reason, decision date, effective date, deadline, hearing or appeal instructions, reinstatement information, records referenced, findings, disputed issues, and evidence needed.", "Do not invent jurisdiction-specific rules, deadlines, hearing rights, driving history, or legal authority.", "Return strict JSON only.", '{"summary":"","decision":"","issuer":"","referenceNumber":"","decisionDate":"","effectiveDate":"","deadline":"","appealPath":"","revocationReason":"","reinstatementInformation":"","findings":[],"evidenceMentioned":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"uncertainties":[],"confidence":"high|medium|low"}'].join("\n\n");
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gemini.model)}:generateContent?key=${encodeURIComponent(gemini.apiKey)}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ inlineData: { mimeType: mediaType(file), data: bytes } }, { text: gemini.promptOverride || prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }) });

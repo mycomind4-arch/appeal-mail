@@ -6,27 +6,13 @@ import { createAppeal } from "@/domain/appeal";
 import { createGround } from "@/domain/ground";
 import { createEvidence } from "@/domain/evidence";
 import { getWorkflow } from "@/domain/workflows";
+import { resolveAI } from "@/platform/control-plane-ai";
 
 function mediaType(file: File): "application/pdf" | "image/png" | "image/jpeg" {
   if (file.type === "application/pdf" || file.type === "image/png" || file.type === "image/jpeg") return file.type;
   throw new Error("Please upload a PDF, PNG, or JPEG document.");
 }
 
-async function resolveGemini() {
-  const base = process.env.MAILMYPDF_CONTROL_PLANE_URL || "https://mailmypdf.com";
-  const token = process.env.MAILMYPDF_CONTROL_PLANE_TOKEN;
-  if (!token) throw new Error("MailMyPDF control-plane token is not configured.");
-  const response = await fetch(`${base.replace(/\/$/, "")}/api/control-plane/ai`, {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-    body: JSON.stringify({ verticalSlug: "appeal-mail", workflowSlug: "out-of-network-denial", task: "analysis" }),
-  });
-  const payload = await response.json().catch(() => null) as any;
-  if (!response.ok || !payload?.apiKey || !payload?.model || payload.provider !== "gemini") {
-    throw new Error("Gemini configuration is unavailable for this workflow.");
-  }
-  return payload;
-}
 
 export const Route = createFileRoute("/api/workflows/out-of-network-denial/analyze")({
   server: {
@@ -42,7 +28,7 @@ export const Route = createFileRoute("/api/workflows/out-of-network-denial/analy
       if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
 
       const document = await uploadDocument(file);
-      const gemini = await resolveGemini();
+      const gemini = await resolveAI("out-of-network-denial", "analysis");
       const data = Buffer.from(await file.arrayBuffer()).toString("base64");
       const prompt = [
         `Workflow: ${workflow.title}`,
