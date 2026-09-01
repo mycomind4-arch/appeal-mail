@@ -3,11 +3,14 @@ import { analyzeDocumentWithAI } from "@/api/ai-analysis";
 import { generateDraftWithAI } from "@/api/ai-drafting";
 import { callLLM, getAvailableProviders, getDefaultModel, type LLMProvider } from "@/platform/llm-service";
 import { loadAppeal, saveAppeal } from "@/platform/appeal-repository";
+import { requireAuthenticatedUser } from "@/platform/supabase";
 import type { Appeal } from "@/domain/appeal";
 
-function requireUserId(userId: string): string {
-  if (!userId?.trim()) throw new Error("Authentication is required.");
-  return userId;
+async function authenticatedUser(accessToken: string) {
+  if (!accessToken?.trim()) throw new Error("Authentication is required.");
+  return requireAuthenticatedUser(new Request("https://appeal-mail.internal/auth", {
+    headers: { authorization: `Bearer ${accessToken}` },
+  }));
 }
 
 function analysisToDecision(appeal: Appeal, result: Awaited<ReturnType<typeof analyzeDocumentWithAI>>): Appeal {
@@ -40,7 +43,6 @@ function analysisToDecision(appeal: Appeal, result: Awaited<ReturnType<typeof an
       deadline,
       facts: facts.length ? facts : existing.facts,
       reasons: reasons.length ? reasons : existing.reasons,
-      rawText: appeal.decision.rawText || undefined,
       extractedAt: now,
       extractionConfidence: result.extractionConfidence === "high" ? 0.9 : result.extractionConfidence === "low" ? 0.55 : 0.75,
     },
@@ -50,25 +52,25 @@ function analysisToDecision(appeal: Appeal, result: Awaited<ReturnType<typeof an
 }
 
 export const runCaseAnalysis = createServerFn()
-  .validator((input: { caseId: string; userId: string; documentText: string }) => input)
+  .validator((input: { caseId: string; accessToken: string; documentText: string }) => input)
   .handler(async ({ data }) => {
-    const userId = requireUserId(data.userId);
-    const appeal = await loadAppeal({ data: { id: data.caseId, userId } });
+    const user = await authenticatedUser(data.accessToken);
+    const appeal = await loadAppeal({ data: { id: data.caseId, userId: user.id } });
     const result = await analyzeDocumentWithAI({ data: {
       documentText: data.documentText,
       workflowId: appeal.workflowId,
-      userId,
+      userId: user.id,
     } });
     const updated = analysisToDecision(appeal, result);
-    await saveAppeal({ data: { appeal: updated, userId, expectedVersion: appeal.version } });
+    await saveAppeal({ data: { appeal: updated, userId: user.id, expectedVersion: appeal.version } });
     return { analysis: result, appeal: updated };
   });
 
 export const runCaseDraft = createServerFn()
-  .validator((input: { caseId: string; userId: string; userFacts: string; userObjective: string }) => input)
+  .validator((input: { caseId: string; accessToken: string; userFacts: string; userObjective: string }) => input)
   .handler(async ({ data }) => {
-    const userId = requireUserId(data.userId);
-    const appeal = await loadAppeal({ data: { id: data.caseId, userId } });
+    const user = await authenticatedUser(data.accessToken);
+    const appeal = await loadAppeal({ data: { id: data.caseId, userId: user.id } });
     const documentText = appeal.decision.rawText || appeal.decision.facts.map((fact) => `${fact.label}: ${fact.value}`).join("\n");
     if (!documentText.trim()) throw new Error("Analyze or upload the source document before drafting.");
     const result = await generateDraftWithAI({ data: {
@@ -90,18 +92,18 @@ export const runCaseDraft = createServerFn()
       },
       userFacts: data.userFacts,
       userObjective: data.userObjective,
-      userId,
+      userId: user.id,
     } });
     const updated = { ...appeal, draft: result.draft, status: "in_progress" as const, updatedAt: new Date().toISOString() };
-    await saveAppeal({ data: { appeal: updated, userId, expectedVersion: appeal.version } });
+    await saveAppeal({ data: { appeal: updated, userId: user.id, expectedVersion: appeal.version } });
     return { draft: result, appeal: updated };
   });
 
 export const reviseCaseDraft = createServerFn()
-  .validator((input: { caseId: string; userId: string; draft: string; instruction: string }) => input)
+  .validator((input: { caseId: string; accessToken: string; draft: string; instruction: string }) => input)
   .handler(async ({ data }) => {
-    const userId = requireUserId(data.userId);
-    const appeal = await loadAppeal({ data: { id: data.caseId, userId } });
+    const user = await authenticatedUser(data.accessToken);
+    const appeal = await loadAppeal({ data: { id: data.caseId, userId: user.id } });
     const available = getAvailableProviders();
     if (!available.length) throw new Error("No LLM provider is configured.");
     const provider: LLMProvider = available[0];
@@ -111,6 +113,6 @@ export const reviseCaseDraft = createServerFn()
       { role: "user", content: `EXISTING DRAFT:\n${data.draft}\n\nUSER REVISION REQUEST:\n${data.instruction}` },
     ], { provider, temperature: 0.4, maxTokens: 4096 });
     const updated = { ...appeal, draft: response.text, status: "in_progress" as const, updatedAt: new Date().toISOString() };
-    await saveAppeal({ data: { appeal: updated, userId, expectedVersion: appeal.version } });
+    await saveAppeal({ data: { appeal: updated, userId: user.id, expectedVersion: appeal.version } });
     return { draft: response.text, provider: response.provider, model: response.model, appeal: updated };
   });
