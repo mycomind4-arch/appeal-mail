@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CaseWorkspace } from "@/components/case-workspace";
+import { SecureCaseWorkspace } from "@/components/secure-case-workspace";
 
 export const Route = createFileRoute("/case/$caseId")({
   head: () => ({ meta: [
@@ -11,5 +11,5 @@ export const Route = createFileRoute("/case/$caseId")({
 
 function RouteComponent() {
   const { caseId } = Route.useParams();
-  return <CaseWorkspace caseId={caseId} />;
+  return <SecureCaseWorkspace caseId={caseId} />;
 }
