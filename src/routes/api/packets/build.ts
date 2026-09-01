@@ -29,6 +29,9 @@ export const Route = createFileRoute("/api/packets/build")({
           try { partInputs = JSON.parse(rawParts); } catch { return Response.json({ error: "parts must be valid JSON." }, { status: 400 }); }
           if (!Array.isArray(partInputs) || !partInputs.length) return Response.json({ error: "At least one packet part is required." }, { status: 400 });
 
+          const draftPartCount = partInputs.filter((part) => part.type === "ai_response").length;
+          if (draftPartCount !== 1) return Response.json({ error: "Packet must contain exactly one final AI response part." }, { status: 400 });
+
           const supabase = await getSupabaseServer();
           const { data: appeal, error: appealError } = await supabase
             .from("appeals")
@@ -41,7 +44,7 @@ export const Route = createFileRoute("/api/packets/build")({
           if (!draft.trim()) return Response.json({ error: "A final edited draft is required before packet assembly." }, { status: 400 });
 
           const parts: PacketPart[] = [];
-          const uploadedMetadata: Array<{ id: string; filename: string; mimeType: string; size: number }> = [];
+          const uploadedMetadata: Array<{ id: string; filename: string; mimeType: string; size: number; documentId: string; sha256: string }> = [];
 
           for (const input of partInputs) {
             if (!input?.id || !input.type) return Response.json({ error: "Every packet part requires an id and type." }, { status: 400 });
@@ -61,7 +64,10 @@ export const Route = createFileRoute("/api/packets/build")({
               if (mimeType !== "application/pdf") return Response.json({ error: "Generated document packet parts must be PDF files." }, { status: 415 });
               parts.push({ id: input.id, type: "generated_document", filename, mimeType: "application/pdf", bytes });
             }
-            uploadedMetadata.push({ id: input.id, filename, mimeType, size: bytes.byteLength });
+
+            // Keep a source-document identity in the platform as well as inside the final packet.
+            const sourceDocument = await uploadDocument(new File([bytes], filename, { type: mimeType }));
+            uploadedMetadata.push({ id: input.id, filename, mimeType, size: bytes.byteLength, documentId: sourceDocument.id, sha256: sourceDocument.sha256 });
           }
 
           const built = await buildPacket(parts);
@@ -109,7 +115,6 @@ export const Route = createFileRoute("/api/packets/build")({
             assembledAt,
           });
         } catch (error) {
-          if (error instanceof Response) return error;
           const message = error instanceof Error ? error.message : "Unable to assemble packet.";
           const status = /authentication|unauthorized|ownership/i.test(message) ? 401 : 500;
           return Response.json({ error: message }, { status });
