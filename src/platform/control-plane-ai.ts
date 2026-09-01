@@ -12,11 +12,7 @@ function config() {
 
 export async function resolveAI(workflowSlug: string, task: AITask): Promise<AIConfig> {
   const { baseUrl, token } = config();
-  const response = await fetch(`${baseUrl}/api/control-plane/ai`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
-    body: JSON.stringify({ verticalSlug: 'appeal-mail', workflowSlug, task }),
-  });
+  const response = await fetch(`${baseUrl}/api/control-plane/ai`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify({ verticalSlug: 'appeal-mail', workflowSlug, task }) });
   if (!response.ok) throw new Error(`MailMyPDF control-plane lookup failed: ${response.status}`);
   return await response.json() as AIConfig;
 }
@@ -44,24 +40,26 @@ async function callProvider(cfg: AIConfig, system: string, user: string, json = 
 
 function parseJson(text: string): any { const cleaned = text.trim().replace(/^```json\s*/i,'').replace(/```$/,'').trim(); try { return JSON.parse(cleaned); } catch { throw new Error('AI provider returned invalid JSON'); } }
 
+/** Canonical shared AI entrypoint for all workflow server routes. */
+export async function runWorkflowAITask(input: { workflowSlug: string; task: AITask; systemPrompt: string; payload: unknown; json?: boolean }) {
+  const cfg = await resolveAI(input.workflowSlug, input.task);
+  const userPayload = JSON.stringify(input.payload);
+  const text = await callProvider(cfg, cfg.promptOverride || input.systemPrompt, userPayload, input.json ?? false);
+  if (!text) throw new Error(`AI provider returned an empty ${input.task} response.`);
+  return { provider: cfg.provider, model: cfg.model, text, result: input.json ? parseJson(text) : undefined };
+}
+
 export async function analyzeDeniedClaim(input: { documentText: string; facts: Record<string,string>; objective: string }) {
-  const cfg = await resolveAI('denied-claim','analysis');
-  const prompt = cfg.promptOverride || 'Analyze this denied-claim appeal case. Separate document facts from user assertions. Identify contradictions, deadline issues, missing evidence, appeal grounds, and unresolved questions. Never invent facts.';
-  const text = await callProvider(cfg, prompt, JSON.stringify({ workflow: 'denied-claim', documentText: input.documentText, facts: input.facts, objective: input.objective, output: { findings: [], facts: [], evidenceGaps: [], grounds: [], deadline: null, blockingIssues: [] } }), true);
-  const result = parseJson(text);
-  return { provider: cfg.provider, model: cfg.model, result };
+  const result = await runWorkflowAITask({ workflowSlug: 'denied-claim', task: 'analysis', systemPrompt: 'Analyze this denied-claim appeal case. Separate document facts from user assertions. Identify contradictions, deadline issues, missing evidence, appeal grounds, and unresolved questions. Never invent facts.', payload: { workflow: 'denied-claim', ...input, output: { findings: [], facts: [], evidenceGaps: [], grounds: [], deadline: null, blockingIssues: [] } }, json: true });
+  return { provider: result.provider, model: result.model, result: result.result };
 }
 
 export async function draftDeniedClaim(input: { analysis: unknown; workflowFacts: Record<string,string>; objective: string }) {
-  const cfg = await resolveAI('denied-claim','draft');
-  const prompt = cfg.promptOverride || 'Draft a professional denied-claim appeal using only verified case facts and supported grounds. Preserve uncertainty. Do not promise outcomes. Return only the letter.';
-  const text = await callProvider(cfg, prompt, JSON.stringify(input));
-  return { provider: cfg.provider, model: cfg.model, draft: text };
+  const result = await runWorkflowAITask({ workflowSlug: 'denied-claim', task: 'draft', systemPrompt: 'Draft a professional denied-claim appeal using only verified case facts and supported grounds. Preserve uncertainty. Do not promise outcomes. Return only the letter.', payload: input });
+  return { provider: result.provider, model: result.model, draft: result.text };
 }
 
 export async function validateDeniedClaim(input: { analysis: unknown; draft: string }) {
-  const cfg = await resolveAI('denied-claim','validation');
-  const prompt = cfg.promptOverride || 'Validate this denied-claim appeal draft against the analysis. Reject unsupported facts, missing critical evidence, unresolved deadlines, legal overclaims, or placeholders. Return JSON {valid:boolean,issues:string[]}.';
-  const text = await callProvider(cfg, prompt, JSON.stringify(input), true);
-  return { provider: cfg.provider, model: cfg.model, validation: parseJson(text) };
+  const result = await runWorkflowAITask({ workflowSlug: 'denied-claim', task: 'validation', systemPrompt: 'Validate this denied-claim appeal draft against the analysis. Reject unsupported facts, missing critical evidence, unresolved deadlines, legal overclaims, or placeholders. Return JSON {valid:boolean,issues:string[]}.', payload: input, json: true });
+  return { provider: result.provider, model: result.model, validation: result.result };
 }

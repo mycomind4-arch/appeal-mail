@@ -1,99 +1,93 @@
 # CURRENT_STATE.md — Appeal Mail
 
-**Last updated:** 2026-08-20
-**Commit:** 601a5b2a
-**Branch:** main
+**Last updated:** 2026-09-01
+**Base audited:** `main` @ 2026-08-31
+**Working branch:** `feat/production-packet-pipeline`
 
 ---
 
-## Product Status
+## Ground-truth baseline
 
-### What is complete
+This state is based on the 2026-08-31 code audit and executed baseline, not the older status documents.
 
-- **Homepage** — Polished production-quality hero with:
-  - "Start an Appeal" + "Explore Appeal Types" CTAs
-  - Visual flow bar (Upload → Understand → Analyze → Evidence → Build → Review → Send → Prove)
-  - Stats bar (delivery time, pricing, control, no printers)
-  - Workflow catalog preview by category (links to category pages)
-  - Trust/safety section (6 items: AI-assisted analysis, evidence-supported drafting, source-aware reasoning, user review, no fabricated facts, no automatic mailing)
-  - Features grid (8 features with 3 featured)
-  - Step-by-step guide (8 steps with MailMyPDF mentions in Send and Track)
-  - MailMyPDF ecosystem section (3 cards: mail from browser, track every step, proof of timely filing)
-  - FAQ section (6 questions with accordion)
-  - Final CTA section
-  - SEO metadata (title, description, OG tags, canonical, JSON-LD WebSite schema with SearchAction)
-- **Workflow directory** (`/workflows`) — Full product directory with:
-  - Search bar (search by title, keyword, category, slug)
-  - Category filter dropdown (All + 7 categories)
-  - Status filter (All / Available Now / Coming Soon)
-  - Grouped display by 7 categories with descriptions
-  - Stats bar showing total/available/coming soon counts
-  - Empty state with "Clear filters" button
-  - SEO metadata (title, description, OG, canonical, JSON-LD)
-- **Workflow placeholder pages** (`/appeal/$slug`) — Each of the 20 catalog workflows has a polished page:
-  - Hero with category badge and status indicator (Available now / Coming soon)
-  - Long description
-  - Info grid: What We Analyze / What You'll Need / What We Identify / What Your Appeal Can Address
-  - Intended user and problem solved
-  - Honest CTA ("Start Appeal" for IMPLEMENTED, "Coming soon — join the waitlist" for COMING_SOON)
-  - SEO metadata (title, description, OG, canonical, JSON-LD WebPage schema)
-- **Category parent pages** (`/appeal/$slug` for category slugs) — 7 category pages:
-  - Hero with category name, description, workflow counts
-  - Workflow card grid with status badges
-  - Other categories navigation
-  - SEO metadata (title, description, OG, canonical, JSON-LD CollectionPage)
-- **Workflow catalog** (`src/domain/appeal-catalog.ts`) — 20 entries across 7 categories:
-  - Stable slugs, routes, SEO titles/descriptions
-  - Truthful IMPLEMENTED (1) / COMING_SOON (19) status
-  - `executable` boolean (true only for IMPLEMENTED)
-  - `validateCatalog()` function for test-time integrity checks
-  - Category slugs and helpers (`getCategoryRoute`, `getCategoryBySlug`)
-- **Site header** — Sticky, blur, mobile menu, SPA Link navigation, "Start an Appeal" CTA
-- **Site footer** — Product links, appeal categories with counts, company links, MailMyPDF branding
-- **Tests** — 165 passing (138 original + 27 catalog tests)
-- **Build** — Passes, Cloudflare Workers output generated
+| Area | Ground truth on `main` |
+|---|---|
+| Tests | **802/802 passing**, 92 suites, 0 failures (`node --test`) |
+| Catalog entries | **41** |
+| Catalog `IMPLEMENTED` / executable | **36** |
+| Gold domain modules | **21** `*-gold.ts` modules |
+| Workspace UI components | **31** |
+| AI control plane | Multi-provider Anthropic/OpenAI/Gemini control-plane integration exists |
+| Mailing client | `src/platform/mailmypdf.ts` is the single typed/idempotent mailing client |
+| Auth | `/dashboard` is UI-gated and server operations use `src/lib/auth-guard.ts` |
+| Document safety | Uploaded/extracted text is sanitized before AI use; MIME, filename, size, page, and PDF active-content checks exist |
 
-### Insurance Appeal (flagship)
+## Production gaps confirmed by code audit
 
-The Insurance Appeal workflow at `/workflows/denied-claim` remains fully executable:
-- Route: `/workflows/denied-claim`
-- Component: `WorkflowWizard` (1512 lines)
-- Full pipeline: Upload → X-Ray → Decision → Timeline → Grounds → Evidence → Arguments → Stress Test → Draft → Final Test → Readiness → Packet → Recipient → Mailing → Checkout → Proof
-- Catalog entry at `/appeal/insurance-claim` marked IMPLEMENTED, executable: true
-- Not modified in this milestone (backend preserved)
+1. The 36 implemented workflows did **not** share one guaranteed end-to-end analyze → draft → validate → packet → mail pipeline.
+2. Final fulfillment used a hardcoded five-workflow PDF whitelist.
+3. `src/platform/simple-pdf.ts` was a hand-written text-only PDF writer and did not merge supporting documents.
+4. The fulfillment path stored `attachmentHashes: []`; source/evidence documents were not incorporated into the mailed PDF.
+5. There was no page/part reorder, removal, rotation, insertion, or packet-level edit/revision stage.
+6. `/dashboard` had a real authenticated shell but the Cases and Mailings tabs were still placeholders rather than a populated case/document directory.
+7. The existing per-workflow analyze routes duplicated provider resolution and AI request patterns rather than enforcing a single shared pipeline.
 
-### What is NOT implemented (by design)
+## Work implemented on `feat/production-packet-pipeline`
 
-- SSI, SSDI, unemployment, Medicaid, SNAP, workers comp, VA, and administrative appeal intelligence engines
-- Workflow-specific extraction logic for non-insurance types
-- Per-workflow domain intelligence
-- Factory registration for new workflows
+### Shared packet builder
 
-### Known gaps
+Added `src/platform/packet-builder.ts` using `pdf-lib`.
 
-1. Old routes (`/workflows/government-decision`, `/workflows/court-ruling`, `/workflows/reconsideration`) still use the shared wizard — these are legacy
-2. Resources pages (`/resources/$slug`) use older styling
-3. The `appeal-a-decision.tsx` route uses inline styles
-4. No sitemap.xml generation yet
-5. No robots.txt configuration yet
+It now supports ordered packet parts:
+- `ai_response` — properly paginated text with margins and headings
+- `uploaded_document` — PDF page merging or PNG/JPEG image placement
+- `generated_document` — PDF merging
 
-## Test Results
+Every part is hashed, the final draft receives a SHA-256 hash, and PDFs are scanned for blocked active-content tokens before merging.
 
-```
-# tests 165
-# pass 165
-# fail 0
-```
+### Authenticated packet assembly endpoint
 
-## Build
+Added `/api/packets/build`.
 
-```
-✓ built in ~600ms
-[nitro] ✔ You can preview this build using npx vite preview
-[nitro] ✔ You can deploy this build using npx nitro deploy --prebuilt
-```
+The endpoint:
+- requires server-side MailMyPDF/Supabase authentication
+- verifies the authenticated user owns the appeal
+- requires exactly one final AI-response part
+- accepts ordered uploaded/generated packet parts
+- uploads source documents through the existing MailMyPDF document client
+- assembles a single final PDF
+- uploads the locked final packet through the same client
+- persists packet document ID, hashes, order, source documents, page count, and confirmation user ID on the owned appeal
+- marks the packet `locked: true` and `status: assembled`
 
-## Git
+### Generic Stripe fulfillment
 
-- Committed: 601a5b2a
-- Pushed: yes (to origin/main)
+The Stripe webhook no longer contains the five-workflow PDF whitelist and no longer calls `simple-pdf.ts`.
+
+Paid fulfillment now requires:
+- a locked, assembled packet
+- a stored final-draft hash matching the current draft
+- a stored packet document ID and document integrity hash
+- complete recipient information
+
+The webhook then sends that already-assembled packet through the existing MailMyPDF provider and records the packet attachment hashes in the proof packet.
+
+## Validation status of this branch
+
+The branch includes new automated packet-builder tests, but this environment could not reach GitHub/npm from the shell to regenerate the lockfile or execute `npm test` / `npm run build` locally after the dependency change.
+
+Therefore **do not describe this branch as CI-verified yet**. The next validation step is to install from the updated `package.json`, regenerate `package-lock.json`, run the complete test suite, run the production build, and then verify the new route tree generated by TanStack Start.
+
+## Remaining production work
+
+1. Wire the shared packet-review/editor UI into the common workflow workspace so users can reorder, remove, rotate, insert, and revise packet parts before the lock operation.
+2. Route the 36 executable workflows through a shared analyze/draft/validate service rather than retaining copied provider logic in individual workflow routes.
+3. Populate `/dashboard` Cases/Mailings from authenticated server endpoints and show every uploaded/generated/final document associated with its case.
+4. Add an explicit authenticated end-to-end regression that enumerates every catalog workflow marked executable and verifies the shared pipeline contract.
+5. Regenerate and commit `package-lock.json`, then run CI/build verification.
+
+## Canonical architecture direction
+
+`mailmypdf-platform` remains the shared runtime/pricing/fulfillment layer.
+
+Appeal Mail owns the appeal domain catalog and domain packs, while reusable packet assembly, authenticated case/document persistence, and mailing should remain shared-pattern infrastructure rather than separate implementations for individual workflows.
