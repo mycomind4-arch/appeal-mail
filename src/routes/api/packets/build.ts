@@ -30,7 +30,6 @@ export const Route = createFileRoute("/api/packets/build")({
             return Response.json({ error: "Packet page operations contain an invalid part or page index." }, { status: 400 });
           }
 
-          // ── Recipient — explicitly required and persisted into the locked packet ──
           const recipientName = String(form.get("recipientName") || "").trim();
           const recipientAddress1 = String(form.get("recipientAddress1") || "").trim();
           const recipientAddress2 = String(form.get("recipientAddress2") || "").trim();
@@ -74,7 +73,7 @@ export const Route = createFileRoute("/api/packets/build")({
             ...((appeal.packet as Record<string, unknown> | null) || {}),
             id: packetId,
             status: "assembled",
-            locked: true,
+            locked: false,
             recipientName,
             recipientAddress1,
             recipientAddress2: recipientAddress2 || null,
@@ -83,16 +82,23 @@ export const Route = createFileRoute("/api/packets/build")({
             recipientZip,
             recipientHash,
             mailingMethod,
-            documentId: uploaded.id, documentFilename: uploaded.filename, documentSha256: uploaded.sha256, documentSizeBytes: built.bytes.byteLength,
-            finalDraftHash: built.finalDraftHash, attachmentHashes: built.partHashes.filter((part) => part.type !== "ai_response").map((part) => part.sha256),
-            partHashes: built.partHashes, orderedParts: partInputs.map((part) => ({ id: part.id, type: part.type, filename: part.filename || null })),
-            pageOps, uploadedParts: uploadedMetadata, pageCount: built.pageCount, assembledAt, confirmedByUserId: user.id,
+            documentId: uploaded.id,
+            documentFilename: uploaded.filename,
+            documentSha256: uploaded.sha256,
+            documentSizeBytes: built.bytes.byteLength,
+            finalDraftHash: built.finalDraftHash,
+            attachmentHashes: built.partHashes.filter((part) => part.type !== "ai_response").map((part) => part.sha256),
+            partHashes: built.partHashes,
+            orderedParts: partInputs.map((part) => ({ id: part.id, type: part.type, filename: part.filename || null })),
+            pageOps,
+            uploadedParts: uploadedMetadata,
+            pageCount: built.pageCount,
+            assembledAt,
           };
           const { error: updateError } = await supabase.from("appeals").update({ draft, packet, status: "ready", updated_at: assembledAt }).eq("id", appealId).eq("user_id", user.id);
           if (updateError) throw new Error(`Unable to persist final packet: ${updateError.message}`);
-          return Response.json({ ok: true, appealId, workflowId, packetId, documentId: uploaded.id, documentSha256: uploaded.sha256, finalDraftHash: built.finalDraftHash, attachmentHashes: packet.attachmentHashes, pageCount: built.pageCount, locked: true, assembledAt, recipientHash });
+          return Response.json({ ok: true, appealId, workflowId, packetId, documentId: uploaded.id, documentSha256: uploaded.sha256, finalDraftHash: built.finalDraftHash, attachmentHashes: packet.attachmentHashes, pageCount: built.pageCount, locked: false, assembledAt, recipientHash });
         } catch (error) {
-          if (error instanceof Response) return error;
           const message = error instanceof Error ? error.message : "Unable to assemble packet.";
           const status = /authentication|unauthorized|ownership/i.test(message) ? 401 : 500;
           return Response.json({ error: message }, { status });
