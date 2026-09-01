@@ -13,18 +13,14 @@ export type AIHistoryEvent = {
 };
 
 async function sha256(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export const appendAIHistory = createServerFn()
   .validator((input: { accessToken: string; caseId: string; task: AIHistoryEvent["task"]; provider: string; model: string; input: string; output: string }) => input)
   .handler(async ({ data }) => {
-    const user = await requireAuthenticatedUser(new Request("https://appeal-mail.internal/auth", {
-      headers: { authorization: `Bearer ${data.accessToken}` },
-    }));
-    const db = await getSupabaseServer();
+    const user = await requireAuthenticatedUser(new Request("https://appeal-mail.internal/auth", { headers: { authorization: `Bearer ${data.accessToken}` } }));
     const event: AIHistoryEvent = {
       caseId: data.caseId,
       ownerId: user.id,
@@ -35,6 +31,7 @@ export const appendAIHistory = createServerFn()
       outputHash: await sha256(data.output),
       occurredAt: new Date().toISOString(),
     };
+    const db = await getSupabaseServer();
     const { error } = await db.from("audit_events").insert({
       event_type: `ai.${event.task}`,
       actor: "ai",
