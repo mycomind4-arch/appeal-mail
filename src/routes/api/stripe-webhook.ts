@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { idempotencyStore, webhookKey, attestDocument } from "@/platform/runtime";
+import { idempotencyStore, webhookKey } from "@/platform/runtime";
 import { computeHash, createProofPacket } from "@/domain/proof";
 import { mailMyPDFProvider } from "@/platform/mailmypdf-provider";
 
