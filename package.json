@@ -9,7 +9,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test": "node --import tsx --test tests/*.test.ts",
+    "test": "npm run test:legacy && npm run test:unit",
+    "test:legacy": "node --import tsx --test tests/*.test.ts",
+    "test:unit": "vitest run",
     "verify:launch": "npm test && npm run build"
   },
   "dependencies": {
