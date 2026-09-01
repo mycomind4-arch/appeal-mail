@@ -13,8 +13,6 @@
     "verify:launch": "npm test && npm run build"
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/sortable": "^10.0.0",
     "@mailmypdf/pricing": "https://github.com/mycomind4-arch/mailmypdf-platform/releases/download/pricing-v0.2.3/mailmypdf-pricing-0.2.3.tgz",
     "@mailmypdf/runtime": "https://github.com/mycomind4-arch/mailmypdf-platform/releases/download/runtime-v0.1.0/mailmypdf-runtime-0.1.0.tgz",
     "@supabase/supabase-js": "^2.110.0",
