@@ -28,6 +28,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe-webhook'
 import { Route as AppealSlugRouteImport } from './routes/appeal/$slug'
+import { Route as CaseCaseIdRouteImport } from './routes/case/$caseId'
 import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
 import { Route as ResourcesSlugRouteImport } from './routes/resources/$slug'
 import { Route as WorkflowsIndexRouteImport } from './routes/workflows/index'
@@ -74,6 +75,8 @@ import { Route as ApiControlPlaneAiRouteImport } from './routes/api/control-plan
 import { Route as ApiDashboardCasesRouteImport } from './routes/api/dashboard/cases'
 import { Route as ApiDashboardMailingsRouteImport } from './routes/api/dashboard/mailings'
 import { Route as ApiPacketsBuildRouteImport } from './routes/api/packets/build'
+import { Route as ApiPacketsConfirmRouteImport } from './routes/api/packets/confirm'
+import { Route as ApiCasesCaseIdDraftRouteImport } from './routes/api/cases/$caseId/draft'
 import { Route as ApiWorkflowsWorkflowIdAnalyzeRouteImport } from './routes/api/workflows/$workflowId/analyze'
 import { Route as ApiWorkflowsWorkflowIdDraftRouteImport } from './routes/api/workflows/$workflowId/draft'
 import { Route as ApiWorkflowsAdministrativeDecisionAppealAnalyzeRouteImport } from './routes/api/workflows/administrative-decision-appeal/analyze'
@@ -307,6 +310,11 @@ const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
 const AppealSlugRoute = AppealSlugRouteImport.update({
   id: '/appeal/$slug',
   path: '/appeal/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaseCaseIdRoute = CaseCaseIdRouteImport.update({
+  id: '/case/$caseId',
+  path: '/case/$caseId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
@@ -563,6 +571,16 @@ const ApiDashboardMailingsRoute = ApiDashboardMailingsRouteImport.update({
 const ApiPacketsBuildRoute = ApiPacketsBuildRouteImport.update({
   id: '/api/packets/build',
   path: '/api/packets/build',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPacketsConfirmRoute = ApiPacketsConfirmRouteImport.update({
+  id: '/api/packets/confirm',
+  path: '/api/packets/confirm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCasesCaseIdDraftRoute = ApiCasesCaseIdDraftRouteImport.update({
+  id: '/api/cases/$caseId/draft',
+  path: '/api/cases/$caseId/draft',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWorkflowsWorkflowIdAnalyzeRoute =
@@ -1420,6 +1438,7 @@ export interface FileRoutesByFullPath {
   '/workflows': typeof WorkflowsRouteWithChildren
   '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/appeal/$slug': typeof AppealSlugRoute
+  '/case/$caseId': typeof CaseCaseIdRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
   '/workflows/administrative-decision': typeof WorkflowsAdministrativeDecisionRoute
@@ -1466,6 +1485,8 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/cases': typeof ApiDashboardCasesRoute
   '/api/dashboard/mailings': typeof ApiDashboardMailingsRoute
   '/api/packets/build': typeof ApiPacketsBuildRoute
+  '/api/packets/confirm': typeof ApiPacketsConfirmRoute
+  '/api/cases/$caseId/draft': typeof ApiCasesCaseIdDraftRoute
   '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
   '/api/workflows/administrative-decision-appeal/analyze': typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
@@ -1625,6 +1646,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/appeal/$slug': typeof AppealSlugRoute
+  '/case/$caseId': typeof CaseCaseIdRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
   '/workflows/administrative-decision': typeof WorkflowsAdministrativeDecisionRoute
@@ -1671,6 +1693,8 @@ export interface FileRoutesByTo {
   '/api/dashboard/cases': typeof ApiDashboardCasesRoute
   '/api/dashboard/mailings': typeof ApiDashboardMailingsRoute
   '/api/packets/build': typeof ApiPacketsBuildRoute
+  '/api/packets/confirm': typeof ApiPacketsConfirmRoute
+  '/api/cases/$caseId/draft': typeof ApiCasesCaseIdDraftRoute
   '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
   '/api/workflows/administrative-decision-appeal/analyze': typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
@@ -1832,6 +1856,7 @@ export interface FileRoutesById {
   '/workflows': typeof WorkflowsRouteWithChildren
   '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/appeal/$slug': typeof AppealSlugRoute
+  '/case/$caseId': typeof CaseCaseIdRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
   '/workflows/administrative-decision': typeof WorkflowsAdministrativeDecisionRoute
@@ -1878,6 +1903,8 @@ export interface FileRoutesById {
   '/api/dashboard/cases': typeof ApiDashboardCasesRoute
   '/api/dashboard/mailings': typeof ApiDashboardMailingsRoute
   '/api/packets/build': typeof ApiPacketsBuildRoute
+  '/api/packets/confirm': typeof ApiPacketsConfirmRoute
+  '/api/cases/$caseId/draft': typeof ApiCasesCaseIdDraftRoute
   '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
   '/api/workflows/administrative-decision-appeal/analyze': typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
@@ -2040,6 +2067,7 @@ export interface FileRouteTypes {
     | '/workflows'
     | '/api/stripe-webhook'
     | '/appeal/$slug'
+    | '/case/$caseId'
     | '/resources/$slug'
     | '/workflows/$workflowId'
     | '/workflows/administrative-decision'
@@ -2086,6 +2114,8 @@ export interface FileRouteTypes {
     | '/api/dashboard/cases'
     | '/api/dashboard/mailings'
     | '/api/packets/build'
+    | '/api/packets/confirm'
+    | '/api/cases/$caseId/draft'
     | '/api/workflows/$workflowId/analyze'
     | '/api/workflows/$workflowId/draft'
     | '/api/workflows/administrative-decision-appeal/analyze'
@@ -2245,6 +2275,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/stripe-webhook'
     | '/appeal/$slug'
+    | '/case/$caseId'
     | '/resources/$slug'
     | '/workflows/$workflowId'
     | '/workflows/administrative-decision'
@@ -2291,6 +2322,8 @@ export interface FileRouteTypes {
     | '/api/dashboard/cases'
     | '/api/dashboard/mailings'
     | '/api/packets/build'
+    | '/api/packets/confirm'
+    | '/api/cases/$caseId/draft'
     | '/api/workflows/$workflowId/analyze'
     | '/api/workflows/$workflowId/draft'
     | '/api/workflows/administrative-decision-appeal/analyze'
@@ -2451,6 +2484,7 @@ export interface FileRouteTypes {
     | '/workflows'
     | '/api/stripe-webhook'
     | '/appeal/$slug'
+    | '/case/$caseId'
     | '/resources/$slug'
     | '/workflows/$workflowId'
     | '/workflows/administrative-decision'
@@ -2497,6 +2531,8 @@ export interface FileRouteTypes {
     | '/api/dashboard/cases'
     | '/api/dashboard/mailings'
     | '/api/packets/build'
+    | '/api/packets/confirm'
+    | '/api/cases/$caseId/draft'
     | '/api/workflows/$workflowId/analyze'
     | '/api/workflows/$workflowId/draft'
     | '/api/workflows/administrative-decision-appeal/analyze'
@@ -2658,6 +2694,7 @@ export interface RootRouteChildren {
   WorkflowsRoute: typeof WorkflowsRouteWithChildren
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
   AppealSlugRoute: typeof AppealSlugRoute
+  CaseCaseIdRoute: typeof CaseCaseIdRoute
   ResourcesSlugRoute: typeof ResourcesSlugRoute
   ResourcesIndexRoute: typeof ResourcesIndexRoute
   ApiAdminAppealsRoute: typeof ApiAdminAppealsRoute
@@ -2667,6 +2704,8 @@ export interface RootRouteChildren {
   ApiDashboardCasesRoute: typeof ApiDashboardCasesRoute
   ApiDashboardMailingsRoute: typeof ApiDashboardMailingsRoute
   ApiPacketsBuildRoute: typeof ApiPacketsBuildRoute
+  ApiPacketsConfirmRoute: typeof ApiPacketsConfirmRoute
+  ApiCasesCaseIdDraftRoute: typeof ApiCasesCaseIdDraftRoute
   ApiWorkflowsWorkflowIdAnalyzeRoute: typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   ApiWorkflowsWorkflowIdDraftRoute: typeof ApiWorkflowsWorkflowIdDraftRoute
   ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute: typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
@@ -2941,6 +2980,13 @@ declare module '@tanstack/react-router' {
       path: '/appeal/$slug'
       fullPath: '/appeal/$slug'
       preLoaderRoute: typeof AppealSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/case/$caseId': {
+      id: '/case/$caseId'
+      path: '/case/$caseId'
+      fullPath: '/case/$caseId'
+      preLoaderRoute: typeof CaseCaseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resources/': {
@@ -3263,6 +3309,20 @@ declare module '@tanstack/react-router' {
       path: '/api/packets/build'
       fullPath: '/api/packets/build'
       preLoaderRoute: typeof ApiPacketsBuildRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/packets/confirm': {
+      id: '/api/packets/confirm'
+      path: '/api/packets/confirm'
+      fullPath: '/api/packets/confirm'
+      preLoaderRoute: typeof ApiPacketsConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cases/$caseId/draft': {
+      id: '/api/cases/$caseId/draft'
+      path: '/api/cases/$caseId/draft'
+      fullPath: '/api/cases/$caseId/draft'
+      preLoaderRoute: typeof ApiCasesCaseIdDraftRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/workflows/$workflowId/analyze': {
@@ -4352,6 +4412,7 @@ const rootRouteChildren: RootRouteChildren = {
   WorkflowsRoute: WorkflowsRouteWithChildren,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
   AppealSlugRoute: AppealSlugRoute,
+  CaseCaseIdRoute: CaseCaseIdRoute,
   ResourcesSlugRoute: ResourcesSlugRoute,
   ResourcesIndexRoute: ResourcesIndexRoute,
   ApiAdminAppealsRoute: ApiAdminAppealsRoute,
@@ -4361,6 +4422,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardCasesRoute: ApiDashboardCasesRoute,
   ApiDashboardMailingsRoute: ApiDashboardMailingsRoute,
   ApiPacketsBuildRoute: ApiPacketsBuildRoute,
+  ApiPacketsConfirmRoute: ApiPacketsConfirmRoute,
+  ApiCasesCaseIdDraftRoute: ApiCasesCaseIdDraftRoute,
   ApiWorkflowsWorkflowIdAnalyzeRoute: ApiWorkflowsWorkflowIdAnalyzeRoute,
   ApiWorkflowsWorkflowIdDraftRoute: ApiWorkflowsWorkflowIdDraftRoute,
   ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute:
