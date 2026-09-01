@@ -70,6 +70,7 @@ import { Route as WorkflowsSsdiDenialRouteImport } from './routes/workflows/ssdi
 import { Route as WorkflowsUnemploymentDenialRouteImport } from './routes/workflows/unemployment-denial'
 import { Route as ApiAdminAppealsRouteImport } from './routes/api/admin/appeals'
 import { Route as ApiAdminHealthRouteImport } from './routes/api/admin/health'
+import { Route as ApiAuthConfigRouteImport } from './routes/api/auth/config'
 import { Route as ApiAuthStatusRouteImport } from './routes/api/auth/status'
 import { Route as ApiControlPlaneAiRouteImport } from './routes/api/control-plane/ai'
 import { Route as ApiDashboardCasesRouteImport } from './routes/api/dashboard/cases'
@@ -546,6 +547,11 @@ const ApiAdminAppealsRoute = ApiAdminAppealsRouteImport.update({
 const ApiAdminHealthRoute = ApiAdminHealthRouteImport.update({
   id: '/api/admin/health',
   path: '/api/admin/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthConfigRoute = ApiAuthConfigRouteImport.update({
+  id: '/api/auth/config',
+  path: '/api/auth/config',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthStatusRoute = ApiAuthStatusRouteImport.update({
@@ -1480,6 +1486,7 @@ export interface FileRoutesByFullPath {
   '/workflows/': typeof WorkflowsIndexRoute
   '/api/admin/appeals': typeof ApiAdminAppealsRoute
   '/api/admin/health': typeof ApiAdminHealthRoute
+  '/api/auth/config': typeof ApiAuthConfigRoute
   '/api/auth/status': typeof ApiAuthStatusRoute
   '/api/control-plane/ai': typeof ApiControlPlaneAiRoute
   '/api/dashboard/cases': typeof ApiDashboardCasesRoute
@@ -1688,6 +1695,7 @@ export interface FileRoutesByTo {
   '/workflows': typeof WorkflowsIndexRoute
   '/api/admin/appeals': typeof ApiAdminAppealsRoute
   '/api/admin/health': typeof ApiAdminHealthRoute
+  '/api/auth/config': typeof ApiAuthConfigRoute
   '/api/auth/status': typeof ApiAuthStatusRoute
   '/api/control-plane/ai': typeof ApiControlPlaneAiRoute
   '/api/dashboard/cases': typeof ApiDashboardCasesRoute
@@ -1898,6 +1906,7 @@ export interface FileRoutesById {
   '/workflows/': typeof WorkflowsIndexRoute
   '/api/admin/appeals': typeof ApiAdminAppealsRoute
   '/api/admin/health': typeof ApiAdminHealthRoute
+  '/api/auth/config': typeof ApiAuthConfigRoute
   '/api/auth/status': typeof ApiAuthStatusRoute
   '/api/control-plane/ai': typeof ApiControlPlaneAiRoute
   '/api/dashboard/cases': typeof ApiDashboardCasesRoute
@@ -2109,6 +2118,7 @@ export interface FileRouteTypes {
     | '/workflows/'
     | '/api/admin/appeals'
     | '/api/admin/health'
+    | '/api/auth/config'
     | '/api/auth/status'
     | '/api/control-plane/ai'
     | '/api/dashboard/cases'
@@ -2317,6 +2327,7 @@ export interface FileRouteTypes {
     | '/workflows'
     | '/api/admin/appeals'
     | '/api/admin/health'
+    | '/api/auth/config'
     | '/api/auth/status'
     | '/api/control-plane/ai'
     | '/api/dashboard/cases'
@@ -2526,6 +2537,7 @@ export interface FileRouteTypes {
     | '/workflows/'
     | '/api/admin/appeals'
     | '/api/admin/health'
+    | '/api/auth/config'
     | '/api/auth/status'
     | '/api/control-plane/ai'
     | '/api/dashboard/cases'
@@ -2699,6 +2711,7 @@ export interface RootRouteChildren {
   ResourcesIndexRoute: typeof ResourcesIndexRoute
   ApiAdminAppealsRoute: typeof ApiAdminAppealsRoute
   ApiAdminHealthRoute: typeof ApiAdminHealthRoute
+  ApiAuthConfigRoute: typeof ApiAuthConfigRoute
   ApiAuthStatusRoute: typeof ApiAuthStatusRoute
   ApiControlPlaneAiRoute: typeof ApiControlPlaneAiRoute
   ApiDashboardCasesRoute: typeof ApiDashboardCasesRoute
@@ -3274,6 +3287,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/health'
       fullPath: '/api/admin/health'
       preLoaderRoute: typeof ApiAdminHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/config': {
+      id: '/api/auth/config'
+      path: '/api/auth/config'
+      fullPath: '/api/auth/config'
+      preLoaderRoute: typeof ApiAuthConfigRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/status': {
@@ -4417,6 +4437,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesIndexRoute: ResourcesIndexRoute,
   ApiAdminAppealsRoute: ApiAdminAppealsRoute,
   ApiAdminHealthRoute: ApiAdminHealthRoute,
+  ApiAuthConfigRoute: ApiAuthConfigRoute,
   ApiAuthStatusRoute: ApiAuthStatusRoute,
   ApiControlPlaneAiRoute: ApiControlPlaneAiRoute,
   ApiDashboardCasesRoute: ApiDashboardCasesRoute,
