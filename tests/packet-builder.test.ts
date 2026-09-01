@@ -23,6 +23,24 @@ test("buildPacket creates a real multi-part PDF in supplied order", async () => 
   assert.equal(built.finalDraftHash, await computePacketTextHash("Final response body"));
 });
 
+test("buildPacket applies page removal and preserves page rotation metadata", async () => {
+  const source = await PDFDocument.create();
+  source.addPage([612, 792]);
+  source.addPage([612, 792]);
+  const sourceBytes = await source.save();
+  const built = await buildPacket([
+    { id: "draft", type: "ai_response", text: "Response" },
+    { id: "evidence", type: "uploaded_document", filename: "evidence.pdf", mimeType: "application/pdf", bytes: sourceBytes },
+  ], [
+    { partId: "evidence", sourcePageIndex: 1, rotation: 90 },
+    { partId: "evidence", sourcePageIndex: 0, removed: true },
+  ]);
+  const finalPdf = await PDFDocument.load(built.bytes);
+  assert.equal(finalPdf.getPageCount(), 2);
+  assert.equal(finalPdf.getPage(1).getRotation().angle, 90);
+  assert.equal(built.partHashes.find((part) => part.id === "evidence")?.pageCount, 1);
+});
+
 test("buildPacket rejects empty drafts", async () => {
   await assert.rejects(
     () => buildPacket([{ id: "draft", type: "ai_response", text: "   " }]),
