@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/stripe-webhook")({
             if (appealError || !appeal) throw new Error(`Unable to load paid appeal ${appealId}: ${appealError?.message || "not found"}`);
 
             const packet = (appeal.packet || {}) as Record<string, any>;
-            if (!packet.locked || !packet.documentId || packet.status !== "assembled") {
+            if (!packet.locked || !packet.documentId || packet.status !== "locked") {
               throw new Error("Paid appeal does not have a locked, user-confirmed final packet. No mailing was submitted.");
             }
             if (!appeal.draft?.trim() || !packet.finalDraftHash) throw new Error("Paid appeal is missing a final draft hash.");
@@ -66,10 +66,6 @@ export const Route = createFileRoute("/api/stripe-webhook")({
               throw new Error("Paid appeal has no complete packet recipient.");
             }
 
-            // A previous attempt may have reached the provider and then failed while
-            // persisting the result. Treat a durable provider order as the source of
-            // truth and do not submit another letter. A row without provider_order_id
-            // remains retryable.
             const { data: existingMailing } = await supabase
               .from("mailings")
               .select("provider_order_id,status,tracking_number")
@@ -81,8 +77,6 @@ export const Route = createFileRoute("/api/stripe-webhook")({
               return Response.json({ received: true, deduplicated: true, providerOrderId: existingMailing.provider_order_id }, { status: 200 });
             }
 
-            // Create the durable fulfillment record before calling the provider so
-            // retries can distinguish an unfinished attempt from a completed one.
             const { error: mailingInsertError } = await supabase.from("mailings").upsert({
               appeal_id: appealId,
               status: "paid",
@@ -145,9 +139,6 @@ export const Route = createFileRoute("/api/stripe-webhook")({
           return Response.json({ received: true }, { status: 200 });
         } catch (err) {
           console.error("Post-payment processing failed:", err);
-          // Do not permanently claim the Stripe event before fulfillment succeeds.
-          // Stripe may retry this delivery, and the durable mailing row/provider
-          // idempotency key make a previously completed provider call safe to replay.
           return Response.json({ received: true, fulfillmentError: err instanceof Error ? err.message : "fulfillment failed" }, { status: 500 });
         }
       },
