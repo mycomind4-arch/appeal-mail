@@ -9,7 +9,7 @@ export type PacketPart =
 export interface BuiltPacket {
   bytes: Uint8Array;
   finalDraftHash: string;
-  partHashes: Array<{ id: string; sha256: string; pageCount: number; filename?: string }>;
+  partHashes: Array<{ id: string; type: PacketPart["type"]; sha256: string; pageCount: number; filename?: string }>;
   pageCount: number;
 }
 
@@ -116,7 +116,7 @@ export async function buildPacket(parts: PacketPart[]): Promise<BuiltPacket> {
       finalDraftHash = await hashText(part.text);
       const pages = await addTextPart(target, part.text, part.title || "Appeal Response");
       const bytes = new TextEncoder().encode(part.text);
-      partHashes.push({ id: part.id, sha256: await sha256(bytes), pageCount: pages });
+      partHashes.push({ id: part.id, type: part.type, sha256: await sha256(bytes), pageCount: pages });
       pageCount += pages;
       continue;
     }
@@ -129,11 +129,11 @@ export async function buildPacket(parts: PacketPart[]): Promise<BuiltPacket> {
         const dangerousTokens = scanPdfForDangerousTokens(part.bytes);
         if (dangerousTokens.length) throw new Error(`Uploaded PDF contains blocked active-content tokens: ${dangerousTokens.join(", ")}`);
         const pages = await appendPdf(target, part.bytes);
-        partHashes.push({ id: part.id, sha256: await sha256(part.bytes), pageCount: pages, filename: safeName });
+        partHashes.push({ id: part.id, type: part.type, sha256: await sha256(part.bytes), pageCount: pages, filename: safeName });
         pageCount += pages;
       } else if (part.mimeType === "image/png" || part.mimeType === "image/jpeg") {
         const pages = await appendImage(target, part.bytes, part.mimeType);
-        partHashes.push({ id: part.id, sha256: await sha256(part.bytes), pageCount: pages, filename: safeName });
+        partHashes.push({ id: part.id, type: part.type, sha256: await sha256(part.bytes), pageCount: pages, filename: safeName });
         pageCount += pages;
       } else {
         throw new Error(`Unsupported packet attachment type: ${part.mimeType}`);
@@ -141,13 +141,11 @@ export async function buildPacket(parts: PacketPart[]): Promise<BuiltPacket> {
       continue;
     }
 
-    if (part.type === "generated_document") {
-      const dangerousTokens = scanPdfForDangerousTokens(part.bytes);
-      if (dangerousTokens.length) throw new Error(`Generated PDF contains blocked active-content tokens: ${dangerousTokens.join(", ")}`);
-      const pages = await appendPdf(target, part.bytes);
-      partHashes.push({ id: part.id, sha256: await sha256(part.bytes), pageCount: pages, filename: sanitizeFilename(part.filename) });
-      pageCount += pages;
-    }
+    const dangerousTokens = scanPdfForDangerousTokens(part.bytes);
+    if (dangerousTokens.length) throw new Error(`Generated PDF contains blocked active-content tokens: ${dangerousTokens.join(", ")}`);
+    const pages = await appendPdf(target, part.bytes);
+    partHashes.push({ id: part.id, type: part.type, sha256: await sha256(part.bytes), pageCount: pages, filename: sanitizeFilename(part.filename) });
+    pageCount += pages;
   }
 
   if (!finalDraftHash) throw new Error("Packet must contain a final AI response/draft part.");
