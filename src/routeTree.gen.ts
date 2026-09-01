@@ -71,6 +71,9 @@ import { Route as ApiAdminAppealsRouteImport } from './routes/api/admin/appeals'
 import { Route as ApiAdminHealthRouteImport } from './routes/api/admin/health'
 import { Route as ApiAuthStatusRouteImport } from './routes/api/auth/status'
 import { Route as ApiControlPlaneAiRouteImport } from './routes/api/control-plane/ai'
+import { Route as ApiDashboardCasesRouteImport } from './routes/api/dashboard/cases'
+import { Route as ApiDashboardMailingsRouteImport } from './routes/api/dashboard/mailings'
+import { Route as ApiPacketsBuildRouteImport } from './routes/api/packets/build'
 import { Route as ApiWorkflowsWorkflowIdAnalyzeRouteImport } from './routes/api/workflows/$workflowId/analyze'
 import { Route as ApiWorkflowsWorkflowIdDraftRouteImport } from './routes/api/workflows/$workflowId/draft'
 import { Route as ApiWorkflowsAdministrativeDecisionAppealAnalyzeRouteImport } from './routes/api/workflows/administrative-decision-appeal/analyze'
@@ -545,6 +548,21 @@ const ApiAuthStatusRoute = ApiAuthStatusRouteImport.update({
 const ApiControlPlaneAiRoute = ApiControlPlaneAiRouteImport.update({
   id: '/api/control-plane/ai',
   path: '/api/control-plane/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDashboardCasesRoute = ApiDashboardCasesRouteImport.update({
+  id: '/api/dashboard/cases',
+  path: '/api/dashboard/cases',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDashboardMailingsRoute = ApiDashboardMailingsRouteImport.update({
+  id: '/api/dashboard/mailings',
+  path: '/api/dashboard/mailings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPacketsBuildRoute = ApiPacketsBuildRouteImport.update({
+  id: '/api/packets/build',
+  path: '/api/packets/build',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWorkflowsWorkflowIdAnalyzeRoute =
@@ -1445,6 +1463,9 @@ export interface FileRoutesByFullPath {
   '/api/admin/health': typeof ApiAdminHealthRoute
   '/api/auth/status': typeof ApiAuthStatusRoute
   '/api/control-plane/ai': typeof ApiControlPlaneAiRoute
+  '/api/dashboard/cases': typeof ApiDashboardCasesRoute
+  '/api/dashboard/mailings': typeof ApiDashboardMailingsRoute
+  '/api/packets/build': typeof ApiPacketsBuildRoute
   '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
   '/api/workflows/administrative-decision-appeal/analyze': typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
@@ -1647,6 +1668,9 @@ export interface FileRoutesByTo {
   '/api/admin/health': typeof ApiAdminHealthRoute
   '/api/auth/status': typeof ApiAuthStatusRoute
   '/api/control-plane/ai': typeof ApiControlPlaneAiRoute
+  '/api/dashboard/cases': typeof ApiDashboardCasesRoute
+  '/api/dashboard/mailings': typeof ApiDashboardMailingsRoute
+  '/api/packets/build': typeof ApiPacketsBuildRoute
   '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
   '/api/workflows/administrative-decision-appeal/analyze': typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
@@ -1851,6 +1875,9 @@ export interface FileRoutesById {
   '/api/admin/health': typeof ApiAdminHealthRoute
   '/api/auth/status': typeof ApiAuthStatusRoute
   '/api/control-plane/ai': typeof ApiControlPlaneAiRoute
+  '/api/dashboard/cases': typeof ApiDashboardCasesRoute
+  '/api/dashboard/mailings': typeof ApiDashboardMailingsRoute
+  '/api/packets/build': typeof ApiPacketsBuildRoute
   '/api/workflows/$workflowId/analyze': typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   '/api/workflows/$workflowId/draft': typeof ApiWorkflowsWorkflowIdDraftRoute
   '/api/workflows/administrative-decision-appeal/analyze': typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
@@ -2056,6 +2083,9 @@ export interface FileRouteTypes {
     | '/api/admin/health'
     | '/api/auth/status'
     | '/api/control-plane/ai'
+    | '/api/dashboard/cases'
+    | '/api/dashboard/mailings'
+    | '/api/packets/build'
     | '/api/workflows/$workflowId/analyze'
     | '/api/workflows/$workflowId/draft'
     | '/api/workflows/administrative-decision-appeal/analyze'
@@ -2258,6 +2288,9 @@ export interface FileRouteTypes {
     | '/api/admin/health'
     | '/api/auth/status'
     | '/api/control-plane/ai'
+    | '/api/dashboard/cases'
+    | '/api/dashboard/mailings'
+    | '/api/packets/build'
     | '/api/workflows/$workflowId/analyze'
     | '/api/workflows/$workflowId/draft'
     | '/api/workflows/administrative-decision-appeal/analyze'
@@ -2461,6 +2494,9 @@ export interface FileRouteTypes {
     | '/api/admin/health'
     | '/api/auth/status'
     | '/api/control-plane/ai'
+    | '/api/dashboard/cases'
+    | '/api/dashboard/mailings'
+    | '/api/packets/build'
     | '/api/workflows/$workflowId/analyze'
     | '/api/workflows/$workflowId/draft'
     | '/api/workflows/administrative-decision-appeal/analyze'
@@ -2628,6 +2664,9 @@ export interface RootRouteChildren {
   ApiAdminHealthRoute: typeof ApiAdminHealthRoute
   ApiAuthStatusRoute: typeof ApiAuthStatusRoute
   ApiControlPlaneAiRoute: typeof ApiControlPlaneAiRoute
+  ApiDashboardCasesRoute: typeof ApiDashboardCasesRoute
+  ApiDashboardMailingsRoute: typeof ApiDashboardMailingsRoute
+  ApiPacketsBuildRoute: typeof ApiPacketsBuildRoute
   ApiWorkflowsWorkflowIdAnalyzeRoute: typeof ApiWorkflowsWorkflowIdAnalyzeRoute
   ApiWorkflowsWorkflowIdDraftRoute: typeof ApiWorkflowsWorkflowIdDraftRoute
   ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute: typeof ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute
@@ -3203,6 +3242,27 @@ declare module '@tanstack/react-router' {
       path: '/api/control-plane/ai'
       fullPath: '/api/control-plane/ai'
       preLoaderRoute: typeof ApiControlPlaneAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/cases': {
+      id: '/api/dashboard/cases'
+      path: '/api/dashboard/cases'
+      fullPath: '/api/dashboard/cases'
+      preLoaderRoute: typeof ApiDashboardCasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/mailings': {
+      id: '/api/dashboard/mailings'
+      path: '/api/dashboard/mailings'
+      fullPath: '/api/dashboard/mailings'
+      preLoaderRoute: typeof ApiDashboardMailingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/packets/build': {
+      id: '/api/packets/build'
+      path: '/api/packets/build'
+      fullPath: '/api/packets/build'
+      preLoaderRoute: typeof ApiPacketsBuildRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/workflows/$workflowId/analyze': {
@@ -4298,6 +4358,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminHealthRoute: ApiAdminHealthRoute,
   ApiAuthStatusRoute: ApiAuthStatusRoute,
   ApiControlPlaneAiRoute: ApiControlPlaneAiRoute,
+  ApiDashboardCasesRoute: ApiDashboardCasesRoute,
+  ApiDashboardMailingsRoute: ApiDashboardMailingsRoute,
+  ApiPacketsBuildRoute: ApiPacketsBuildRoute,
   ApiWorkflowsWorkflowIdAnalyzeRoute: ApiWorkflowsWorkflowIdAnalyzeRoute,
   ApiWorkflowsWorkflowIdDraftRoute: ApiWorkflowsWorkflowIdDraftRoute,
   ApiWorkflowsAdministrativeDecisionAppealAnalyzeRoute:

@@ -27,32 +27,38 @@ async function callGemini(cfg: { apiKey: string; model: string; promptOverride?:
   try { return JSON.parse(text); } catch { throw new Error("Gemini returned invalid structured analysis."); }
 }
 
-export const Route = createFileRoute("/api/workflows/$workflowId/analyze")({ server: { handlers: { POST: async ({ request, params }) => {
-  try {
-    const user = await requireAuthenticatedUser(request);
-    const workflow = getWorkflow(params.workflowId);
-    const form = await request.formData();
-    const file = form.get("document");
-    if (!(file instanceof File)) return Response.json({ error: "A source document is required." }, { status: 400 });
-    if (file.size === 0) return Response.json({ error: "The source document is empty." }, { status: 400 });
-    if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
-    const document = await uploadDocument(file);
-    const config = await resolveAI(params.workflowId, "analysis");
-    if (config.provider !== "gemini") throw new Error(`Workflow analysis provider ${config.provider} is not yet wired for binary document input; configure Gemini for document analysis or use the extraction task.`);
-    const prompt = [
-      `Workflow: ${workflow.title}`,
-      `Customer problem: ${workflow.description}`,
-      `Primary search intent: ${workflow.primaryKeyword || "specialized appeal/response"}`,
-      `Domain focus: ${workflow.focusAreas.join(", ")}`,
-      workflow.workflowPrompt,
-      "Return strict JSON only.",
-      "Never invent facts, dates, policy language, amounts, medical facts, deadlines, or outcomes.",
-      '{"summary":"","decision":"","decisionType":"","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","reasons":[],"keyFacts":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"evidenceMentioned":[],"uncertainties":[],"confidence":"high|medium|low"}',
-    ].join("\n");
-    const analysis = await callGemini(config, file, prompt);
-    return Response.json({ ok: true, userId: user.id, workflowId: workflow.id, workflow: { title: workflow.title, primaryKeyword: workflow.primaryKeyword }, document, analysis, provider: config.provider, model: config.model });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to analyze document.";
-    return Response.json({ error: message }, { status: /authentication|required/i.test(message) ? 401 : 502 });
-  }
-} } });
+export const Route = createFileRoute("/api/workflows/$workflowId/analyze")({
+  server: {
+    handlers: {
+      POST: async ({ request, params }) => {
+        try {
+          const user = await requireAuthenticatedUser(request);
+          const workflow = getWorkflow(params.workflowId);
+          const form = await request.formData();
+          const file = form.get("document");
+          if (!(file instanceof File)) return Response.json({ error: "A source document is required." }, { status: 400 });
+          if (file.size === 0) return Response.json({ error: "The source document is empty." }, { status: 400 });
+          if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Source documents must be 20 MB or smaller." }, { status: 413 });
+          const document = await uploadDocument(file);
+          const config = await resolveAI(params.workflowId, "analysis");
+          if (config.provider !== "gemini") throw new Error(`Workflow analysis provider ${config.provider} is not yet wired for binary document input; configure Gemini for document analysis or use the extraction task.`);
+          const prompt = [
+            `Workflow: ${workflow.title}`,
+            `Customer problem: ${workflow.description}`,
+            `Primary search intent: ${workflow.primaryKeyword || "specialized appeal/response"}`,
+            `Domain focus: ${workflow.focusAreas.join(", ")}`,
+            workflow.workflowPrompt,
+            "Return strict JSON only.",
+            "Never invent facts, dates, policy language, amounts, medical facts, deadlines, or outcomes.",
+            '{"summary":"","decision":"","decisionType":"","issuer":"","referenceNumber":"","decisionDate":"","deadline":"","reasons":[],"keyFacts":[],"issues":[{"issue":"","whyItMatters":"","evidenceNeeded":[]}],"evidenceMentioned":[],"uncertainties":[],"confidence":"high|medium|low"}',
+          ].join("\n");
+          const analysis = await callGemini(config, file, prompt);
+          return Response.json({ ok: true, userId: user.id, workflowId: workflow.id, workflow: { title: workflow.title, primaryKeyword: workflow.primaryKeyword }, document, analysis, provider: config.provider, model: config.model });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Unable to analyze document.";
+          return Response.json({ error: message }, { status: /authentication|required/i.test(message) ? 401 : 502 });
+        }
+      },
+    },
+  },
+});
