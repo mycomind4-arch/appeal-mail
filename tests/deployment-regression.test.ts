@@ -120,7 +120,7 @@ describe("Route tree freshness", () => {
       // routeTree uses PascalCase imports like WorkflowsCarInsuranceAppealRouteImport
       // For index.tsx it uses WorkflowsIndexRouteImport
       // For $workflowId.tsx it uses Workflows$workflowIdRouteImport
-      let pascalName = route
+      const pascalName = route
         .replace(/\$/g, "")          // strip $ from $workflowId
         .split("-")
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
