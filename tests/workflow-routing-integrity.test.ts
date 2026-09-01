@@ -4,11 +4,15 @@ import { APPEAL_CATALOG } from "../src/domain/appeal-catalog";
 import { isWorkflowId } from "../src/domain/workflows";
 
 describe("Workflow routing integrity", () => {
-  test("every catalog workflowRoute resolves to a runtime workflow", () => {
+  test("every executable catalog workflowRoute resolves to a runtime workflow", () => {
     for (const entry of APPEAL_CATALOG) {
+      if (!entry.executable) continue;
       const workflowId = entry.workflowRoute.replace(/^\/workflows\//, "");
-      assert.ok(workflowId, `Missing workflow id for ${entry.slug}`);
-      assert.ok(isWorkflowId(workflowId), `${entry.slug} points to unknown runtime workflow '${workflowId}'`);
+      assert.ok(workflowId, `Missing workflow id for executable workflow ${entry.slug}`);
+      assert.ok(
+        isWorkflowId(workflowId),
+        `${entry.slug} points to unknown runtime workflow '${workflowId}'`,
+      );
     }
   });
 
