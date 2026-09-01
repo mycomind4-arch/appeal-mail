@@ -28,6 +28,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WorkflowsRouteImport } from './routes/workflows'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe-webhook'
 import { Route as AppealSlugRouteImport } from './routes/appeal/$slug'
+import { Route as AuthSsoCallbackRouteImport } from './routes/auth/sso-callback'
 import { Route as CaseCaseIdRouteImport } from './routes/case/$caseId'
 import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
 import { Route as ResourcesSlugRouteImport } from './routes/resources/$slug'
@@ -312,6 +313,11 @@ const AppealSlugRoute = AppealSlugRouteImport.update({
   id: '/appeal/$slug',
   path: '/appeal/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSsoCallbackRoute = AuthSsoCallbackRouteImport.update({
+  id: '/sso-callback',
+  path: '/sso-callback',
+  getParentRoute: () => AuthRoute,
 } as any)
 const CaseCaseIdRoute = CaseCaseIdRouteImport.update({
   id: '/case/$caseId',
@@ -1430,7 +1436,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/appeal-a-decision': typeof AppealADecisionRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
@@ -1444,6 +1450,7 @@ export interface FileRoutesByFullPath {
   '/workflows': typeof WorkflowsRouteWithChildren
   '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/appeal/$slug': typeof AppealSlugRoute
+  '/auth/sso-callback': typeof AuthSsoCallbackRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
@@ -1640,7 +1647,7 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/appeal-a-decision': typeof AppealADecisionRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
@@ -1653,6 +1660,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/appeal/$slug': typeof AppealSlugRoute
+  '/auth/sso-callback': typeof AuthSsoCallbackRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
@@ -1850,7 +1858,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/appeal-a-decision': typeof AppealADecisionRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
@@ -1864,6 +1872,7 @@ export interface FileRoutesById {
   '/workflows': typeof WorkflowsRouteWithChildren
   '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/appeal/$slug': typeof AppealSlugRoute
+  '/auth/sso-callback': typeof AuthSsoCallbackRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
@@ -2076,6 +2085,7 @@ export interface FileRouteTypes {
     | '/workflows'
     | '/api/stripe-webhook'
     | '/appeal/$slug'
+    | '/auth/sso-callback'
     | '/case/$caseId'
     | '/resources/$slug'
     | '/workflows/$workflowId'
@@ -2285,6 +2295,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/stripe-webhook'
     | '/appeal/$slug'
+    | '/auth/sso-callback'
     | '/case/$caseId'
     | '/resources/$slug'
     | '/workflows/$workflowId'
@@ -2495,6 +2506,7 @@ export interface FileRouteTypes {
     | '/workflows'
     | '/api/stripe-webhook'
     | '/appeal/$slug'
+    | '/auth/sso-callback'
     | '/case/$caseId'
     | '/resources/$slug'
     | '/workflows/$workflowId'
@@ -2692,7 +2704,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
   AppealADecisionRoute: typeof AppealADecisionRoute
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   FaqRoute: typeof FaqRoute
@@ -2994,6 +3006,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/appeal/$slug'
       preLoaderRoute: typeof AppealSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/auth/sso-callback': {
+      id: '/auth/sso-callback'
+      path: '/sso-callback'
+      fullPath: '/auth/sso-callback'
+      preLoaderRoute: typeof AuthSsoCallbackRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/case/$caseId': {
       id: '/case/$caseId'
@@ -4321,6 +4340,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthRouteChildren {
+  AuthSsoCallbackRoute: typeof AuthSsoCallbackRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthSsoCallbackRoute: AuthSsoCallbackRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 interface WorkflowsRouteChildren {
   WorkflowsWorkflowIdRoute: typeof WorkflowsWorkflowIdRoute
   WorkflowsAdministrativeDecisionRoute: typeof WorkflowsAdministrativeDecisionRoute
@@ -4418,7 +4447,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
   AppealADecisionRoute: AppealADecisionRoute,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   FaqRoute: FaqRoute,

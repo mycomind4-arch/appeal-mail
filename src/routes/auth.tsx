@@ -4,6 +4,7 @@ import { Stamp, ArrowRight, CheckCircle2, Loader2, AlertCircle, Mail } from "luc
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/lib/auth";
+import { redirectToHubSSO } from "@/lib/sso-propagate";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [
@@ -198,6 +199,27 @@ function AuthPage() {
                       >
                         Back to sign in
                       </button>
+                    )}
+
+
+                    {/* SSO divider — only for signin/signup */}
+                    {mode !== "reset" && (
+                      <div className="mt-6">
+                        <div className="relative flex items-center gap-3">
+                          <div className="h-px flex-1 bg-rule/60" />
+                          <span className="text-xs text-muted-foreground">or</span>
+                          <div className="h-px flex-1 bg-rule/60" />
+                        </div>
+                        <button
+                          onClick={() => redirectToHubSSO(searchParams?.returnTo || window.location.origin + "/dashboard")}
+                          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-rule px-4 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-muted/50"
+                        >
+                          <Mail size={16} /> Continue with MailMyPDF Account
+                        </button>
+                        <p className="mt-2 text-center text-xs text-muted-foreground">
+                          One account works across all MailMyPDF products.
+                        </p>
+                      </div>
                     )}
 
                     <p className="mt-5 text-xs text-muted-foreground">
