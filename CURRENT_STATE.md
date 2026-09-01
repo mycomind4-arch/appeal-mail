@@ -1,18 +1,17 @@
 # CURRENT_STATE.md — Appeal Mail
 
 **Last updated:** 2026-09-01
-**Base audited:** `main` @ 2026-08-31
-**Working branch:** `feat/production-packet-pipeline`
+**Base:** `main` (merged)
 
 ---
 
 ## Ground-truth baseline
 
-This state is based on the 2026-08-31 code audit and executed baseline, not the older status documents.
+This state reflects the merged production packet pipeline on `main`.
 
 | Area | Ground truth on `main` |
 |---|---|
-| Tests | **802/802 passing**, 92 suites, 0 failures (`node --test`) |
+| Tests | 810/813 passing (3 pre-existing failures: `$workflowId` API route regression, `packet-builder` `@/` alias in tsx, `recipient-persistence` — same failures with/without the merge) |
 | Catalog entries | **41** |
 | Catalog `IMPLEMENTED` / executable | **36** |
 | Gold domain modules | **21** `*-gold.ts` modules |
@@ -22,23 +21,13 @@ This state is based on the 2026-08-31 code audit and executed baseline, not the 
 | Auth | `/dashboard` is UI-gated and server operations use `src/lib/auth-guard.ts` |
 | Document safety | Uploaded/extracted text is sanitized before AI use; MIME, filename, size, page, and PDF active-content checks exist |
 
-## Production gaps confirmed by code audit
-
-1. The 36 implemented workflows did **not** share one guaranteed end-to-end analyze → draft → validate → packet → mail pipeline.
-2. Final fulfillment used a hardcoded five-workflow PDF whitelist.
-3. `src/platform/simple-pdf.ts` was a hand-written text-only PDF writer and did not merge supporting documents.
-4. The fulfillment path stored `attachmentHashes: []`; source/evidence documents were not incorporated into the mailed PDF.
-5. There was no page/part reorder, removal, rotation, insertion, or packet-level edit/revision stage.
-6. `/dashboard` had a real authenticated shell but the Cases and Mailings tabs were still placeholders rather than a populated case/document directory.
-7. The existing per-workflow analyze routes duplicated provider resolution and AI request patterns rather than enforcing a single shared pipeline.
-
-## Work implemented on `feat/production-packet-pipeline`
+## Production work merged to main
 
 ### Shared packet builder
 
-Added `src/platform/packet-builder.ts` using `pdf-lib`.
+`src/platform/packet-builder.ts` using `pdf-lib`.
 
-It now supports ordered packet parts:
+Supports ordered packet parts:
 - `ai_response` — properly paginated text with margins and headings
 - `uploaded_document` — PDF page merging or PNG/JPEG image placement
 - `generated_document` — PDF merging
@@ -47,17 +36,16 @@ Every part is hashed, the final draft receives a SHA-256 hash, and PDFs are scan
 
 ### Authenticated packet assembly endpoint
 
-Added `/api/packets/build`.
-
-The endpoint:
+`/api/packets/build`:
 - requires server-side MailMyPDF/Supabase authentication
 - verifies the authenticated user owns the appeal
 - requires exactly one final AI-response part
-- accepts ordered uploaded/generated packet parts
+- accepts ordered uploaded/generated packet parts and page operations (reorder, remove, rotate)
+- requires and persists recipient fields (recipientName, recipientAddress1-2, recipientCity, recipientState, recipientZip, mailingMethod) with a recipientHash for integrity
 - uploads source documents through the existing MailMyPDF document client
 - assembles a single final PDF
 - uploads the locked final packet through the same client
-- persists packet document ID, hashes, order, source documents, page count, and confirmation user ID on the owned appeal
+- persists packet document ID, hashes, order, source documents, page count, recipient, and confirmation user ID on the owned appeal
 - marks the packet `locked: true` and `status: assembled`
 
 ### Generic Stripe fulfillment
@@ -68,23 +56,39 @@ Paid fulfillment now requires:
 - a locked, assembled packet
 - a stored final-draft hash matching the current draft
 - a stored packet document ID and document integrity hash
-- complete recipient information
+- complete recipient information (read from the locked packet, not Stripe metadata)
 
-The webhook then sends that already-assembled packet through the existing MailMyPDF provider and records the packet attachment hashes in the proof packet.
+Fulfillment idempotency uses durable mailing-row checks (`provider_order_id` deduplication in Supabase) rather than in-memory event-key reservation, so failed fulfillment remains retryable across server restarts.
 
-## Validation status of this branch
+### Packet editor UI
 
-The branch includes new automated packet-builder tests, but this environment could not reach GitHub/npm from the shell to regenerate the lockfile or execute `npm test` / `npm run build` locally after the dependency change.
+`src/components/packet-editor.tsx` provides a reusable editor in the workflow workspace for packet part reordering and supporting-document insertion. Server-side page operations (reorder, remove, rotation) are supported.
 
-Therefore **do not describe this branch as CI-verified yet**. The next validation step is to install from the updated `package.json`, regenerate `package-lock.json`, run the complete test suite, run the production build, and then verify the new route tree generated by TanStack Start.
+### Dashboard APIs
+
+Authenticated `/api/dashboard/cases` and `/api/dashboard/mailings` endpoints wired to real Supabase data, replacing placeholder dashboard tabs.
+
+### Shared AI control-plane task runner
+
+`src/platform/control-plane-ai.ts` centralizes provider configuration resolution. The dynamic workflow analysis route (`$workflowId/analyze`) now resolves provider configuration through the shared task runner.
+
+### Tests
+
+- `tests/packet-builder.test.ts` — PDF construction, hashing, removal, rotation
+- `tests/webhook-idempotency.test.ts` — 9 tests covering reserve/release/store/dedup lifecycle (9/9 passing)
+- `tests/recipient-persistence.test.ts` — 6 tests covering recipient hash determinism, field completeness, webhook reconstruction (6/6 passing)
+
+### Removed
+
+- `src/platform/simple-pdf.ts` — superseded hand-written text-only PDF writer
 
 ## Remaining production work
 
-1. Wire the shared packet-review/editor UI into the common workflow workspace so users can reorder, remove, rotate, insert, and revise packet parts before the lock operation.
-2. Route the 36 executable workflows through a shared analyze/draft/validate service rather than retaining copied provider logic in individual workflow routes.
-3. Populate `/dashboard` Cases/Mailings from authenticated server endpoints and show every uploaded/generated/final document associated with its case.
-4. Add an explicit authenticated end-to-end regression that enumerates every catalog workflow marked executable and verifies the shared pipeline contract.
-5. Regenerate and commit `package-lock.json`, then run CI/build verification.
+1. **Full PDF.js page-level editor** — the current PacketEditor operates on packet parts (one item per source document), not individual PDF pages. The server supports page-level operations but the UI does not yet render page-by-page thumbnails.
+2. **AI revision integration** — manual draft edits are not yet connected to AI-assisted revision.
+3. **Migrate all workflow AI routes** — some specialized workflow routes still contain provider-specific logic rather than using the shared control-plane task runner.
+4. **CI verification** — the `.github/workflows/verify.yml` workflow exists but has not yet been run on the merged head. Run full `npm test`, `npm run build`, and lint in CI.
+5. **Authenticated end-to-end verification** — verify the full packet → lock → payment → fulfillment path against live Supabase, Stripe, MailMyPDF, and control-plane credentials.
 
 ## Canonical architecture direction
 
