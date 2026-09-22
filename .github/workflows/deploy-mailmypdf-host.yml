@@ -23,7 +23,7 @@ jobs:
         working-directory: mailmypdf-all
         run: pnpm install --no-frozen-lockfile
       - name: Deploy host app to Cloudflare Workers
-        working-directory: mailmypdf-all/apps/mailmypdf
+        working-directory: mailmypdf-all/mailmypdf
         run: |
           set -euo pipefail
           npm run build
