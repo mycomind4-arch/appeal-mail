@@ -6,48 +6,16 @@ jobs:
   debug:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect worker secrets
+      - name: Tail worker logs for 6 minutes
         run: |
           set -euo pipefail
           mkdir -p work && cd work
-          cat > wrangler.json << 'EOF2'
-          { "name": "mailmypdf", "compatibility_date": "2026-01-01", "main": "index.js" }
-          EOF2
-          echo "export {}" > index.js
-          npx wrangler secret list --config wrangler.json || true
-          npx wrangler deployment list --config wrangler.json || true
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      - name: Tail worker logs during signed webhook probe
-        run: |
-          set -euo pipefail
-          cd work
-          npx wrangler tail --format json > tail.log 2>&1 &
+          npx wrangler tail mailmypdf --format json > tail.log 2>&1 &
           TAIL_PID=$!
-          sleep 15
-          python3 << 'PYEOF'
-          import hashlib, hmac, json, time, os
-          whsec = os.environ["PAYMENTS_SANDBOX_WEBHOOK_SECRET"]
-          payload = json.dumps({"id": "evt_debug_probe2", "type": "checkout.session.completed",
-              "data": {"object": {"id": "cs_test_probe"}}})
-          t = str(int(time.time()))
-          sig = hmac.new(whsec.encode(), f"{t}.{payload}".encode(), hashlib.sha256).hexdigest()
-          open("/tmp/payload.json", "w").write(payload)
-          open("/tmp/sig.txt", "w").write(f"t={t},v1={sig}")
-          PYEOF
-          curl -s -o /tmp/probe-resp -w "probe HTTP %{http_code}\n" \
-            -X POST "https://mailmypdf.mycomind4.workers.dev/api/public/payments/webhook" \
-            -H "Content-Type: application/json" \
-            -H "Stripe-Signature: $(cat /tmp/sig.txt)" \
-            -H "User-Agent: Stripe/1.0 (+https://stripe.com/docs/webhooks)" \
-            --data-binary @/tmp/payload.json
-          cat /tmp/probe-resp; echo
-          sleep 15
+          sleep 360
           kill $TAIL_PID || true
           echo "===== TAIL LOG ====="
           cat tail.log
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          PAYMENTS_SANDBOX_WEBHOOK_SECRET: ${{ secrets.PAYMENTS_SANDBOX_WEBHOOK_SECRET }}
