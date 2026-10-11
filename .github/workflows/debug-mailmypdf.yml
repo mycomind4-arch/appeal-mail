@@ -27,22 +27,22 @@ jobs:
           TAIL_PID=$!
           sleep 15
           python3 << 'PYEOF'
-          import hashlib, hmac, json, time, urllib.request, os
+          import hashlib, hmac, json, time, os
           whsec = os.environ["PAYMENTS_SANDBOX_WEBHOOK_SECRET"]
-          payload = json.dumps({"id": "evt_debug_probe", "type": "checkout.session.completed",
+          payload = json.dumps({"id": "evt_debug_probe2", "type": "checkout.session.completed",
               "data": {"object": {"id": "cs_test_probe"}}})
           t = str(int(time.time()))
           sig = hmac.new(whsec.encode(), f"{t}.{payload}".encode(), hashlib.sha256).hexdigest()
-          req = urllib.request.Request(
-              "https://mailmypdf.mycomind4.workers.dev/api/public/payments/webhook",
-              data=payload.encode(),
-              headers={"Content-Type": "application/json", "Stripe-Signature": f"t={t},v1={sig}"})
-          try:
-              with urllib.request.urlopen(req) as r:
-                  print("probe HTTP", r.status, r.read().decode()[:200])
-          except urllib.error.HTTPError as e:
-              print("probe HTTP", e.code, e.read().decode()[:200])
+          open("/tmp/payload.json", "w").write(payload)
+          open("/tmp/sig.txt", "w").write(f"t={t},v1={sig}")
           PYEOF
+          curl -s -o /tmp/probe-resp -w "probe HTTP %{http_code}\n" \
+            -X POST "https://mailmypdf.mycomind4.workers.dev/api/public/payments/webhook" \
+            -H "Content-Type: application/json" \
+            -H "Stripe-Signature: $(cat /tmp/sig.txt)" \
+            -H "User-Agent: Stripe/1.0 (+https://stripe.com/docs/webhooks)" \
+            --data-binary @/tmp/payload.json
+          cat /tmp/probe-resp; echo
           sleep 15
           kill $TAIL_PID || true
           echo "===== TAIL LOG ====="
