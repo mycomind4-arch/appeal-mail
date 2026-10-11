@@ -49,6 +49,7 @@ jobs:
           printf '%s' "$STRIPE_SANDBOX_API_KEY"         | npx wrangler secret put STRIPE_SANDBOX_API_KEY --config wrangler.json
           printf '%s' "$PAYMENTS_SANDBOX_WEBHOOK_SECRET" | npx wrangler secret put PAYMENTS_SANDBOX_WEBHOOK_SECRET --config wrangler.json
           printf '%s' "$LOB_API_KEY"                    | npx wrangler secret put LOB_API_KEY --config wrangler.json
+          printf '%s' "$ANTHROPIC_API_KEY"             | npx wrangler secret put ANTHROPIC_API_KEY --config wrangler.json
           printf 'true'                                 | npx wrangler secret put AUTO_SUBMIT_TO_LOB --config wrangler.json
           printf 'sandbox'                             | npx wrangler secret put PAYMENTS_ENV --config wrangler.json
           printf 'https://mailmypdf.mycomind4.workers.dev' | npx wrangler secret put MAILMYPDF_BASE_URL --config wrangler.json
@@ -58,3 +59,4 @@ jobs:
           STRIPE_SANDBOX_API_KEY: ${{ secrets.STRIPE_SANDBOX_API_KEY }}
           PAYMENTS_SANDBOX_WEBHOOK_SECRET: ${{ secrets.PAYMENTS_SANDBOX_WEBHOOK_SECRET }}
           LOB_API_KEY: ${{ secrets.LOB_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
